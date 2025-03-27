@@ -45,6 +45,9 @@ public abstract class Account {
 	@Column(name = "role", nullable = false)
 	protected AccountRole role;
 	
+	@Column(name = "isActive", nullable = false)
+	protected Boolean isActive; 
+	
 	@Column(name = "created_at", nullable = false)
 	protected LocalDateTime createdAt;
 	
@@ -62,6 +65,7 @@ public abstract class Account {
 	@PrePersist
 	protected void onCreate() {
 		this.id = UUID.randomUUID().toString();
+		this.isActive = true;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }

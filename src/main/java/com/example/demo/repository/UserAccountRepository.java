@@ -19,7 +19,7 @@ public interface UserAccountRepository extends JpaRepository<UserAccount, String
 	
     List<UserAccount> findByFullNameContaining(String fullName);
     
-    @Query("SELECT a FROM UserAccount a WHERE a.username LIKE %:keyword% OR a.email LIKE %:keyword%")
+    @Query("SELECT a FROM UserAccount a WHERE a.username LIKE %:keyword% OR a.email LIKE %:keyword% OR a.phoneNumber LIKE %:keyword%")
     List<UserAccount> searchByKeyword(@Param("keyword") String keyword);
     
 }
