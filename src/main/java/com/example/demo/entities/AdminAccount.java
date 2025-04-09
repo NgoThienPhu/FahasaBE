@@ -16,15 +16,14 @@ import lombok.Setter;
 @DiscriminatorValue("ADMIN")
 public class AdminAccount extends Account {
 
-	public AdminAccount(String username, String password, String email, String phoneNumber) {
-		super(username, password, email, phoneNumber, AccountRole.ADMIN);
+	public AdminAccount(String username, String password, AccountRole role) {
+		super(username, password, role);
 	}
 
 	@Override
 	public String toString() {
-		return "AdminAccount [id=" + id + ", username=" + username + ", password=" + password + ", email=" + email
-				+ ", phoneNumber=" + phoneNumber + ", role=" + role + ", createdAt=" + createdAt + ", updatedAt="
-				+ updatedAt + "]";
+		return "AdminAccount [id=" + id + ", username=" + username + ", password=" + password + ", role=" + role
+				+ ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + "]";
 	}
 
 }

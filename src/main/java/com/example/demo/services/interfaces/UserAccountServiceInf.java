@@ -3,15 +3,14 @@ package com.example.demo.services.interfaces;
 import java.util.List;
 
 import com.example.demo.entities.UserAccount;
-import com.example.demo.entities.bases.Account;
 
-public interface AccountServiceInf {
+public interface UserAccountServiceInf {
 	
-	public List<Account> getAccounts();
-	
-	public UserAccount createUserAccount(UserAccount userAccount);
+	public List<UserAccount> getUserAccounts();
 	
 	public UserAccount findUserAccountById(String userAccountId);
+	
+	public UserAccount findUserAccountByUsername(String username);
 	
 	public List<UserAccount> findUserAccountByUsernameOrEmailOrPhoneNumber(String keyWord);
 	

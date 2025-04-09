@@ -1,18 +1,18 @@
 package com.example.demo.entities.bases;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 import com.example.demo.entities.enums.AccountRole;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,20 +33,13 @@ public abstract class Account {
 	@Column(name = "username", nullable = false, unique = true)
 	protected String username;
 	
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	@Column(name = "password", nullable = false)
 	protected String password;
 	
-	@Column(name = "email", nullable = false, unique = true)
-	protected String email;
-	
-	@Column(name = "phone_number", nullable = false, unique = true)
-	protected String phoneNumber;
-	
 	@Column(name = "role", nullable = false)
+	@Enumerated(EnumType.STRING)
 	protected AccountRole role;
-	
-	@Column(name = "isActive", nullable = false)
-	protected Boolean isActive; 
 	
 	@Column(name = "created_at", nullable = false)
 	protected LocalDateTime createdAt;
@@ -54,32 +47,16 @@ public abstract class Account {
 	@Column(name = "updated_at", nullable = false)
 	protected LocalDateTime updatedAt;
 	
-	public Account(String username, String password, String email, String phoneNumber, AccountRole role) {
+	public Account(String username, String password, AccountRole role) {
 		this.username = username;
 		this.password = password;
-		this.email = email;
-		this.phoneNumber = phoneNumber;
 		this.role = role;
 	}
-	
-	@PrePersist
-	protected void onCreate() {
-		this.id = UUID.randomUUID().toString();
-		this.isActive = true;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-	
-	@PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
 
 	@Override
 	public String toString() {
-		return "Account [id=" + id + ", username=" + username + ", password=" + password + ", email=" + email
-				+ ", phoneNumber=" + phoneNumber + ", role=" + role + ", createdAt=" + createdAt + ", updatedAt="
-				+ updatedAt + "]";
+		return "Account [id=" + id + ", username=" + username + ", password=" + password + ", role=" + role
+				+ ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + "]";
 	}
 	
 }

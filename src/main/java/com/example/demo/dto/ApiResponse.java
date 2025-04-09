@@ -10,14 +10,13 @@ public record ApiResponse<T>(
 	String status,
     String message,
     T data,
-    ErrorDetails error,
     LocalDateTime timestamp
 ) {
 	public ApiResponse(String message, T data) {
-        this("success", message, data, null, LocalDateTime.now());
+        this("success", message, data, LocalDateTime.now());
     }
 
-    public ApiResponse(String message, ErrorDetails error) {
-        this("error", message, null, error, LocalDateTime.now());
+    public ApiResponse(String message) {
+        this("error", message, null, LocalDateTime.now());
     }
 }

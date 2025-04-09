@@ -7,29 +7,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.entities.UserAccount;
-import com.example.demo.entities.bases.Account;
-import com.example.demo.repository.AccountRepository;
-import com.example.demo.repository.AdminAccountRepository;
 import com.example.demo.repository.UserAccountRepository;
-import com.example.demo.services.interfaces.AccountServiceInf;
+import com.example.demo.services.interfaces.UserAccountServiceInf;
 
 @Service
-public class AccountService implements AccountServiceInf {
+public class UserAccountService implements UserAccountServiceInf {
 	
-	private AccountRepository accountRepository;
 	private UserAccountRepository userAccountRepository;
-	private AdminAccountRepository adminAccountRepository;
 
-	public AccountService(AccountRepository accountRepository, UserAccountRepository userAccountRepository,
-			AdminAccountRepository adminAccountRepository) {
-		this.accountRepository = accountRepository;
+	public UserAccountService(UserAccountRepository userAccountRepository) {
 		this.userAccountRepository = userAccountRepository;
-		this.adminAccountRepository = adminAccountRepository;
-	}
-
-	@Override
-	public UserAccount createUserAccount(UserAccount userAccount) {
-		return userAccountRepository.save(userAccount);
 	}
 
 	@Override
@@ -40,6 +27,11 @@ public class AccountService implements AccountServiceInf {
 	@Override
 	public List<UserAccount> findUserAccountByUsernameOrEmailOrPhoneNumber(String keyWord) {
 		return userAccountRepository.searchByKeyword(keyWord);
+	}
+	
+	@Override
+	public UserAccount findUserAccountByUsername(String username) {
+		return userAccountRepository.findByUsername(username).orElse(null);
 	}
 
 	@Override
@@ -61,8 +53,9 @@ public class AccountService implements AccountServiceInf {
 	}
 
 	@Override
-	public List<Account> getAccounts() {
-		return accountRepository.findAll();
+	public List<UserAccount> getUserAccounts() {
+		return userAccountRepository.findAll();
 	}
+
 
 }
