@@ -12,6 +12,8 @@ import com.example.demo.entities.enums.AccountRole;
 public interface AccountRepository extends JpaRepository<Account, String> {
 
     Optional<Account> findByUsername(String username);
+    
+    Boolean existsByUsername(String username);
 
     List<Account> findByRole(AccountRole role);
     

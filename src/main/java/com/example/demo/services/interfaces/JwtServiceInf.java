@@ -13,5 +13,6 @@ public interface JwtServiceInf {
 	
 	public Date extractExpiration(String token);
 	
-	public Boolean isTokenValid(String token, String username);
+	public Boolean isTokenExpired(String token);
+	
 }

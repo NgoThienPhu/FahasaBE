@@ -22,7 +22,9 @@ import io.jsonwebtoken.security.Keys;
 public class JwtService implements JwtServiceInf {
 	
 	@Value("${jwt.secretKey}")
-	private String secretKey;
+	private String SECRET_KEY;
+	private long ACCESS_TOKEN_EXPIRATION = 900_000;
+	private long REFRESH_TOKEN_EXPIRATION = 604_800_000;
 
 	@Override
 	public String createToken(String username, TokenType tokenType, DeviceType deviceType) {
@@ -41,25 +43,22 @@ public class JwtService implements JwtServiceInf {
 	public Date extractExpiration(String token) {
 		return extractClaim(token, Claims::getExpiration);
 	}
-
+	
 	@Override
-	public Boolean isTokenValid(String token, String username) {
-		String tokenSubject = extractUsername(token);
-		return (username.equals(tokenSubject)) && isTokenExpired(tokenSubject);
+	public Boolean isTokenExpired(String token) {
+		return extractExpiration(token).before(new Date());
 	}
 	
 	private Key getSigningKey() {
-		byte[] keyBytes = secretKey.getBytes();
+		byte[] keyBytes = SECRET_KEY.getBytes();
 		return Keys.hmacShaKeyFor(keyBytes);
 	}
 	
 	private Claims extractClaims(String token) {
-		return Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJwt(token).getBody();
+		System.out.println(token);
+		return Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token).getBody();
 	}
 	
-	private Boolean isTokenExpired(String token) {
-		return extractExpiration(token).before(new Date());
-	}
 	
 	private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
 		Claims claims = extractClaims(token);
@@ -71,7 +70,7 @@ public class JwtService implements JwtServiceInf {
 				.setClaims(claims)
 				.setSubject(username)
 				.setIssuedAt(new Date(System.currentTimeMillis()))
-				.setExpiration(new Date(System.currentTimeMillis()))
+				.setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))
 				.signWith(getSigningKey(), SignatureAlgorithm.HS512)
 				.compact();
 	}

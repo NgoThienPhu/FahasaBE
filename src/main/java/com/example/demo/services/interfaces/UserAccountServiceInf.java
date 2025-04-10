@@ -6,6 +6,12 @@ import com.example.demo.entities.UserAccount;
 
 public interface UserAccountServiceInf {
 	
+	public UserAccount createUserAccount(UserAccount userAccount);
+	
+	public Boolean existsByEmail(String email);
+	
+	public Boolean existsByPhoneNumber(String phoneNumber);
+	
 	public List<UserAccount> getUserAccounts();
 	
 	public UserAccount findUserAccountById(String userAccountId);

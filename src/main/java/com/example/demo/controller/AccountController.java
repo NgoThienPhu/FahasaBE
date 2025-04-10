@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.example.demo.dto.ApiResponse;
+import com.example.demo.dto.ApiResponseDTO;
 import com.example.demo.entities.UserAccount;
 import com.example.demo.entities.bases.Account;
 import com.example.demo.services.interfaces.UserAccountServiceInf;
@@ -30,7 +30,7 @@ public class AccountController {
 	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> getUserAccounts() {
 		List<UserAccount> accounts = accountService.getUserAccounts();
-		ApiResponse<List<UserAccount>> response = new ApiResponse<List<UserAccount>>("Lấy danh sách tài khoản thành công", accounts);
+		ApiResponseDTO<List<UserAccount>> response = new ApiResponseDTO<List<UserAccount>>("Lấy danh sách tài khoản thành công", accounts);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	
@@ -38,7 +38,7 @@ public class AccountController {
 	public ResponseEntity<?> getUserAccountById(@PathVariable("id") String userAccountId) {
 		UserAccount account = accountService.findUserAccountById(userAccountId);
 		if(account == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Không tìm thấy tài khoản với id = %s", userAccountId));
-		ApiResponse<Account> response = new ApiResponse<Account>("Lấy thông tin tài khoản thành công", account);
+		ApiResponseDTO<Account> response = new ApiResponseDTO<Account>("Lấy thông tin tài khoản thành công", account);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 }

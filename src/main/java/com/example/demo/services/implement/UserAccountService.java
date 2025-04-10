@@ -57,5 +57,20 @@ public class UserAccountService implements UserAccountServiceInf {
 		return userAccountRepository.findAll();
 	}
 
+	@Override
+	public UserAccount createUserAccount(UserAccount userAccount) {
+		return userAccountRepository.save(userAccount);
+	}
+
+	@Override
+	public Boolean existsByEmail(String email) {
+		return userAccountRepository.existsByEmail(email);
+	}
+
+	@Override
+	public Boolean existsByPhoneNumber(String phoneNumber) {
+		return userAccountRepository.existsByPhoneNumber(phoneNumber);
+	}
+
 
 }

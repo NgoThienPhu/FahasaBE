@@ -10,8 +10,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.dto.ApiResponse;
-import com.example.demo.dto.LoginRequest;
+import com.example.demo.dto.ApiResponseDTO;
+import com.example.demo.dto.LoginRequestDTO;
+import com.example.demo.dto.LoginResponseDTO;
 import com.example.demo.entities.UserAccount;
 import com.example.demo.entities.bases.Account;
 import com.example.demo.entities.enums.DeviceType;
@@ -31,7 +32,7 @@ public class AuthenticationController {
 
 	@GetMapping("/login")
 //	Thiếu ràng buộc thông tin truyền về server
-	public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, @RequestHeader("User-Agent") String userAgent) {
+	public ResponseEntity<?> login(@RequestBody LoginRequestDTO loginRequest, @RequestHeader("User-Agent") String userAgent) {
 		DeviceType deviceType = null;
 		userAgent = userAgent.toLowerCase();
 		
@@ -43,9 +44,9 @@ public class AuthenticationController {
 	        deviceType = DeviceType.OTHERS;
 	    }
 		
-		UserAccount account = authenticationService.login(loginRequest, deviceType);
-		ApiResponse<UserAccount> response  = new ApiResponse<UserAccount>("Đăng nhập thành công!", account);
-		return new ResponseEntity<ApiResponse<UserAccount>>(response, HttpStatus.OK);
+		LoginResponseDTO account = authenticationService.login(loginRequest, deviceType);
+		ApiResponseDTO<LoginResponseDTO> response  = new ApiResponseDTO<LoginResponseDTO>("Đăng nhập thành công!", account);
+		return new ResponseEntity<ApiResponseDTO<LoginResponseDTO>>(response, HttpStatus.OK);
 	}
 	
 	@PostMapping("/register")
@@ -53,7 +54,7 @@ public class AuthenticationController {
 	public ResponseEntity<?> register(@RequestBody UserAccount userAccount) {
 		userAccount.setPassword(passwordEncoder.encode(userAccount.getPassword()));
 		UserAccount account = authenticationService.register(userAccount);
-		ApiResponse<Account> response = new ApiResponse<Account>("Tạo tài khoản thành công", account);
+		ApiResponseDTO<Account> response = new ApiResponseDTO<Account>("Tạo tài khoản thành công", account);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	

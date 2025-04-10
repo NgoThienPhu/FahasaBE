@@ -19,6 +19,7 @@ import com.example.demo.services.interfaces.CustomUserDetailServiceInf;
 import com.example.demo.services.interfaces.JwtServiceInf;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -52,9 +53,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 				throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Mã JWT không tồn tại, vui lòng thử lại sau");
 
 			String jwt = authorizationHeader.substring(7);
-			String username = jwtService.extractUsername(jwt);
-
-			if (jwtService.isTokenValid(jwt, username)) {
+			
+			if (!jwtService.isTokenExpired(jwt)) {
+				String username = jwtService.extractUsername(jwt);
 				UserDetails userDetails = customUserDetailService.loadUserByUsername(username);
 				UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
 						userDetails, null, userDetails.getAuthorities());
@@ -77,6 +78,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			errors.put("timestamp", LocalDateTime.now().toString());
 			
 			response.getWriter().write(new ObjectMapper().writeValueAsString(errors));
+			
+		} catch (ExpiredJwtException e) {
+			
+			response.setStatus(HttpStatus.UNAUTHORIZED.value());
+			response.setContentType("application/json");
+			response.setCharacterEncoding("UTF-8");
+			
+			Map<String, String> errors = new HashMap<String, String>();
+			errors.put("status", "error");
+			errors.put("message", "Access Token đã hết hạn");
+			errors.put("timestamp", LocalDateTime.now().toString());
+			
+			response.getWriter().write(new ObjectMapper().writeValueAsString(errors));
+			
 		}
 	}
 	

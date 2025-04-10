@@ -12,14 +12,18 @@ import com.example.demo.entities.UserAccount;
 
 @Repository
 public interface UserAccountRepository extends JpaRepository<UserAccount, String> {
-	
+
 	Optional<UserAccount> findByUsername(String username);
 
-    Optional<UserAccount> findByEmail(String email);
+	Optional<UserAccount> findByEmail(String email);
 	
-    List<UserAccount> findByFullNameContaining(String fullName);
-    
-    @Query("SELECT a FROM UserAccount a WHERE a.username LIKE %:keyword% OR a.email LIKE %:keyword% OR a.phoneNumber LIKE %:keyword%")
-    List<UserAccount> searchByKeyword(@Param("keyword") String keyword);
-    
+	Boolean existsByEmail(String email);
+	
+	Boolean existsByPhoneNumber(String phoneNumber);
+
+	List<UserAccount> findByFullNameContaining(String fullName);
+
+	@Query("SELECT a FROM UserAccount a WHERE a.username LIKE %:keyword% OR a.email LIKE %:keyword% OR a.phoneNumber LIKE %:keyword%")
+	List<UserAccount> searchByKeyword(@Param("keyword") String keyword);
+
 }
