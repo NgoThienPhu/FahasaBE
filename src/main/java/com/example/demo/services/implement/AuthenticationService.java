@@ -51,7 +51,7 @@ public class AuthenticationService implements AuthenticationServiceInf {
 	public UserAccount register(UserAccount userAccount) {
 		Boolean checkExistsUsername = accountRepository.existsByUsername(userAccount.getUsername());
 		Boolean checkExistsEmail = userAccountService.existsByEmail(userAccount.getEmail());
-		Boolean checkExistsPhoneNumber = userAccountService.existsByEmail(userAccount.getPhoneNumber());
+		Boolean checkExistsPhoneNumber = userAccountService.existsByPhoneNumber(userAccount.getPhoneNumber());
 		
 		if(checkExistsUsername) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tên đăng nhập đã tồn tại, vui lòng thử tên đăng nhập khác");
 		if(checkExistsEmail) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email đã tồn tại, vui lòng thử Email khác");

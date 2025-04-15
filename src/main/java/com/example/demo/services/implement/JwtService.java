@@ -55,7 +55,6 @@ public class JwtService implements JwtServiceInf {
 	}
 	
 	private Claims extractClaims(String token) {
-		System.out.println(token);
 		return Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token).getBody();
 	}
 	

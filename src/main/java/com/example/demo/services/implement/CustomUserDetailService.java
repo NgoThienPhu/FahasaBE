@@ -24,7 +24,7 @@ public class CustomUserDetailService implements CustomUserDetailServiceInf {
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		Account account = accountRepository.findByUsername(username).orElse(null);
-		if(account == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Tài khoản hoặc mật khẩu không chính xác");
+		if(account == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Tài khoản không tồn tại vui lòng thử lại sau");
 		SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + account.getRole());
 		UserDetails userDetails = User.withUsername(account.getUsername()).password(account.getPassword())
 				.authorities(authority).build();
