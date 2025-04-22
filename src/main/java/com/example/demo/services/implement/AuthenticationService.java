@@ -6,8 +6,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
-import com.example.demo.dto.LoginRequestDTO;
 import com.example.demo.dto.LoginResponseDTO;
 import com.example.demo.entities.UserAccount;
 import com.example.demo.entities.enums.DeviceType;
@@ -16,6 +14,10 @@ import com.example.demo.repository.AccountRepository;
 import com.example.demo.services.interfaces.AuthenticationServiceInf;
 import com.example.demo.services.interfaces.JwtServiceInf;
 import com.example.demo.services.interfaces.UserAccountServiceInf;
+import com.example.demo.validator.LoginValidator;
+import com.example.demo.validator.UserAccountValidator;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class AuthenticationService implements AuthenticationServiceInf {
@@ -34,11 +36,11 @@ public class AuthenticationService implements AuthenticationServiceInf {
 	}
 
 	@Override
-	public LoginResponseDTO login(LoginRequestDTO loginRequest, DeviceType deviceType) {
+	public LoginResponseDTO login(LoginValidator body, DeviceType deviceType) {
 		Authentication authentication = authenticationManager.authenticate(
-				new UsernamePasswordAuthenticationToken(loginRequest.username(), loginRequest.password()));
+				new UsernamePasswordAuthenticationToken(body.getUsername(), body.getPassword()));
 		if (authentication.isAuthenticated()) {
-			UserAccount account = userAccountService.findUserAccountByUsername(loginRequest.username());
+			UserAccount account = userAccountService.findUserAccountByUsername(body.getUsername());
 			String accessToken = jwtService.createToken(account.getUsername(), TokenType.ACCESS, deviceType);
 			LoginResponseDTO loginResponse = convertUserAccountToLoginResponseDTO(account, accessToken);
 			return loginResponse;
@@ -47,17 +49,18 @@ public class AuthenticationService implements AuthenticationServiceInf {
 				"Tài khoản hoặc mật khẩu không chính xác, vui lòng đăng nhập lại");
 	}
 
+	@Transactional
 	@Override
-	public UserAccount register(UserAccount userAccount) {
-		Boolean checkExistsUsername = accountRepository.existsByUsername(userAccount.getUsername());
-		Boolean checkExistsEmail = userAccountService.existsByEmail(userAccount.getEmail());
-		Boolean checkExistsPhoneNumber = userAccountService.existsByPhoneNumber(userAccount.getPhoneNumber());
+	public UserAccount register(UserAccountValidator body) {
+		Boolean checkExistsUsername = accountRepository.existsByUsername(body.getUsername());
+		Boolean checkExistsEmail = userAccountService.existsByEmail(body.getEmail());
+		Boolean checkExistsPhoneNumber = userAccountService.existsByPhoneNumber(body.getPhoneNumber());
 		
 		if(checkExistsUsername) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tên đăng nhập đã tồn tại, vui lòng thử tên đăng nhập khác");
 		if(checkExistsEmail) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email đã tồn tại, vui lòng thử Email khác");
 		if(checkExistsPhoneNumber) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Số điện thoại đã tồn tại, vui lòng thử số điện thoại khác");
 		
-		UserAccount account = userAccountService.createUserAccount(userAccount);
+		UserAccount account = userAccountService.createUserAccount(convertUserAccountValidatorToUserAccount(body));
 		return account;
 	}
 
@@ -83,6 +86,16 @@ public class AuthenticationService implements AuthenticationServiceInf {
 	public void tokenRefresh() {
 		// TODO Auto-generated method stub
 
+	}
+	
+	private UserAccount convertUserAccountValidatorToUserAccount(UserAccountValidator userAccountValidator) {
+		UserAccount userAccount = new UserAccount();
+		userAccount.setUsername(userAccountValidator.getUsername());
+		userAccount.setPassword(userAccountValidator.getPassword());
+		userAccount.setFullName(userAccountValidator.getFullName());
+		userAccount.setEmail(userAccountValidator.getEmail());
+		userAccount.setPhoneNumber(userAccountValidator.getPhoneNumber());
+		return userAccount;
 	}
 
 	private LoginResponseDTO convertUserAccountToLoginResponseDTO(UserAccount account, String accessToken) {

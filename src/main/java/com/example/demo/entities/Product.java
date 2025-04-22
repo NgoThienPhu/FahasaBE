@@ -32,10 +32,6 @@ public class Product {
 	private String description;
 	
 	@OneToOne
-	@JoinColumn(name = "brand_id")
-	private Brand brand;
-	
-	@OneToOne
 	@JoinColumn(name = "category_id")
 	private Category category;
 	

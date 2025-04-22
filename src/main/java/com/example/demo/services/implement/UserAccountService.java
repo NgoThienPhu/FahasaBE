@@ -10,6 +10,8 @@ import com.example.demo.entities.UserAccount;
 import com.example.demo.repository.UserAccountRepository;
 import com.example.demo.services.interfaces.UserAccountServiceInf;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class UserAccountService implements UserAccountServiceInf {
 	
@@ -34,6 +36,7 @@ public class UserAccountService implements UserAccountServiceInf {
 		return userAccountRepository.findByUsername(username).orElse(null);
 	}
 
+	@Transactional
 	@Override
 	public UserAccount disableUserAccount(String userAccountId) {
 		UserAccount user = userAccountRepository.findById(userAccountId).orElseThrow(() -> new ResponseStatusException(
@@ -43,6 +46,7 @@ public class UserAccountService implements UserAccountServiceInf {
 		return userAccountRepository.save(user);
 	}
 
+	@Transactional
 	@Override
 	public UserAccount activeUserAccount(String userAccountId) {
 		UserAccount user = userAccountRepository.findById(userAccountId).orElseThrow(() -> new ResponseStatusException(
@@ -57,6 +61,7 @@ public class UserAccountService implements UserAccountServiceInf {
 		return userAccountRepository.findAll();
 	}
 
+	@Transactional
 	@Override
 	public UserAccount createUserAccount(UserAccount userAccount) {
 		return userAccountRepository.save(userAccount);

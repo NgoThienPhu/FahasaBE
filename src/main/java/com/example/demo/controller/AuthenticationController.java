@@ -1,8 +1,12 @@
 package com.example.demo.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,12 +15,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dto.ApiResponseDTO;
-import com.example.demo.dto.LoginRequestDTO;
 import com.example.demo.dto.LoginResponseDTO;
 import com.example.demo.entities.UserAccount;
 import com.example.demo.entities.bases.Account;
 import com.example.demo.entities.enums.DeviceType;
 import com.example.demo.services.implement.AuthenticationService;
+import com.example.demo.validator.LoginValidator;
+import com.example.demo.validator.UserAccountValidator;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -31,8 +38,17 @@ public class AuthenticationController {
 	}
 
 	@GetMapping("/login")
-//	Thiếu ràng buộc thông tin truyền về server
-	public ResponseEntity<?> login(@RequestBody LoginRequestDTO loginRequest, @RequestHeader("User-Agent") String userAgent) {
+	public ResponseEntity<?> login(@Valid @RequestBody LoginValidator body, BindingResult result, @RequestHeader("User-Agent") String userAgent) {
+		
+		if (result.hasErrors()) {
+			Map<String, String> errors = new HashMap<String, String>();
+			result.getFieldErrors().stream().forEach(error -> {
+				errors.put(error.getField(), error.getDefaultMessage());
+			});
+			ApiResponseDTO<Map<String, String>> response  = new ApiResponseDTO<>("Đăng nhập thất bại!", errors);
+			return new ResponseEntity<ApiResponseDTO<Map<String, String>>>(response, HttpStatus.BAD_REQUEST);
+		}
+		
 		DeviceType deviceType = null;
 		userAgent = userAgent.toLowerCase();
 		
@@ -44,17 +60,26 @@ public class AuthenticationController {
 	        deviceType = DeviceType.OTHERS;
 	    }
 		
-		LoginResponseDTO account = authenticationService.login(loginRequest, deviceType);
+		LoginResponseDTO account = authenticationService.login(body, deviceType);
 		ApiResponseDTO<LoginResponseDTO> response  = new ApiResponseDTO<LoginResponseDTO>("Đăng nhập thành công!", account);
 		return new ResponseEntity<ApiResponseDTO<LoginResponseDTO>>(response, HttpStatus.OK);
 	}
 	
 	@PostMapping("/register")
-//	Thiếu ràng buộc thông tin truyền về server
-	public ResponseEntity<?> register(@RequestBody UserAccount userAccount) {
-		userAccount.setPassword(passwordEncoder.encode(userAccount.getPassword()));
-		UserAccount account = authenticationService.register(userAccount);
-		ApiResponseDTO<Account> response = new ApiResponseDTO<Account>("Tạo tài khoản thành công", account);
+	public ResponseEntity<?> register(@Valid @RequestBody UserAccountValidator body, BindingResult result) {
+		
+		if (result.hasErrors()) {
+			Map<String, String> errors = new HashMap<String, String>();
+			result.getFieldErrors().stream().forEach(error -> {
+				errors.put(error.getField(), error.getDefaultMessage());
+			});
+			ApiResponseDTO<Map<String, String>> response  = new ApiResponseDTO<>("Đăng kí thất bại!", errors);
+			return new ResponseEntity<ApiResponseDTO<Map<String, String>>>(response, HttpStatus.BAD_REQUEST);
+		}
+		
+		body.setPassword(passwordEncoder.encode(body.getPassword()));
+		UserAccount account = authenticationService.register(body);
+		ApiResponseDTO<Account> response = new ApiResponseDTO<Account>("Đăng kí thành công", account);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	

@@ -1,6 +1,7 @@
 package com.example.demo.dto;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -10,13 +11,18 @@ public record ApiResponseDTO<T>(
 	String status,
     String message,
     T data,
+    Map<String, String> errors,
     LocalDateTime timestamp
 ) {
 	public ApiResponseDTO(String message, T data) {
-        this("success", message, data, LocalDateTime.now());
+        this("success", message, data, null, LocalDateTime.now());
+    }
+	
+	public ApiResponseDTO(String message, Map<String, String> errors) {
+        this("error", message, null, errors, LocalDateTime.now());
     }
 
     public ApiResponseDTO(String message) {
-        this("error", message, null, LocalDateTime.now());
+        this("error", message, null, null, LocalDateTime.now());
     }
 }
