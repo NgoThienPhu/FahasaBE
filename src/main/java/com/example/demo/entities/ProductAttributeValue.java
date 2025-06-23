@@ -19,7 +19,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @Table(name = "attribute_value")
-public class AttributeValue {
+public class ProductAttributeValue {
 	
 	@Id
 	@Column(name = "id")
@@ -28,6 +28,10 @@ public class AttributeValue {
 	@ManyToOne
 	@JoinColumn(name = "attribute_id", nullable = false)
 	private Attribute attribute;
+	
+	@ManyToOne
+	@JoinColumn(name = "product_variant_id", nullable = false)
+	private ProductVariant productVariant;
 	
 	@Column(name = "value", nullable = false)
 	private String value;

@@ -28,7 +28,7 @@ public class UserAccountService implements UserAccountServiceInf {
 
 	@Override
 	public List<UserAccount> findUserAccountByUsernameOrEmailOrPhoneNumber(String keyWord) {
-		return userAccountRepository.searchByKeyword(keyWord);
+		return userAccountRepository.searchByUsernameEmailPhoneNumber(keyWord);
 	}
 	
 	@Override
@@ -75,6 +75,11 @@ public class UserAccountService implements UserAccountServiceInf {
 	@Override
 	public Boolean existsByPhoneNumber(String phoneNumber) {
 		return userAccountRepository.existsByPhoneNumber(phoneNumber);
+	}
+
+	@Override
+	public UserAccount updateUserAccount(UserAccount userAccount) {
+		return userAccountRepository.save(userAccount);
 	}
 
 

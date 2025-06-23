@@ -3,6 +3,7 @@ package com.example.demo.services.implement;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -10,8 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.example.demo.entities.Category;
 import com.example.demo.repository.CategoryRepository;
 import com.example.demo.services.interfaces.CategoryServiceInf;
-import com.example.demo.validator.CreateCategoryValidator;
-import com.example.demo.validator.UpdateCategoryValidator;
+import com.example.demo.validator.CategoryValidator;
 
 import jakarta.transaction.Transactional;
 
@@ -26,11 +26,11 @@ public class CategoryService implements CategoryServiceInf {
 	
 	@Transactional
 	@Override
-	public Category createCategory(CreateCategoryValidator body) {
-		Boolean checkNameIsExists = categoryRepository.existsByName(body.getName());
+	public Category createCategory(CategoryValidator body) {
+		Boolean checkNameIsExists = categoryRepository.existsByName(body.name());
 		if(checkNameIsExists) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tên loại sản phẩm đã tồn tại vui lòng chọn tên khác");
 		Category category = new Category();
-		category.setName(body.getName());
+		category.setName(body.name());
 		return categoryRepository.save(category);
 	}
 	
@@ -48,16 +48,16 @@ public class CategoryService implements CategoryServiceInf {
 
 	@Transactional
 	@Override
-	public Category updateCategory(UpdateCategoryValidator body) {
-		Optional<Category> optionalCategory = categoryRepository.findById(body.getId());
+	public Category updateCategory(CategoryValidator body, String categoryId) {
+		Optional<Category> optionalCategory = categoryRepository.findById(categoryId);
 		if(optionalCategory.isPresent()) {
-			Boolean checkNameExists = categoryRepository.existsByName(body.getName());
+			Boolean checkNameExists = categoryRepository.existsByName(body.name());
 			if(checkNameExists) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tên loại sản phẩm đã tồn tại, vui lòng chọn tên khác");	
 			Category category = optionalCategory.get();
-			category.setName(body.getName());
+			category.setName(body.name());
 			return categoryRepository.save(category);
 		}else {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Không tìm thấy loại sản phẩm với id là: %s", body.getId()));
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Không tìm thấy loại sản phẩm với id là: %s", categoryId));
 		}
 	}
 
@@ -73,8 +73,14 @@ public class CategoryService implements CategoryServiceInf {
 	}
 
 	@Override
-	public List<Category> getCategories() {
-		return categoryRepository.findAll();
+	public List<Category> getCategories(String categoryName, String orderBy) {
+		Sort myOrderBy = orderBy.equalsIgnoreCase("asc") ? Sort.by(Sort.Direction.ASC, "name")
+				: Sort.by(Sort.Direction.DESC, "name");
+		if(categoryName == null || categoryName.isEmpty()) {
+			return categoryRepository.findAll(myOrderBy);
+		}else {
+			return categoryRepository.findByName(categoryName, myOrderBy);
+		}
 	}
 
 }

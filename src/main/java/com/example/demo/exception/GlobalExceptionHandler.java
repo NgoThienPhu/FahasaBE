@@ -12,7 +12,7 @@ public class GlobalExceptionHandler {
 	
 	@ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<?> handleResponseStatusException(ResponseStatusException ex) {
-		ApiResponseDTO<Void> response = new ApiResponseDTO<Void>(ex.getMessage());
+		ApiResponseDTO<Void> response = new ApiResponseDTO<Void>(ex.getMessage(), "error");
         ResponseEntity<ApiResponseDTO<Void>> myResponse = new ResponseEntity<ApiResponseDTO<Void>>(response, ex.getStatusCode());
         return myResponse;
     }

@@ -1,16 +1,21 @@
 package com.example.demo.services.interfaces;
 
+import com.example.demo.dto.ChangePasswordRequestDTO;
 import com.example.demo.dto.LoginResponseDTO;
 import com.example.demo.entities.UserAccount;
-import com.example.demo.entities.enums.DeviceType;
 import com.example.demo.validator.LoginValidator;
 import com.example.demo.validator.UserAccountValidator;
 
 public interface AuthenticationServiceInf {
-	public LoginResponseDTO login(LoginValidator body, DeviceType deviceType);
-	public UserAccount register(UserAccountValidator body);
-	public Boolean logout();
-	public UserAccount forgotPassword();
-	public UserAccount changePassword();
+	public LoginResponseDTO userLogin(LoginValidator body);
+
+	public UserAccount userRegister(UserAccountValidator body);
+
+	public void userLogout();
+
+	public UserAccount userForgotPassword();
+
+	public void userChangePassword(ChangePasswordRequestDTO body, String accessToken);
+
 	public void tokenRefresh();
 }

@@ -8,6 +8,8 @@ public interface UserAccountServiceInf {
 	
 	public UserAccount createUserAccount(UserAccount userAccount);
 	
+	public UserAccount updateUserAccount(UserAccount userAccount);
+	
 	public Boolean existsByEmail(String email);
 	
 	public Boolean existsByPhoneNumber(String phoneNumber);
@@ -23,5 +25,6 @@ public interface UserAccountServiceInf {
 	public UserAccount disableUserAccount(String userAccountId);
 	
 	public UserAccount activeUserAccount(String userAccountId);
+	
 	
 }

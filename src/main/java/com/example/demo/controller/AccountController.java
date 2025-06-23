@@ -30,7 +30,7 @@ public class AccountController {
 	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> getUserAccounts() {
 		List<UserAccount> accounts = accountService.getUserAccounts();
-		ApiResponseDTO<List<UserAccount>> response = new ApiResponseDTO<List<UserAccount>>("Lấy danh sách tài khoản thành công", accounts);
+		ApiResponseDTO<List<UserAccount>> response = new ApiResponseDTO<List<UserAccount>>("Lấy danh sách tài khoản thành công", "success", accounts);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	
@@ -38,7 +38,7 @@ public class AccountController {
 	public ResponseEntity<?> getUserAccountById(@PathVariable("id") String userAccountId) {
 		UserAccount account = accountService.findUserAccountById(userAccountId);
 		if(account == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Không tìm thấy tài khoản với id = %s", userAccountId));
-		ApiResponseDTO<Account> response = new ApiResponseDTO<Account>("Lấy thông tin tài khoản thành công", account);
+		ApiResponseDTO<Account> response = new ApiResponseDTO<Account>("Lấy thông tin tài khoản thành công", "success", account);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 }

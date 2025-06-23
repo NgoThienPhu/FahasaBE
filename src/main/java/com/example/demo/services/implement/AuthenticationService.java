@@ -2,13 +2,18 @@ package com.example.demo.services.implement;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
+import com.example.demo.dto.ChangePasswordRequestDTO;
 import com.example.demo.dto.LoginResponseDTO;
 import com.example.demo.entities.UserAccount;
-import com.example.demo.entities.enums.DeviceType;
+import com.example.demo.entities.enums.AccountType;
 import com.example.demo.entities.enums.TokenType;
 import com.example.demo.repository.AccountRepository;
 import com.example.demo.services.interfaces.AuthenticationServiceInf;
@@ -26,60 +31,99 @@ public class AuthenticationService implements AuthenticationServiceInf {
 	private UserAccountServiceInf userAccountService;
 	private AccountRepository accountRepository;
 	private JwtServiceInf jwtService;
+	private PasswordEncoder passwordEncoder;
 
 	public AuthenticationService(AuthenticationManager authenticationManager, UserAccountServiceInf userAccountService,
-			AccountRepository accountRepository, JwtServiceInf jwtService) {
+			AccountRepository accountRepository, JwtServiceInf jwtService, PasswordEncoder passwordEncoder) {
 		this.authenticationManager = authenticationManager;
 		this.userAccountService = userAccountService;
 		this.accountRepository = accountRepository;
 		this.jwtService = jwtService;
+		this.passwordEncoder = passwordEncoder;
 	}
 
 	@Override
-	public LoginResponseDTO login(LoginValidator body, DeviceType deviceType) {
-		Authentication authentication = authenticationManager.authenticate(
-				new UsernamePasswordAuthenticationToken(body.getUsername(), body.getPassword()));
-		if (authentication.isAuthenticated()) {
-			UserAccount account = userAccountService.findUserAccountByUsername(body.getUsername());
-			String accessToken = jwtService.createToken(account.getUsername(), TokenType.ACCESS, deviceType);
-			LoginResponseDTO loginResponse = convertUserAccountToLoginResponseDTO(account, accessToken);
-			return loginResponse;
-		}
-		throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-				"Tài khoản hoặc mật khẩu không chính xác, vui lòng đăng nhập lại");
+	public LoginResponseDTO userLogin(LoginValidator body) {
+		try {
+	        Authentication authentication = authenticationManager.authenticate(
+	                new UsernamePasswordAuthenticationToken(body.username(), body.password())
+	        );
+
+	        if (!authentication.isAuthenticated()) {
+	            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+	                    "Tài khoản hoặc mật khẩu không chính xác, vui lòng đăng nhập lại");
+	        }
+
+	        UserAccount account = userAccountService.findUserAccountByUsername(body.username());
+
+	        String accessToken = jwtService.createToken(account.getUsername(), TokenType.ACCESS);
+
+	        return convertUserAccountToLoginResponseDTO(account, accessToken);
+
+	    } catch (BadCredentialsException e) {
+	        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+	                "Tài khoản hoặc mật khẩu không chính xác, vui lòng đăng nhập lại");
+	    } catch (Exception e) {
+	        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Đã xảy ra lỗi trong quá trình đăng nhập");
+	    }
 	}
 
 	@Transactional
 	@Override
-	public UserAccount register(UserAccountValidator body) {
-		Boolean checkExistsUsername = accountRepository.existsByUsername(body.getUsername());
-		Boolean checkExistsEmail = userAccountService.existsByEmail(body.getEmail());
-		Boolean checkExistsPhoneNumber = userAccountService.existsByPhoneNumber(body.getPhoneNumber());
-		
-		if(checkExistsUsername) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tên đăng nhập đã tồn tại, vui lòng thử tên đăng nhập khác");
-		if(checkExistsEmail) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email đã tồn tại, vui lòng thử Email khác");
-		if(checkExistsPhoneNumber) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Số điện thoại đã tồn tại, vui lòng thử số điện thoại khác");
-		
+	public UserAccount userRegister(UserAccountValidator body) {
+		Boolean checkExistsUsername = accountRepository.existsByUsername(body.username());
+		Boolean checkExistsEmail = userAccountService.existsByEmail(body.email());
+		Boolean checkExistsPhoneNumber = userAccountService.existsByPhoneNumber(body.phoneNumber());
+
+		if (checkExistsUsername)
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+					"Tên đăng nhập đã tồn tại, vui lòng thử tên đăng nhập khác");
+		if (checkExistsEmail)
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email đã tồn tại, vui lòng thử Email khác");
+		if (checkExistsPhoneNumber)
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+					"Số điện thoại đã tồn tại, vui lòng thử số điện thoại khác");
+
 		UserAccount account = userAccountService.createUserAccount(convertUserAccountValidatorToUserAccount(body));
 		return account;
 	}
 
 	@Override
-	public Boolean logout() {
+	public void userLogout() {
+		try {
+			SecurityContextHolder.clearContext();
+		} catch (Exception e) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Đăng xuất thất bại vui lòng thử lại sau!");
+		}
+	}
+
+	@Override
+	public UserAccount userForgotPassword() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public UserAccount forgotPassword() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	public void userChangePassword(ChangePasswordRequestDTO body, String accessToken) {
 
-	@Override
-	public UserAccount changePassword() {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			String username = jwtService.extractUsername(accessToken);
+
+			UserAccount user = userAccountService.findUserAccountByUsername(username);
+
+			if (user == null || !passwordEncoder.matches(body.oldPassword(), user.getPassword()))
+				throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+						"Tài khoản không tồn tại hoặc mật khẩu cũ không chính xác, vui lòng thử lại sau");
+
+			String newPassword = passwordEncoder.encode(body.newPassword());
+
+			user.setPassword(newPassword);
+
+			userAccountService.updateUserAccount(user);
+
+		} catch (Exception e) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
+		}
 	}
 
 	@Override
@@ -87,20 +131,20 @@ public class AuthenticationService implements AuthenticationServiceInf {
 		// TODO Auto-generated method stub
 
 	}
-	
+
 	private UserAccount convertUserAccountValidatorToUserAccount(UserAccountValidator userAccountValidator) {
 		UserAccount userAccount = new UserAccount();
-		userAccount.setUsername(userAccountValidator.getUsername());
-		userAccount.setPassword(userAccountValidator.getPassword());
-		userAccount.setFullName(userAccountValidator.getFullName());
-		userAccount.setEmail(userAccountValidator.getEmail());
-		userAccount.setPhoneNumber(userAccountValidator.getPhoneNumber());
+		userAccount.setUsername(userAccountValidator.username());
+		userAccount.setPassword(passwordEncoder.encode(userAccountValidator.password()));
+		userAccount.setFullName(userAccountValidator.fullName());
+		userAccount.setEmail(userAccountValidator.email());
+		userAccount.setPhoneNumber(userAccountValidator.phoneNumber());
 		return userAccount;
 	}
 
 	private LoginResponseDTO convertUserAccountToLoginResponseDTO(UserAccount account, String accessToken) {
 		LoginResponseDTO loginResponseDTO = new LoginResponseDTO(account.getId(), account.getUsername(), null,
-				account.getRole(), account.getCreatedAt(), account.getUpdatedAt(), account.getFullName(),
+				AccountType.USER, account.getCreatedAt(), account.getUpdatedAt(), account.getFullName(),
 				account.getEmail(), account.getPhoneNumber(), account.getIsActive(), accessToken);
 		return loginResponseDTO;
 	}

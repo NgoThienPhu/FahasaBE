@@ -14,15 +14,15 @@ public record ApiResponseDTO<T>(
     Map<String, String> errors,
     LocalDateTime timestamp
 ) {
-	public ApiResponseDTO(String message, T data) {
-        this("success", message, data, null, LocalDateTime.now());
+	public ApiResponseDTO(String message, String status, T data) {
+        this(status, message, data, null, LocalDateTime.now());
     }
 	
-	public ApiResponseDTO(String message, Map<String, String> errors) {
-        this("error", message, null, errors, LocalDateTime.now());
+	public ApiResponseDTO(String message, String status, Map<String, String> errors) {
+        this(status, message, null, errors, LocalDateTime.now());
     }
 
-    public ApiResponseDTO(String message) {
-        this("error", message, null, null, LocalDateTime.now());
+    public ApiResponseDTO(String message, String status) {
+        this(status, message, null, null, LocalDateTime.now());
     }
 }

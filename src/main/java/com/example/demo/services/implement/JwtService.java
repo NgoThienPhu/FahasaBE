@@ -9,7 +9,6 @@ import java.util.function.Function;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.example.demo.entities.enums.DeviceType;
 import com.example.demo.entities.enums.TokenType;
 import com.example.demo.services.interfaces.JwtServiceInf;
 
@@ -27,10 +26,9 @@ public class JwtService implements JwtServiceInf {
 	private long REFRESH_TOKEN_EXPIRATION = 604_800_000;
 
 	@Override
-	public String createToken(String username, TokenType tokenType, DeviceType deviceType) {
+	public String createToken(String username, TokenType tokenType) {
 		Map<String, String> claims = new HashMap<String, String>();
 		claims.put("tokenType", tokenType.toString());
-		claims.put("deviceType", deviceType.toString());
 		return generateToken(claims, username);
 	}
 
