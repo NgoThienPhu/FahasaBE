@@ -1,7 +1,6 @@
 package com.example.demo.entities;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,40 +27,60 @@ import lombok.Setter;
 @Entity
 @Table(name = "product")
 public class Product {
-	
+
 	@Id
 	@Column(name = "id")
 	private String id;
-	
+
 	@Column(name = "name", nullable = false)
 	private String name;
-	
+
 	@Column(name = "description", nullable = false)
 	private String description;
-	
+
 	@OneToOne
-	@JoinColumn(name = "category_id")
+	@JoinColumn(name = "category_id", nullable = false)
 	private Category category;
-	
-	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "product")
-	private List<ProductVariant> productVariant = new ArrayList<>();
-	
+
+	@Column(name = "price", nullable = false)
+	private Double price;
+
+	@Column(name = "quantity", nullable = false)
+	private Integer quantity;
+
+	@Column(name = "sku_code")
+	private String skuCode;
+
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "product")
+	private List<ProductImage> images;
+
 	@Column(name = "created_at", nullable = false)
 	private LocalDateTime createdAt;
-	
-	@Column(name = "updated_at", nullable =  false)
+
+	@Column(name = "updated_at", nullable = false)
 	private LocalDateTime updatedAt;
-	
+
+	public Product(String name, String description, Category category, Double price, Integer quantity,
+			List<ProductImage> images) {
+		this.name = name;
+		this.description = description;
+		this.category = category;
+		this.price = price;
+		this.quantity = quantity;
+		this.images = images;
+	}
+
 	@PrePersist
 	public void onCreate() {
 		this.id = UUID.randomUUID().toString();
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-	
+		this.skuCode = UUID.randomUUID().toString();
+		this.createdAt = LocalDateTime.now();
+		this.updatedAt = LocalDateTime.now();
+	}
+
 	@PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
-	
+	protected void onUpdate() {
+		this.updatedAt = LocalDateTime.now();
+	}
+
 }

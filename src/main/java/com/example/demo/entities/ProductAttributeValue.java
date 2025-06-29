@@ -2,6 +2,8 @@ package com.example.demo.entities;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -18,7 +20,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "attribute_value")
+@Table(name = "product_attribute_value")
 public class ProductAttributeValue {
 	
 	@Id
@@ -29,9 +31,10 @@ public class ProductAttributeValue {
 	@JoinColumn(name = "attribute_id", nullable = false)
 	private Attribute attribute;
 	
+	@JsonIgnore
 	@ManyToOne
-	@JoinColumn(name = "product_variant_id", nullable = false)
-	private ProductVariant productVariant;
+	@JoinColumn(name = "product_id", nullable = false)
+	private Product product;
 	
 	@Column(name = "value", nullable = false)
 	private String value;

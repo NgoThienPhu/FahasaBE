@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,11 +33,12 @@ public class Attribute {
 	@Column(name = "id")
 	private String id;
 	
-	@Column(name = "name", nullable = false)
+	@Column(name = "name", nullable = false, unique = true)
 	private String name;
 	
+	@JsonIgnore
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "attribute")
-	private List<ProductAttributeValue> productAttributeValue = new ArrayList<>();
+	private List<ProductAttributeValue> productVariantAttributeValues = new ArrayList<>();
 	
 	@Column(name = "created_at", nullable = false)
 	private LocalDateTime createdAt;

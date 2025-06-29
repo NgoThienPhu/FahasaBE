@@ -40,8 +40,8 @@ public class CategoryController {
 
 	@GetMapping
 	public ResponseEntity<?> getCategories(@RequestParam(required = false) String categoryName,
-			@RequestParam(required = true, defaultValue = "asc") String sortBy) {
-		List<Category> categories = categoryService.getCategories(categoryName, sortBy);
+			@RequestParam(required = true, defaultValue = "asc") String orderBy) {
+		List<Category> categories = categoryService.getCategories(categoryName, orderBy);
 		ApiResponseDTO<List<Category>> response = new ApiResponseDTO<List<Category>>(
 				"Lấy danh sách loại sản phẩm thành công", "success", categories);
 		return new ResponseEntity<ApiResponseDTO<List<Category>>>(response, HttpStatus.OK);

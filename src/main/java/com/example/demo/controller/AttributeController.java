@@ -1,5 +1,7 @@
 package com.example.demo.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dto.ApiResponseDTO;
@@ -28,6 +31,16 @@ public class AttributeController {
 
 	public AttributeController(AttributeServiceInf attributeServiceInf) {
 		this.attributeService = attributeServiceInf;
+	}
+
+	@GetMapping
+	public ResponseEntity<?> getAttributes(@RequestParam(required = false) String attributeName,
+			@RequestParam(required = true, defaultValue = "name") String sortBy,
+			@RequestParam(required = true, defaultValue = "asc") String orderBy) {
+		List<Attribute> attributes = attributeService.getAttributes(attributeName, orderBy, sortBy);
+		ApiResponseDTO<List<Attribute>> response = new ApiResponseDTO<List<Attribute>>("Tìm thuộc tính thành công",
+				"success", attributes);
+		return new ResponseEntity<ApiResponseDTO<List<Attribute>>>(response, HttpStatus.OK);
 	}
 
 	@GetMapping("/{attributeId}")

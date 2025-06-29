@@ -7,7 +7,7 @@ import com.example.demo.validator.CategoryValidator;
 
 public interface CategoryServiceInf {
 
-	List<Category> getCategories(String categoryName, String orderBy);
+	List<Category> getCategories(String categoryName, String sortBy);
 
 	Category findCategoryById(String categoryId);
 
