@@ -16,7 +16,7 @@ import com.example.demo.dto.ChangePasswordRequestDTO;
 import com.example.demo.dto.LoginResponseDTO;
 import com.example.demo.entities.UserAccount;
 import com.example.demo.entities.bases.Account;
-import com.example.demo.services.implement.AuthenticationService;
+import com.example.demo.services.implement.AuthenticationServiceImpl;
 import com.example.demo.validator.LoginValidator;
 import com.example.demo.validator.UserAccountValidator;
 import com.example.demo.utils.BindingResultUtils;
@@ -27,10 +27,10 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/auth")
 public class AuthenticationController {
 
-	private AuthenticationService authenticationService;
+	private AuthenticationServiceImpl authenticationServiceImpl;
 
-	public AuthenticationController(AuthenticationService authenticationService) {
-		this.authenticationService = authenticationService;
+	public AuthenticationController(AuthenticationServiceImpl authenticationServiceImpl) {
+		this.authenticationServiceImpl = authenticationServiceImpl;
 	}
 
 	@GetMapping("/login")
@@ -40,7 +40,7 @@ public class AuthenticationController {
 		if (responseError != null)
 			return responseError;
 
-		LoginResponseDTO account = authenticationService.userLogin(body);
+		LoginResponseDTO account = authenticationServiceImpl.userLogin(body);
 		ApiResponseDTO<LoginResponseDTO> response = new ApiResponseDTO<LoginResponseDTO>("Đăng nhập thành công!",
 				"success", account);
 		return new ResponseEntity<ApiResponseDTO<LoginResponseDTO>>(response, HttpStatus.OK);
@@ -53,7 +53,7 @@ public class AuthenticationController {
 		if (responseError != null)
 			return responseError;
 
-		UserAccount account = authenticationService.userRegister(body);
+		UserAccount account = authenticationServiceImpl.userRegister(body);
 		ApiResponseDTO<Account> response = new ApiResponseDTO<Account>("Đăng kí thành công", "success", account);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
@@ -65,7 +65,7 @@ public class AuthenticationController {
 		if (responseError != null)
 			return responseError;
 		String accessToken = authHeader.replace("Bearer ", "");
-		authenticationService.userChangePassword(body, accessToken);
+		authenticationServiceImpl.userChangePassword(body, accessToken);
 		ApiResponseDTO<Void> response = new ApiResponseDTO<Void>("Đổi mật khẩu thành công", "success");
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}

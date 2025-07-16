@@ -14,15 +14,15 @@ import org.springframework.web.server.ResponseStatusException;
 import com.example.demo.dto.ApiResponseDTO;
 import com.example.demo.entities.UserAccount;
 import com.example.demo.entities.bases.Account;
-import com.example.demo.services.interfaces.UserAccountServiceInf;
+import com.example.demo.services.interfaces.UserAccountService;
 
 @RestController
 @RequestMapping("/api/accounts")
 public class AccountController {
 	
-	private UserAccountServiceInf accountService;
+	private UserAccountService accountService;
 
-	public AccountController(UserAccountServiceInf accountService) {
+	public AccountController(UserAccountService accountService) {
 		this.accountService = accountService;
 	}
 	

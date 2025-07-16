@@ -16,25 +16,25 @@ import com.example.demo.entities.UserAccount;
 import com.example.demo.entities.enums.AccountType;
 import com.example.demo.entities.enums.TokenType;
 import com.example.demo.repository.AccountRepository;
-import com.example.demo.services.interfaces.AuthenticationServiceInf;
-import com.example.demo.services.interfaces.JwtServiceInf;
-import com.example.demo.services.interfaces.UserAccountServiceInf;
+import com.example.demo.services.interfaces.AuthenticationService;
+import com.example.demo.services.interfaces.JwtService;
+import com.example.demo.services.interfaces.UserAccountService;
 import com.example.demo.validator.LoginValidator;
 import com.example.demo.validator.UserAccountValidator;
 
 import jakarta.transaction.Transactional;
 
 @Service
-public class AuthenticationService implements AuthenticationServiceInf {
+public class AuthenticationServiceImpl implements AuthenticationService {
 
 	private AuthenticationManager authenticationManager;
-	private UserAccountServiceInf userAccountService;
+	private UserAccountService userAccountService;
 	private AccountRepository accountRepository;
-	private JwtServiceInf jwtService;
+	private JwtService jwtService;
 	private PasswordEncoder passwordEncoder;
 
-	public AuthenticationService(AuthenticationManager authenticationManager, UserAccountServiceInf userAccountService,
-			AccountRepository accountRepository, JwtServiceInf jwtService, PasswordEncoder passwordEncoder) {
+	public AuthenticationServiceImpl(AuthenticationManager authenticationManager, UserAccountService userAccountService,
+			AccountRepository accountRepository, JwtService jwtService, PasswordEncoder passwordEncoder) {
 		this.authenticationManager = authenticationManager;
 		this.userAccountService = userAccountService;
 		this.accountRepository = accountRepository;

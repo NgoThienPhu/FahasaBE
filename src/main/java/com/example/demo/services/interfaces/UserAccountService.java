@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.example.demo.entities.UserAccount;
 
-public interface UserAccountServiceInf {
+public interface UserAccountService {
 	
 	public UserAccount createUserAccount(UserAccount userAccount);
 	

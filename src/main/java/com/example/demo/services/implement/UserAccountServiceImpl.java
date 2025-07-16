@@ -8,16 +8,16 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.entities.UserAccount;
 import com.example.demo.repository.UserAccountRepository;
-import com.example.demo.services.interfaces.UserAccountServiceInf;
+import com.example.demo.services.interfaces.UserAccountService;
 
 import jakarta.transaction.Transactional;
 
 @Service
-public class UserAccountService implements UserAccountServiceInf {
+public class UserAccountServiceImpl implements UserAccountService {
 	
 	private UserAccountRepository userAccountRepository;
 
-	public UserAccountService(UserAccountRepository userAccountRepository) {
+	public UserAccountServiceImpl(UserAccountRepository userAccountRepository) {
 		this.userAccountRepository = userAccountRepository;
 	}
 

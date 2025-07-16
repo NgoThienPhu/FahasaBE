@@ -1,5 +1,7 @@
 package com.example.demo.dto;
 
+import java.util.List;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -13,9 +15,8 @@ public record ProductRequestDTO(
 		@NotBlank(message = "Mô tả sản phẩm không được để trống") 
 		String description,
 
-		@NotNull(message = "Loại sản phẩm không được để trống") 
-		@Valid 
-		ProductCategoryRequestDTO category,
+		@NotNull(message = "Mã loại sản phẩm không được để trống") 
+		String categoryId,
 		
 		@NotNull(message = "Giá sản phẩm không được để trống")
 		@Min(message = "Giá sản phẩm tối thiểu là 1.000 VND", value = 1000)
@@ -23,5 +24,8 @@ public record ProductRequestDTO(
 		
 		@NotNull(message = "Số lượng sản phẩm không được để trống")
 		@Min(message = "Số lượng sản phẩm tối thiểu là 1", value = 1)
-		Integer quantity
+		Integer quantity,
+		
+		@Valid
+		List<ProductAttributeValueDTO> attributes 
 ) {}

@@ -4,7 +4,7 @@ import java.util.Date;
 
 import com.example.demo.entities.enums.TokenType;
 
-public interface JwtServiceInf {
+public interface JwtService {
 	
 	public String createToken(String username, TokenType tokenType);
 	

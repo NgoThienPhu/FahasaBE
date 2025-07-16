@@ -1,6 +1,7 @@
 package com.example.demo.entities;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -9,6 +10,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -44,4 +47,22 @@ public class ProductAttributeValue {
 	
 	@Column(name = "updated_at", nullable = false)
 	private LocalDateTime updatedAt;
+	
+	public ProductAttributeValue(Attribute attribute, String value) {
+		this.attribute = attribute;
+		this.value = value;
+	}
+	
+	@PrePersist
+	public void onCreate() {
+		this.id = UUID.randomUUID().toString();
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+	
+	@PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
+
 }

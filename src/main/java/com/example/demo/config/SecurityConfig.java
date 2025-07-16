@@ -15,18 +15,18 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.example.demo.filter.JwtAuthenticationFilter;
-import com.example.demo.services.implement.CustomUserDetailService;
+import com.example.demo.services.implement.CustomUserDetailServiceImpl;
 
 @Configuration
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 	
-	private CustomUserDetailService customUserDetailService;
+	private CustomUserDetailServiceImpl customUserDetailServiceImpl;
 	private JwtAuthenticationFilter jwtAuthenticationFilter;
 
-	public SecurityConfig(CustomUserDetailService customUserDetailService,
+	public SecurityConfig(CustomUserDetailServiceImpl customUserDetailServiceImpl,
 			JwtAuthenticationFilter jwtAuthenticationFilter) {
-		this.customUserDetailService = customUserDetailService;
+		this.customUserDetailServiceImpl = customUserDetailServiceImpl;
 		this.jwtAuthenticationFilter = jwtAuthenticationFilter;
 	}
 
@@ -39,7 +39,7 @@ public class SecurityConfig {
 	DaoAuthenticationProvider daoAuthenticationProvider() {
 		DaoAuthenticationProvider dao = new DaoAuthenticationProvider();
 		dao.setPasswordEncoder(encoder());
-		dao.setUserDetailsService(customUserDetailService);
+		dao.setUserDetailsService(customUserDetailServiceImpl);
 		return dao;
 	}
 	

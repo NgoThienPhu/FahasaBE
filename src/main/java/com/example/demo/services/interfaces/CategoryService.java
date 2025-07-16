@@ -4,8 +4,9 @@ import java.util.List;
 
 import com.example.demo.entities.Category;
 import com.example.demo.validator.CategoryValidator;
+import com.example.demo.validator.UpdateCategoryValidator;
 
-public interface CategoryServiceInf {
+public interface CategoryService {
 
 	List<Category> getCategories(String categoryName, String sortBy);
 
@@ -15,6 +16,6 @@ public interface CategoryServiceInf {
 
 	void deleteCategory(String categoryId);
 
-	Category updateCategory(CategoryValidator body, String categoryId);
+	Category updateCategoryName(UpdateCategoryValidator body, String categoryId);
 
 }

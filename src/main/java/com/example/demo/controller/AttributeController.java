@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dto.ApiResponseDTO;
 import com.example.demo.entities.Attribute;
-import com.example.demo.services.interfaces.AttributeServiceInf;
+import com.example.demo.services.interfaces.AttributeService;
 import com.example.demo.utils.BindingResultUtils;
 import com.example.demo.validator.AttributeValidator;
 
@@ -27,10 +27,10 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/attributes")
 public class AttributeController {
 
-	private AttributeServiceInf attributeService;
+	private AttributeService attributeService;
 
-	public AttributeController(AttributeServiceInf attributeServiceInf) {
-		this.attributeService = attributeServiceInf;
+	public AttributeController(AttributeService attributeService) {
+		this.attributeService = attributeService;
 	}
 
 	@GetMapping

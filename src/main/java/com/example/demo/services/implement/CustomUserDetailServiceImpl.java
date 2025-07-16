@@ -12,14 +12,14 @@ import com.example.demo.entities.AdminAccount;
 import com.example.demo.entities.bases.Account;
 import com.example.demo.entities.enums.AccountType;
 import com.example.demo.repository.AccountRepository;
-import com.example.demo.services.interfaces.CustomUserDetailServiceInf;
+import com.example.demo.services.interfaces.CustomUserDetailService;
 
 @Service
-public class CustomUserDetailService implements CustomUserDetailServiceInf {
+public class CustomUserDetailServiceImpl implements CustomUserDetailService {
 	
 	private AccountRepository accountRepository;
 
-	public CustomUserDetailService(AccountRepository accountRepository) {
+	public CustomUserDetailServiceImpl(AccountRepository accountRepository) {
 		this.accountRepository = accountRepository;
 	}
 

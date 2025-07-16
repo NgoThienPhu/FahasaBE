@@ -18,4 +18,6 @@ public interface CategoryRepository extends JpaRepository<Category, String> {
 	@Query("SELECT c FROM Category c WHERE c.name LIKE CONCAT('%', :categoryName, '%')")
 	public List<Category> findByName(@Param("categoryName") String categoryName, Sort orderBy);
 	
+	Boolean existsByCategory_Id(String parentCategoryId);
+	
 }

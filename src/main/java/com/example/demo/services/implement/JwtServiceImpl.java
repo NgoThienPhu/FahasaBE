@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.entities.enums.TokenType;
-import com.example.demo.services.interfaces.JwtServiceInf;
+import com.example.demo.services.interfaces.JwtService;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -18,7 +18,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 
 @Service
-public class JwtService implements JwtServiceInf {
+public class JwtServiceImpl implements JwtService {
 	
 	@Value("${jwt.secretKey}")
 	private String SECRET_KEY;

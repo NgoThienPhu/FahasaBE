@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.demo.services.interfaces.S3ServiceInf;
+import com.example.demo.services.interfaces.S3Service;
 
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -17,7 +17,7 @@ import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Service
-public class S3Service implements S3ServiceInf {
+public class S3ServiceImpl implements S3Service {
 
 	private S3Client s3Client;
 
@@ -27,7 +27,7 @@ public class S3Service implements S3ServiceInf {
 	@Value("${aws.region}")
 	private String region;
 
-	public S3Service(S3Client s3Client) {
+	public S3ServiceImpl(S3Client s3Client) {
 		this.s3Client = s3Client;
 	}
 
@@ -50,7 +50,7 @@ public class S3Service implements S3ServiceInf {
 
 		for (MultipartFile file : files) {
 			String fileName = uploadFile(file);
-			uploadedFileNames.add(convertFileNameToFileURL(fileName));
+			uploadedFileNames.add(fileName);
 		}
 
 		return uploadedFileNames;

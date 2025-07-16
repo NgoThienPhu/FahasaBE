@@ -6,9 +6,11 @@ public record ProductAttributeValueDTO(
 
 		String attributeId,
 
-		@NotBlank(message = "Tên thuộc tính không được để trống") String attributeName,
+		@NotBlank(message = "Tên thuộc tính không được để trống") 
+		String attributeName,
 
-		@NotBlank(message = "Giá trị thuộc tính không được để trống") String attributeValue
+		@NotBlank(message = "Giá trị thuộc tính không được để trống") 
+		String attributeValue
 
 ) {
 }

@@ -15,8 +15,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.config.EndPoint;
-import com.example.demo.services.interfaces.CustomUserDetailServiceInf;
-import com.example.demo.services.interfaces.JwtServiceInf;
+import com.example.demo.services.interfaces.CustomUserDetailService;
+import com.example.demo.services.interfaces.JwtService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.jsonwebtoken.ExpiredJwtException;
@@ -28,10 +28,10 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-	private JwtServiceInf jwtService;
-	private CustomUserDetailServiceInf customUserDetailService;
+	private JwtService jwtService;
+	private CustomUserDetailService customUserDetailService;
 
-	public JwtAuthenticationFilter(JwtServiceInf jwtService, CustomUserDetailServiceInf customUserDetailService) {
+	public JwtAuthenticationFilter(JwtService jwtService, CustomUserDetailService customUserDetailService) {
 		this.jwtService = jwtService;
 		this.customUserDetailService = customUserDetailService;
 	}

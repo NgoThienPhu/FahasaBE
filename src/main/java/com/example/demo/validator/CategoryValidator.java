@@ -2,9 +2,11 @@ package com.example.demo.validator;
 
 import jakarta.validation.constraints.NotBlank;
 
-public record CategoryValidator(
+public record CategoryValidator (
 
-		@NotBlank(message = "Tên loại sản phẩm không được để trống") String name
-
-) {
-}
+		@NotBlank(message = "Tên loại sản phẩm không được để trống") 
+		String categoryName,
+		
+		String parentCategoryId
+		
+) {}

@@ -14,15 +14,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.dto.ApiResponseDTO;
 import com.example.demo.entities.Category;
-import com.example.demo.entities.Product;
-import com.example.demo.services.interfaces.CategoryServiceInf;
-import com.example.demo.services.interfaces.ProductServiceInf;
+import com.example.demo.services.interfaces.CategoryService;
 import com.example.demo.utils.BindingResultUtils;
 import com.example.demo.validator.CategoryValidator;
+import com.example.demo.validator.UpdateCategoryValidator;
 
 import jakarta.validation.Valid;
 
@@ -30,12 +28,10 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/categories")
 public class CategoryController {
 
-	private CategoryServiceInf categoryService;
-	private ProductServiceInf productService;
+	private CategoryService categoryService;
 
-	public CategoryController(CategoryServiceInf categoryService, ProductServiceInf productService) {
+	public CategoryController(CategoryService categoryService) {
 		this.categoryService = categoryService;
-		this.productService = productService;
 	}
 
 	@GetMapping
@@ -69,31 +65,25 @@ public class CategoryController {
 		return new ResponseEntity<ApiResponseDTO<Category>>(response, HttpStatus.OK);
 	}
 
-	@DeleteMapping("/{categoryId}")
-	public ResponseEntity<?> deleteCategory(@PathVariable String categoryId) {
-		List<Product> products = productService.findProductsByCateogryId(categoryId);
-		if (!products.isEmpty())
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-					"Loại sản phẩm đang được sử dụng vui lòng thử lại sau");
-		categoryService.deleteCategory(categoryId);
-		ApiResponseDTO<Void> response = new ApiResponseDTO<Void>(
-				String.format("Đã xóa loại sản phẩm với id là: %s", categoryId), "success");
-		return new ResponseEntity<ApiResponseDTO<Void>>(response, HttpStatus.OK);
-	}
-
 	@PatchMapping("/{categoryId}")
-	public ResponseEntity<?> updateCategory(@Valid @RequestBody CategoryValidator body, @PathVariable String categoryId,
-			BindingResult result) {
-
+	public ResponseEntity<?> updateCategoryName(@PathVariable String categoryId,
+			@Valid @RequestBody UpdateCategoryValidator updateCategoryValidator, BindingResult result) {
 		ResponseEntity<?> responseError = BindingResultUtils.handleValidationErrors(result,
 				"Cập nhật loại sản phẩm thất bại!");
 		if (responseError != null)
 			return responseError;
-
-		Category myCategory = categoryService.updateCategory(body, categoryId);
+		Category category = categoryService.updateCategoryName(updateCategoryValidator, categoryId);
 		ApiResponseDTO<Category> response = new ApiResponseDTO<Category>("Cập nhật loại sản phẩm thành công", "success",
-				myCategory);
+				category);
 		return new ResponseEntity<ApiResponseDTO<Category>>(response, HttpStatus.OK);
+	}
+
+	@DeleteMapping("/{categoryId}")
+	public ResponseEntity<?> deleteCategory(@PathVariable String categoryId) {
+		categoryService.deleteCategory(categoryId);
+		ApiResponseDTO<Void> response = new ApiResponseDTO<Void>(
+				String.format("Đã xóa loại sản phẩm với id là: %s", categoryId), "success");
+		return new ResponseEntity<ApiResponseDTO<Void>>(response, HttpStatus.OK);
 	}
 
 }

@@ -10,17 +10,17 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.entities.Attribute;
 import com.example.demo.repository.AttributeRepository;
-import com.example.demo.services.interfaces.AttributeServiceInf;
+import com.example.demo.services.interfaces.AttributeService;
 import com.example.demo.validator.AttributeValidator;
 
 import jakarta.transaction.Transactional;
 
 @Service
-public class AttributeService implements AttributeServiceInf {
+public class AttributeServiceImpl implements AttributeService {
 
 	private AttributeRepository attributeRepository;
 
-	public AttributeService(AttributeRepository attributeRepository) {
+	public AttributeServiceImpl(AttributeRepository attributeRepository) {
 		this.attributeRepository = attributeRepository;
 	}
 

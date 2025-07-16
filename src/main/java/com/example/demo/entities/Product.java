@@ -1,6 +1,7 @@
 package com.example.demo.entities;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -52,22 +53,26 @@ public class Product {
 	private String skuCode;
 
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "product")
-	private List<ProductImage> images;
-
+	private List<ProductImage> images = new ArrayList<>();
+	
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "product")
+	private List<ProductAttributeValue> attributeValues = new ArrayList<>();
+	
 	@Column(name = "created_at", nullable = false)
 	private LocalDateTime createdAt;
 
 	@Column(name = "updated_at", nullable = false)
 	private LocalDateTime updatedAt;
-
+	
 	public Product(String name, String description, Category category, Double price, Integer quantity,
-			List<ProductImage> images) {
+			List<ProductImage> images, List<ProductAttributeValue> attributeValues) {
 		this.name = name;
 		this.description = description;
 		this.category = category;
 		this.price = price;
 		this.quantity = quantity;
 		this.images = images;
+		this.attributeValues = attributeValues;
 	}
 
 	@PrePersist
