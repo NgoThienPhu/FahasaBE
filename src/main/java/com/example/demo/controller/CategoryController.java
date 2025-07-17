@@ -1,7 +1,6 @@
 package com.example.demo.controller;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dto.ApiResponseDTO;
+import com.example.demo.dto.PagedResponseDTO;
 import com.example.demo.entities.Category;
 import com.example.demo.services.interfaces.CategoryService;
 import com.example.demo.utils.BindingResultUtils;
@@ -36,16 +36,22 @@ public class CategoryController {
 
 	@GetMapping
 	public ResponseEntity<?> getCategories(@RequestParam(required = false) String categoryName,
-			@RequestParam(required = true, defaultValue = "asc") String orderBy) {
-		List<Category> categories = categoryService.getCategories(categoryName, orderBy);
-		ApiResponseDTO<List<Category>> response = new ApiResponseDTO<List<Category>>(
-				"Lấy danh sách loại sản phẩm thành công", "success", categories);
-		return new ResponseEntity<ApiResponseDTO<List<Category>>>(response, HttpStatus.OK);
+			@RequestParam(required = true, defaultValue = "asc") String orderBy,
+			@RequestParam(required = true, defaultValue = "name") String sortBy,
+			@RequestParam(required = true, defaultValue = "0") int page,
+			@RequestParam(required = true, defaultValue = "20") int size) {
+		Page<Category> categories = categoryService.findAll(categoryName, orderBy, sortBy, page, size);
+		PagedResponseDTO<Category> pagedResponseDTO = new PagedResponseDTO<Category>(categories.getContent(),
+				categories.getNumber(), categories.getSize(), categories.getTotalElements(), categories.getTotalPages(),
+				categories.isLast());
+		ApiResponseDTO<PagedResponseDTO<Category>> response = new ApiResponseDTO<PagedResponseDTO<Category>>(
+				"Lấy danh sách loại sản phẩm thành công", "success", pagedResponseDTO);
+		return new ResponseEntity<ApiResponseDTO<PagedResponseDTO<Category>>>(response, HttpStatus.OK);
 	}
 
 	@GetMapping("/{categoryId}")
 	public ResponseEntity<?> findCategoryById(@PathVariable String categoryId) {
-		Category category = categoryService.findCategoryById(categoryId);
+		Category category = categoryService.findById(categoryId);
 		ApiResponseDTO<Category> response = new ApiResponseDTO<Category>("Tìm loại sản phẩm thành công", "success",
 				category);
 		return new ResponseEntity<ApiResponseDTO<Category>>(response, HttpStatus.OK);
@@ -59,7 +65,7 @@ public class CategoryController {
 		if (responseError != null)
 			return responseError;
 
-		Category myCategory = categoryService.createCategory(body);
+		Category myCategory = categoryService.create(body);
 		ApiResponseDTO<Category> response = new ApiResponseDTO<Category>("Tạo loại sản phẩm thành công", "success",
 				myCategory);
 		return new ResponseEntity<ApiResponseDTO<Category>>(response, HttpStatus.OK);
@@ -72,7 +78,7 @@ public class CategoryController {
 				"Cập nhật loại sản phẩm thất bại!");
 		if (responseError != null)
 			return responseError;
-		Category category = categoryService.updateCategoryName(updateCategoryValidator, categoryId);
+		Category category = categoryService.update(updateCategoryValidator, categoryId);
 		ApiResponseDTO<Category> response = new ApiResponseDTO<Category>("Cập nhật loại sản phẩm thành công", "success",
 				category);
 		return new ResponseEntity<ApiResponseDTO<Category>>(response, HttpStatus.OK);
@@ -80,7 +86,7 @@ public class CategoryController {
 
 	@DeleteMapping("/{categoryId}")
 	public ResponseEntity<?> deleteCategory(@PathVariable String categoryId) {
-		categoryService.deleteCategory(categoryId);
+		categoryService.deleteById(categoryId);
 		ApiResponseDTO<Void> response = new ApiResponseDTO<Void>(
 				String.format("Đã xóa loại sản phẩm với id là: %s", categoryId), "success");
 		return new ResponseEntity<ApiResponseDTO<Void>>(response, HttpStatus.OK);

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,6 +22,7 @@ import com.example.demo.repository.ProductRepository;
 import com.example.demo.services.interfaces.AttributeService;
 import com.example.demo.services.interfaces.CategoryService;
 import com.example.demo.services.interfaces.ProductService;
+import com.example.demo.specification.ProductSpecification;
 import com.example.demo.validator.AttributeValidator;
 
 @Service
@@ -114,7 +116,7 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	private Category handleCategory(String categoryId) {
-		Category category = categoryService.findCategoryById(categoryId);
+		Category category = categoryService.findById(categoryId);
 		if (category == null)
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 					String.format("Không tìm thấy loại sản phẩm với id là: %s", categoryId));
@@ -133,7 +135,8 @@ public class ProductServiceImpl implements ProductService {
 
 	@Override
 	public Boolean existsProductsByCategoryId(String categoryId) {
-		return productRepository.existsByCategory_Id(categoryId);
+		Specification<Product> spec = ProductSpecification.hasCategory(categoryId);
+		return productRepository.count(spec) > 0;
 	}
 
 }

@@ -33,10 +33,10 @@ public class ProductController {
 		this.productService = productService;
 	}
 	
-//	@GetMapping
-//	public ResponseEntity<?> getProducts() {
-//		
-//	}
+	@GetMapping
+	public ResponseEntity<?> getProducts() {
+		return null;
+	}
 
 	@GetMapping("/{productId}")
 	public ResponseEntity<?> getProductById(@PathVariable String productId) {

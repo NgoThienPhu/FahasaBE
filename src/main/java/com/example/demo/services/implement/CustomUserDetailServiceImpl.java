@@ -11,22 +11,22 @@ import org.springframework.web.server.ResponseStatusException;
 import com.example.demo.entities.AdminAccount;
 import com.example.demo.entities.bases.Account;
 import com.example.demo.entities.enums.AccountType;
-import com.example.demo.repository.AccountRepository;
+import com.example.demo.services.interfaces.AccountService;
 import com.example.demo.services.interfaces.CustomUserDetailService;
 
 @Service
 public class CustomUserDetailServiceImpl implements CustomUserDetailService {
 	
-	private AccountRepository accountRepository;
-
-	public CustomUserDetailServiceImpl(AccountRepository accountRepository) {
-		this.accountRepository = accountRepository;
+	private AccountService accountService;
+	
+	public CustomUserDetailServiceImpl(AccountService accountService) {
+		this.accountService = accountService;
 	}
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		
-		Account account = accountRepository.findByUsername(username).orElse(null);
+		Account account = accountService.findByUsername(username).orElse(null);
 		
 		if(account == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Tài khoản không tồn tại vui lòng thử lại sau");
 		

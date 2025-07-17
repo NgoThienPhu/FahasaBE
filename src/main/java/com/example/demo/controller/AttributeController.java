@@ -1,7 +1,6 @@
 package com.example.demo.controller;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dto.ApiResponseDTO;
+import com.example.demo.dto.PagedResponseDTO;
 import com.example.demo.entities.Attribute;
 import com.example.demo.services.interfaces.AttributeService;
 import com.example.demo.utils.BindingResultUtils;
@@ -36,11 +36,16 @@ public class AttributeController {
 	@GetMapping
 	public ResponseEntity<?> getAttributes(@RequestParam(required = false) String attributeName,
 			@RequestParam(required = true, defaultValue = "name") String sortBy,
-			@RequestParam(required = true, defaultValue = "asc") String orderBy) {
-		List<Attribute> attributes = attributeService.getAttributes(attributeName, orderBy, sortBy);
-		ApiResponseDTO<List<Attribute>> response = new ApiResponseDTO<List<Attribute>>("Tìm thuộc tính thành công",
-				"success", attributes);
-		return new ResponseEntity<ApiResponseDTO<List<Attribute>>>(response, HttpStatus.OK);
+			@RequestParam(required = true, defaultValue = "asc") String orderBy,
+			@RequestParam(required = true, defaultValue = "0") int page,
+			@RequestParam(required = true, defaultValue = "20") int size) {
+		Page<Attribute> attributes = attributeService.getAttributes(attributeName, orderBy, sortBy, page, size);
+		PagedResponseDTO<Attribute> pagedResponseDTO = new PagedResponseDTO<Attribute>(attributes.getContent(),
+				attributes.getNumber(), attributes.getSize(), attributes.getTotalElements(), attributes.getTotalPages(),
+				attributes.isLast());
+		ApiResponseDTO<PagedResponseDTO<Attribute>> response = new ApiResponseDTO<PagedResponseDTO<Attribute>>(
+				"Tìm thuộc tính thành công", "success", pagedResponseDTO);
+		return new ResponseEntity<ApiResponseDTO<PagedResponseDTO<Attribute>>>(response, HttpStatus.OK);
 	}
 
 	@GetMapping("/{attributeId}")

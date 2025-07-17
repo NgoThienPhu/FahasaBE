@@ -1,13 +1,13 @@
 package com.example.demo.services.interfaces;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 import com.example.demo.entities.Attribute;
 import com.example.demo.validator.AttributeValidator;
 
 public interface AttributeService {
 	
-	public List<Attribute> getAttributes(String attributeName, String orderBy, String sortBy);
+	public Page<Attribute> getAttributes(String attributeName, String orderBy, String sortBy, int page, int size);
 	
 	public Attribute createAttribute(AttributeValidator body);
 	

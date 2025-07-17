@@ -15,7 +15,7 @@ import com.example.demo.dto.LoginResponseDTO;
 import com.example.demo.entities.UserAccount;
 import com.example.demo.entities.enums.AccountType;
 import com.example.demo.entities.enums.TokenType;
-import com.example.demo.repository.AccountRepository;
+import com.example.demo.services.interfaces.AccountService;
 import com.example.demo.services.interfaces.AuthenticationService;
 import com.example.demo.services.interfaces.JwtService;
 import com.example.demo.services.interfaces.UserAccountService;
@@ -29,15 +29,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 	private AuthenticationManager authenticationManager;
 	private UserAccountService userAccountService;
-	private AccountRepository accountRepository;
+	private AccountService accountService;
 	private JwtService jwtService;
 	private PasswordEncoder passwordEncoder;
 
 	public AuthenticationServiceImpl(AuthenticationManager authenticationManager, UserAccountService userAccountService,
-			AccountRepository accountRepository, JwtService jwtService, PasswordEncoder passwordEncoder) {
+			AccountService accountService, JwtService jwtService, PasswordEncoder passwordEncoder) {
 		this.authenticationManager = authenticationManager;
 		this.userAccountService = userAccountService;
-		this.accountRepository = accountRepository;
+		this.accountService = accountService;
 		this.jwtService = jwtService;
 		this.passwordEncoder = passwordEncoder;
 	}
@@ -71,7 +71,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	@Transactional
 	@Override
 	public UserAccount userRegister(UserAccountValidator body) {
-		Boolean checkExistsUsername = accountRepository.existsByUsername(body.username());
+		Boolean checkExistsUsername = accountService.existsByUsername(body.username());
 		Boolean checkExistsEmail = userAccountService.existsByEmail(body.email());
 		Boolean checkExistsPhoneNumber = userAccountService.existsByPhoneNumber(body.phoneNumber());
 
