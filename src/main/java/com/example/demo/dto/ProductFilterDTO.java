@@ -1,5 +1,6 @@
 package com.example.demo.dto;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 public record ProductFilterDTO(
@@ -8,9 +9,9 @@ public record ProductFilterDTO(
 
 		String categoryId,
 
-		int minPrice,
+		BigDecimal minPrice,
 
-		int maxPrice,
+		BigDecimal maxPrice,
 
 		Map<String, String> attributes
 		
