@@ -12,13 +12,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.demo.dto.CreateCategoryRequestDTO;
+import com.example.demo.dto.UpdateCategoryNameRequestDTO;
 import com.example.demo.entities.Category;
 import com.example.demo.repository.CategoryRepository;
 import com.example.demo.services.interfaces.CategoryService;
 import com.example.demo.services.interfaces.ProductService;
 import com.example.demo.specification.CategorySpecification;
-import com.example.demo.validator.CategoryValidator;
-import com.example.demo.validator.UpdateCategoryValidator;
 
 import jakarta.transaction.Transactional;
 
@@ -36,7 +36,7 @@ public class CategoryServiceImpl implements CategoryService {
 
 	@Transactional
 	@Override
-	public Category create(CategoryValidator body) {
+	public Category create(CreateCategoryRequestDTO body) {
 
 		Specification<Category> spec = CategorySpecification.nameEquals(body.categoryName());
 		Boolean nameExists = categoryRepository.count(spec) > 0;
@@ -87,7 +87,7 @@ public class CategoryServiceImpl implements CategoryService {
 
 	@Transactional
 	@Override
-	public Category update(UpdateCategoryValidator body, String categoryId) {
+	public Category update(UpdateCategoryNameRequestDTO body, String categoryId) {
 		Category category = categoryRepository.findById(categoryId).orElse(null);
 		if (category == null)
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,

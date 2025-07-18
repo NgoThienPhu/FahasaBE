@@ -11,11 +11,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.demo.dto.CreateAttributeRequestDTO;
 import com.example.demo.entities.Attribute;
 import com.example.demo.repository.AttributeRepository;
 import com.example.demo.services.interfaces.AttributeService;
 import com.example.demo.specification.AttributeSpecification;
-import com.example.demo.validator.AttributeValidator;
 
 import jakarta.transaction.Transactional;
 
@@ -30,7 +30,7 @@ public class AttributeServiceImpl implements AttributeService {
 
 	@Transactional
 	@Override
-	public Attribute createAttribute(AttributeValidator body) {
+	public Attribute createAttribute(CreateAttributeRequestDTO body) {
 		Specification<Attribute> spec = AttributeSpecification.hasName(body.attributeName());
 		Boolean checkNameExists = attributeRepository.count(spec) > 0;
 		if (checkNameExists)
@@ -62,7 +62,7 @@ public class AttributeServiceImpl implements AttributeService {
 
 	@Transactional
 	@Override
-	public Attribute updateAttribute(AttributeValidator body, String attributeId) {
+	public Attribute updateAttribute(CreateAttributeRequestDTO body, String attributeId) {
 		Attribute attribute = attributeRepository.findById(attributeId).orElse(null);
 		if (attribute == null)
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND,

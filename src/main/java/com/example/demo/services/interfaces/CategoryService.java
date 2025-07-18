@@ -2,9 +2,9 @@ package com.example.demo.services.interfaces;
 
 import org.springframework.data.domain.Page;
 
+import com.example.demo.dto.CreateCategoryRequestDTO;
+import com.example.demo.dto.UpdateCategoryNameRequestDTO;
 import com.example.demo.entities.Category;
-import com.example.demo.validator.CategoryValidator;
-import com.example.demo.validator.UpdateCategoryValidator;
 
 public interface CategoryService {
 
@@ -12,11 +12,11 @@ public interface CategoryService {
 
 	Category findById(String categoryId);
 
-	Category create(CategoryValidator body);
+	Category create(CreateCategoryRequestDTO body);
 
 	void deleteById(String categoryId);
 
-	Category update(UpdateCategoryValidator body, String categoryId);
+	Category update(UpdateCategoryNameRequestDTO body, String categoryId);
 
 	Boolean existsByName(String categoryName);
 

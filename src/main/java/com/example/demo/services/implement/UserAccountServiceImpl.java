@@ -45,7 +45,7 @@ public class UserAccountServiceImpl implements UserAccountService {
 
 		Pageable pageable = PageRequest.of(page, size, sort);
 		
-		Specification<UserAccount> spec = Specification.where(UserAccountSpecification.hasUsername(keyWord))
+		Specification<UserAccount> spec = Specification.where(UserAccountSpecification.equalsUsername(keyWord))
 				.or(UserAccountSpecification.hasEmail(keyWord))
 				.or(UserAccountSpecification.hasPhoneNumber(keyWord));
 		
@@ -54,7 +54,7 @@ public class UserAccountServiceImpl implements UserAccountService {
 	
 	@Override
 	public UserAccount findUserAccountByUsername(String username) {
-		Specification<UserAccount> spec = UserAccountSpecification.hasUsername(username);
+		Specification<UserAccount> spec = UserAccountSpecification.equalsUsername(username);
 		return userAccountRepository.findOne(spec).orElse(null);
 	}
 
@@ -102,13 +102,13 @@ public class UserAccountServiceImpl implements UserAccountService {
 
 	@Override
 	public Boolean existsByEmail(String email) {
-		Specification<UserAccount> spec = UserAccountSpecification.hasEmail(email);
+		Specification<UserAccount> spec = UserAccountSpecification.equalsEmail(email);
 		return userAccountRepository.count(spec) > 0;
 	}
 
 	@Override
 	public Boolean existsByPhoneNumber(String phoneNumber) {
-		Specification<UserAccount> spec = UserAccountSpecification.hasPhoneNumber(phoneNumber);
+		Specification<UserAccount> spec = UserAccountSpecification.equalsPhoneNumber(phoneNumber);
 		return userAccountRepository.count(spec) > 0;
 	}
 

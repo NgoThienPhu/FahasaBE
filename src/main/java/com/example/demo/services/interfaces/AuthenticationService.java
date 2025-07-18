@@ -2,14 +2,14 @@ package com.example.demo.services.interfaces;
 
 import com.example.demo.dto.ChangePasswordRequestDTO;
 import com.example.demo.dto.LoginResponseDTO;
+import com.example.demo.dto.LoginRequestDTO;
+import com.example.demo.dto.UserAccountRegisterRequestDTO;
 import com.example.demo.entities.UserAccount;
-import com.example.demo.validator.LoginValidator;
-import com.example.demo.validator.UserAccountValidator;
 
 public interface AuthenticationService {
-	public LoginResponseDTO userLogin(LoginValidator body);
+	public LoginResponseDTO userLogin(LoginRequestDTO body);
 
-	public UserAccount userRegister(UserAccountValidator body);
+	public UserAccount userRegister(UserAccountRegisterRequestDTO body);
 
 	public void userLogout();
 

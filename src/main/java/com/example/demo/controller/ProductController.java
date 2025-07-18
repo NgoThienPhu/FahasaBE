@@ -3,20 +3,25 @@ package com.example.demo.controller;
 import java.io.IOException;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.dto.ApiResponseDTO;
-import com.example.demo.dto.ProductRequestDTO;
+import com.example.demo.dto.CreateProductRequestDTO;
+import com.example.demo.dto.PagedResponseDTO;
+import com.example.demo.dto.ProductFilterDTO;
 import com.example.demo.entities.Product;
 import com.example.demo.services.interfaces.ProductService;
 import com.example.demo.utils.BindingResultUtils;
@@ -32,10 +37,20 @@ public class ProductController {
 	public ProductController(ProductService productService) {
 		this.productService = productService;
 	}
-	
+
 	@GetMapping
-	public ResponseEntity<?> getProducts() {
-		return null;
+	public ResponseEntity<?> getProducts(@RequestBody(required = false) ProductFilterDTO dto,
+			@RequestParam(required = true, defaultValue = "name") String sortBy,
+			@RequestParam(required = true, defaultValue = "asc") String orderBy,
+			@RequestParam(required = true, defaultValue = "0") int page,
+			@RequestParam(required = true, defaultValue = "20") int size) {
+		Page<Product> products = productService.findAll(dto, orderBy, sortBy, page, size);
+		PagedResponseDTO<Product> pagedResponseDTO = new PagedResponseDTO<Product>(products.getContent(),
+				products.getNumber(), products.getSize(), products.getTotalElements(), products.getTotalPages(),
+				products.isLast());
+		ApiResponseDTO<PagedResponseDTO<Product>> response = new ApiResponseDTO<PagedResponseDTO<Product>>(
+				"Tìm sản phẩm thành công", "success", pagedResponseDTO);
+		return new ResponseEntity<ApiResponseDTO<PagedResponseDTO<Product>>>(response, HttpStatus.OK);
 	}
 
 	@GetMapping("/{productId}")
@@ -50,7 +65,7 @@ public class ProductController {
 
 	@PostMapping
 	public ResponseEntity<?> createProduct(@RequestPart List<MultipartFile> images, @RequestPart MultipartFile image,
-			@RequestPart @Valid ProductRequestDTO product, BindingResult result) throws IOException {
+			@RequestPart @Valid CreateProductRequestDTO product, BindingResult result) throws IOException {
 		ResponseEntity<?> responseError = BindingResultUtils.handleValidationErrors(result,
 				"Tạo mới sản phẩm thất bại!");
 		if (responseError != null)

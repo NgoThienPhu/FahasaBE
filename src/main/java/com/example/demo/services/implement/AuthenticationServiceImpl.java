@@ -12,6 +12,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.dto.ChangePasswordRequestDTO;
 import com.example.demo.dto.LoginResponseDTO;
+import com.example.demo.dto.LoginRequestDTO;
+import com.example.demo.dto.UserAccountRegisterRequestDTO;
 import com.example.demo.entities.UserAccount;
 import com.example.demo.entities.enums.AccountType;
 import com.example.demo.entities.enums.TokenType;
@@ -19,8 +21,6 @@ import com.example.demo.services.interfaces.AccountService;
 import com.example.demo.services.interfaces.AuthenticationService;
 import com.example.demo.services.interfaces.JwtService;
 import com.example.demo.services.interfaces.UserAccountService;
-import com.example.demo.validator.LoginValidator;
-import com.example.demo.validator.UserAccountValidator;
 
 import jakarta.transaction.Transactional;
 
@@ -43,7 +43,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	}
 
 	@Override
-	public LoginResponseDTO userLogin(LoginValidator body) {
+	public LoginResponseDTO userLogin(LoginRequestDTO body) {
 		try {
 	        Authentication authentication = authenticationManager.authenticate(
 	                new UsernamePasswordAuthenticationToken(body.username(), body.password())
@@ -70,7 +70,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 	@Transactional
 	@Override
-	public UserAccount userRegister(UserAccountValidator body) {
+	public UserAccount userRegister(UserAccountRegisterRequestDTO body) {
 		Boolean checkExistsUsername = accountService.existsByUsername(body.username());
 		Boolean checkExistsEmail = userAccountService.existsByEmail(body.email());
 		Boolean checkExistsPhoneNumber = userAccountService.existsByPhoneNumber(body.phoneNumber());
@@ -132,13 +132,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 	}
 
-	private UserAccount convertUserAccountValidatorToUserAccount(UserAccountValidator userAccountValidator) {
+	private UserAccount convertUserAccountValidatorToUserAccount(UserAccountRegisterRequestDTO userAccountRegisterRequestDTO) {
 		UserAccount userAccount = new UserAccount();
-		userAccount.setUsername(userAccountValidator.username());
-		userAccount.setPassword(passwordEncoder.encode(userAccountValidator.password()));
-		userAccount.setFullName(userAccountValidator.fullName());
-		userAccount.setEmail(userAccountValidator.email());
-		userAccount.setPhoneNumber(userAccountValidator.phoneNumber());
+		userAccount.setUsername(userAccountRegisterRequestDTO.username());
+		userAccount.setPassword(passwordEncoder.encode(userAccountRegisterRequestDTO.password()));
+		userAccount.setFullName(userAccountRegisterRequestDTO.fullName());
+		userAccount.setEmail(userAccountRegisterRequestDTO.email());
+		userAccount.setPhoneNumber(userAccountRegisterRequestDTO.phoneNumber());
 		return userAccount;
 	}
 

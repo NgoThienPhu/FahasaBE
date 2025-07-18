@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dto.ApiResponseDTO;
+import com.example.demo.dto.CreateAttributeRequestDTO;
 import com.example.demo.dto.PagedResponseDTO;
 import com.example.demo.entities.Attribute;
 import com.example.demo.services.interfaces.AttributeService;
 import com.example.demo.utils.BindingResultUtils;
-import com.example.demo.validator.AttributeValidator;
 
 import jakarta.validation.Valid;
 
@@ -57,7 +57,7 @@ public class AttributeController {
 	}
 
 	@PostMapping
-	public ResponseEntity<?> createAttribute(@Valid @RequestBody AttributeValidator body, BindingResult result) {
+	public ResponseEntity<?> createAttribute(@Valid @RequestBody CreateAttributeRequestDTO body, BindingResult result) {
 
 		ResponseEntity<?> responseError = BindingResultUtils.handleValidationErrors(result,
 				"Tạo thuộc tính sản phẩm thất bại!");
@@ -78,7 +78,7 @@ public class AttributeController {
 	}
 
 	@PatchMapping("/{attributeId}")
-	public ResponseEntity<?> updateById(@Valid @RequestBody AttributeValidator body, BindingResult result,
+	public ResponseEntity<?> updateById(@Valid @RequestBody CreateAttributeRequestDTO body, BindingResult result,
 			@PathVariable String attributeId) {
 
 		ResponseEntity<?> responseError = BindingResultUtils.handleValidationErrors(result,

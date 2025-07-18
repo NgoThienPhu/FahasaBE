@@ -14,11 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.dto.ApiResponseDTO;
 import com.example.demo.dto.ChangePasswordRequestDTO;
 import com.example.demo.dto.LoginResponseDTO;
+import com.example.demo.dto.LoginRequestDTO;
+import com.example.demo.dto.UserAccountRegisterRequestDTO;
 import com.example.demo.entities.UserAccount;
 import com.example.demo.entities.bases.Account;
 import com.example.demo.services.implement.AuthenticationServiceImpl;
-import com.example.demo.validator.LoginValidator;
-import com.example.demo.validator.UserAccountValidator;
 import com.example.demo.utils.BindingResultUtils;
 
 import jakarta.validation.Valid;
@@ -34,7 +34,7 @@ public class AuthenticationController {
 	}
 
 	@GetMapping("/login")
-	public ResponseEntity<?> userLogin(@Valid @RequestBody LoginValidator body, BindingResult result) {
+	public ResponseEntity<?> userLogin(@Valid @RequestBody LoginRequestDTO body, BindingResult result) {
 
 		ResponseEntity<?> responseError = BindingResultUtils.handleValidationErrors(result, "Đăng nhập thất bại!");
 		if (responseError != null)
@@ -47,7 +47,7 @@ public class AuthenticationController {
 	}
 
 	@PostMapping("/register")
-	public ResponseEntity<?> userRegister(@Valid @RequestBody UserAccountValidator body, BindingResult result) {
+	public ResponseEntity<?> userRegister(@Valid @RequestBody UserAccountRegisterRequestDTO body, BindingResult result) {
 
 		ResponseEntity<?> responseError = BindingResultUtils.handleValidationErrors(result, "Đăng kí thất bại!");
 		if (responseError != null)

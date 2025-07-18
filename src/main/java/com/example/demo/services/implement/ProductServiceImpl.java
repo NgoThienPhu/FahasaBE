@@ -3,16 +3,23 @@ package com.example.demo.services.implement;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.example.demo.dto.ProductAttributeValueDTO;
-import com.example.demo.dto.ProductRequestDTO;
+import com.example.demo.dto.CreateAttributeRequestDTO;
+import com.example.demo.dto.CreateProductAttributeValueRequestDTO;
+import com.example.demo.dto.ProductFilterDTO;
+import com.example.demo.dto.CreateProductRequestDTO;
 import com.example.demo.entities.Attribute;
 import com.example.demo.entities.Category;
 import com.example.demo.entities.Product;
@@ -23,7 +30,6 @@ import com.example.demo.services.interfaces.AttributeService;
 import com.example.demo.services.interfaces.CategoryService;
 import com.example.demo.services.interfaces.ProductService;
 import com.example.demo.specification.ProductSpecification;
-import com.example.demo.validator.AttributeValidator;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -45,8 +51,29 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public Product createProduct(ProductRequestDTO productDTO, MultipartFile mainImage, List<MultipartFile> images)
-			throws IOException {
+	public Page<Product> findAll(ProductFilterDTO dto, String orderBy, String sortBy, int page, int size) {
+		List<String> allowedFields = List.of("name", "price");
+		if (!allowedFields.contains(sortBy)) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+					"Thuộc tính cần sắp xếp không hợp lệ vui lòng thử lại");
+		}
+
+		Sort sort = orderBy.equalsIgnoreCase("asc") ? Sort.by(Sort.Direction.ASC, sortBy)
+				: Sort.by(Sort.Direction.DESC, sortBy);
+
+		Pageable pageable = PageRequest.of(page, size, sort);
+
+		if (dto != null) {
+			Specification<Product> spec = buildProductSpecification(dto);
+			return productRepository.findAll(spec, pageable);
+		} else {
+			return productRepository.findAll(pageable);
+		}
+	}
+
+	@Override
+	public Product createProduct(CreateProductRequestDTO productDTO, MultipartFile mainImage,
+			List<MultipartFile> images) throws IOException {
 
 		List<String> uploadedImageUrls = new ArrayList<>();
 		List<ProductAttributeValue> attributesValue = new ArrayList<>();
@@ -93,12 +120,19 @@ public class ProductServiceImpl implements ProductService {
 		return productRepository.findById(productId).orElse(null);
 	}
 
-	private List<ProductAttributeValue> handleAttributeValues(List<ProductAttributeValueDTO> attributeDTOs) {
+	@Override
+	public Boolean existsProductsByCategoryId(String categoryId) {
+		Specification<Product> spec = ProductSpecification.hasCategoryId(categoryId);
+		return productRepository.count(spec) > 0;
+	}
+
+	private List<ProductAttributeValue> handleAttributeValues(
+			List<CreateProductAttributeValueRequestDTO> attributeDTOs) {
 		List<ProductAttributeValue> result = new ArrayList<>();
 		if (attributeDTOs != null) {
-			for (ProductAttributeValueDTO dto : attributeDTOs) {
+			for (CreateProductAttributeValueRequestDTO dto : attributeDTOs) {
 				Attribute attr = (dto.attributeId() != null) ? attributeServie.findById(dto.attributeId())
-						: attributeServie.createAttribute(new AttributeValidator(dto.attributeName()));
+						: attributeServie.createAttribute(new CreateAttributeRequestDTO(dto.attributeName()));
 
 				result.add(new ProductAttributeValue(attr, dto.attributeValue()));
 			}
@@ -133,10 +167,28 @@ public class ProductServiceImpl implements ProductService {
 		}
 	}
 
-	@Override
-	public Boolean existsProductsByCategoryId(String categoryId) {
-		Specification<Product> spec = ProductSpecification.hasCategory(categoryId);
-		return productRepository.count(spec) > 0;
+	private Specification<Product> buildProductSpecification(ProductFilterDTO dto) {
+		Specification<Product> spec = Specification.where(null);
+
+		if (dto.productName() != null && !dto.productName().isBlank()) {
+			spec = spec.and(ProductSpecification.hasName(dto.productName()));
+		}
+
+		if (dto.categoryId() != null && !dto.categoryId().isBlank()) {
+			spec = spec.and(ProductSpecification.hasCategoryId(dto.categoryId()));
+		}
+
+		if (dto.minPrice() != null || dto.maxPrice() != null) {
+			spec = spec.and(ProductSpecification.priceBetween(dto.minPrice(), dto.maxPrice()));
+		}
+
+		if (dto.attributes() != null && !dto.attributes().isEmpty()) {
+			for (Map.Entry<String, String> entry : dto.attributes().entrySet()) {
+				spec = spec.and(ProductSpecification.hasAttribute(entry.getKey(), entry.getValue()));
+			}
+		}
+
+		return spec;
 	}
 
 }

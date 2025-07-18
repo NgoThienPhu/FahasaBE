@@ -15,12 +15,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dto.ApiResponseDTO;
+import com.example.demo.dto.CreateCategoryRequestDTO;
 import com.example.demo.dto.PagedResponseDTO;
+import com.example.demo.dto.UpdateCategoryNameRequestDTO;
 import com.example.demo.entities.Category;
 import com.example.demo.services.interfaces.CategoryService;
 import com.example.demo.utils.BindingResultUtils;
-import com.example.demo.validator.CategoryValidator;
-import com.example.demo.validator.UpdateCategoryValidator;
 
 import jakarta.validation.Valid;
 
@@ -58,7 +58,7 @@ public class CategoryController {
 	}
 
 	@PostMapping
-	public ResponseEntity<?> createCategory(@Valid @RequestBody CategoryValidator body, BindingResult result) {
+	public ResponseEntity<?> createCategoryRequestDTO(@Valid @RequestBody CreateCategoryRequestDTO body, BindingResult result) {
 
 		ResponseEntity<?> responseError = BindingResultUtils.handleValidationErrors(result,
 				"Tạo mới loại sản phẩm thất bại!");
@@ -73,12 +73,12 @@ public class CategoryController {
 
 	@PatchMapping("/{categoryId}")
 	public ResponseEntity<?> updateCategoryName(@PathVariable String categoryId,
-			@Valid @RequestBody UpdateCategoryValidator updateCategoryValidator, BindingResult result) {
+			@Valid @RequestBody UpdateCategoryNameRequestDTO updateCategoryNameRequestDTO, BindingResult result) {
 		ResponseEntity<?> responseError = BindingResultUtils.handleValidationErrors(result,
 				"Cập nhật loại sản phẩm thất bại!");
 		if (responseError != null)
 			return responseError;
-		Category category = categoryService.update(updateCategoryValidator, categoryId);
+		Category category = categoryService.update(updateCategoryNameRequestDTO, categoryId);
 		ApiResponseDTO<Category> response = new ApiResponseDTO<Category>("Cập nhật loại sản phẩm thành công", "success",
 				category);
 		return new ResponseEntity<ApiResponseDTO<Category>>(response, HttpStatus.OK);
