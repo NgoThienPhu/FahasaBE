@@ -1,8 +1,8 @@
-package com.example.demo.validator;
+package com.example.demo.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
-public record AttributeValidator(
+public record CreateAttributeRequestDTO(
 
 		@NotBlank(message = "Tên thuộc tính không được để trống") String attributeName
 

@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public record ProductRequestDTO(
+public record CreateProductRequestDTO(
 
 		@NotBlank(message = "Tên sản phẩm không được để trống") 
 		String name,
@@ -27,5 +27,5 @@ public record ProductRequestDTO(
 		Integer quantity,
 		
 		@Valid
-		List<ProductAttributeValueDTO> attributes 
+		List<CreateProductAttributeValueRequestDTO> attributes 
 ) {}

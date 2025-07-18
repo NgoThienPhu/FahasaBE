@@ -2,7 +2,7 @@ package com.example.demo.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
-public record ProductAttributeValueDTO(
+public record CreateProductAttributeValueRequestDTO(
 
 		String attributeId,
 

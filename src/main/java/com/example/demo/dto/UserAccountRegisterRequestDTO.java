@@ -1,9 +1,9 @@
-package com.example.demo.validator;
+package com.example.demo.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
-public record UserAccountValidator(
+public record UserAccountRegisterRequestDTO(
 
 		@NotBlank(message = "Tên đăng nhập không được để trống") String username,
 
