@@ -1,5 +1,6 @@
 package com.example.demo.dto;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import jakarta.validation.Valid;
@@ -20,7 +21,7 @@ public record CreateProductRequestDTO(
 		
 		@NotNull(message = "Giá sản phẩm không được để trống")
 		@Min(message = "Giá sản phẩm tối thiểu là 1.000 VND", value = 1000)
-		Double price,
+		BigDecimal price,
 		
 		@NotNull(message = "Số lượng sản phẩm không được để trống")
 		@Min(message = "Số lượng sản phẩm tối thiểu là 1", value = 1)

@@ -40,9 +40,7 @@ public class AttributeController {
 			@RequestParam(required = true, defaultValue = "0") int page,
 			@RequestParam(required = true, defaultValue = "20") int size) {
 		Page<Attribute> attributes = attributeService.getAttributes(attributeName, orderBy, sortBy, page, size);
-		PagedResponseDTO<Attribute> pagedResponseDTO = new PagedResponseDTO<Attribute>(attributes.getContent(),
-				attributes.getNumber(), attributes.getSize(), attributes.getTotalElements(), attributes.getTotalPages(),
-				attributes.isLast());
+		PagedResponseDTO<Attribute> pagedResponseDTO = PagedResponseDTO.convertPageToPagedResponseDTO(attributes);
 		ApiResponseDTO<PagedResponseDTO<Attribute>> response = new ApiResponseDTO<PagedResponseDTO<Attribute>>(
 				"Tìm thuộc tính thành công", "success", pagedResponseDTO);
 		return new ResponseEntity<ApiResponseDTO<PagedResponseDTO<Attribute>>>(response, HttpStatus.OK);

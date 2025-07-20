@@ -34,9 +34,7 @@ public class AccountController {
 			@RequestParam(required = true, defaultValue = "0") int page,
 			@RequestParam(required = true, defaultValue = "20") int size) {
 		Page<UserAccount> accounts = accountService.getUserAccounts(orderBy, sortBy, page, size);
-		PagedResponseDTO<UserAccount> pagedResponseDTO = new PagedResponseDTO<UserAccount>(accounts.getContent(),
-				accounts.getNumber(), accounts.getSize(), accounts.getTotalElements(), accounts.getTotalPages(),
-				accounts.isLast());
+		PagedResponseDTO<UserAccount> pagedResponseDTO = PagedResponseDTO.convertPageToPagedResponseDTO(accounts);
 		ApiResponseDTO<PagedResponseDTO<UserAccount>> response = new ApiResponseDTO<PagedResponseDTO<UserAccount>>(
 				"Lấy danh sách tài khoản thành công", "success", pagedResponseDTO);
 		return new ResponseEntity<>(response, HttpStatus.OK);

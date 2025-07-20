@@ -41,9 +41,7 @@ public class CategoryController {
 			@RequestParam(required = true, defaultValue = "0") int page,
 			@RequestParam(required = true, defaultValue = "20") int size) {
 		Page<Category> categories = categoryService.findAll(categoryName, orderBy, sortBy, page, size);
-		PagedResponseDTO<Category> pagedResponseDTO = new PagedResponseDTO<Category>(categories.getContent(),
-				categories.getNumber(), categories.getSize(), categories.getTotalElements(), categories.getTotalPages(),
-				categories.isLast());
+		PagedResponseDTO<Category> pagedResponseDTO = PagedResponseDTO.convertPageToPagedResponseDTO(categories);
 		ApiResponseDTO<PagedResponseDTO<Category>> response = new ApiResponseDTO<PagedResponseDTO<Category>>(
 				"Lấy danh sách loại sản phẩm thành công", "success", pagedResponseDTO);
 		return new ResponseEntity<ApiResponseDTO<PagedResponseDTO<Category>>>(response, HttpStatus.OK);

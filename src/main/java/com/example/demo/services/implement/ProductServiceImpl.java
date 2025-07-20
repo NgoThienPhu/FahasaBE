@@ -1,8 +1,10 @@
 package com.example.demo.services.implement;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 import org.springframework.context.annotation.Lazy;
@@ -19,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.example.demo.dto.CreateAttributeRequestDTO;
 import com.example.demo.dto.CreateProductAttributeValueRequestDTO;
 import com.example.demo.dto.ProductFilterDTO;
+import com.example.demo.dto.UpdateProductRequestDTO;
 import com.example.demo.dto.CreateProductRequestDTO;
 import com.example.demo.entities.Attribute;
 import com.example.demo.entities.Category;
@@ -29,7 +32,10 @@ import com.example.demo.repository.ProductRepository;
 import com.example.demo.services.interfaces.AttributeService;
 import com.example.demo.services.interfaces.CategoryService;
 import com.example.demo.services.interfaces.ProductService;
+import com.example.demo.services.interfaces.S3Service;
 import com.example.demo.specification.ProductSpecification;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -40,14 +46,14 @@ public class ProductServiceImpl implements ProductService {
 
 	private AttributeService attributeServie;
 
-	private S3ServiceImpl s3ServiceImpl;
+	private S3Service s3Service;
 
 	public ProductServiceImpl(ProductRepository productRepository, @Lazy CategoryService categoryService,
-			AttributeService attributeServie, S3ServiceImpl s3ServiceImpl) {
+			AttributeService attributeServie, S3Service s3Service) {
 		this.productRepository = productRepository;
 		this.categoryService = categoryService;
 		this.attributeServie = attributeServie;
-		this.s3ServiceImpl = s3ServiceImpl;
+		this.s3Service = s3Service;
 	}
 
 	@Override
@@ -71,20 +77,20 @@ public class ProductServiceImpl implements ProductService {
 		}
 	}
 
+	@Transactional
 	@Override
 	public Product createProduct(CreateProductRequestDTO productDTO, MultipartFile mainImage,
 			List<MultipartFile> images) throws IOException {
-
 		List<String> uploadedImageUrls = new ArrayList<>();
 		List<ProductAttributeValue> attributesValue = new ArrayList<>();
 
 		try {
 			attributesValue = handleAttributeValues(productDTO.attributes());
 
-			String mainImageUrl = s3ServiceImpl.uploadFile(mainImage);
+			String mainImageUrl = s3Service.uploadFile(mainImage);
 			uploadedImageUrls.add(mainImageUrl);
 
-			List<String> imageUrls = s3ServiceImpl.uploadFiles(images);
+			List<String> imageUrls = s3Service.uploadFiles(images);
 			uploadedImageUrls.addAll(imageUrls);
 
 			List<ProductImage> productImages = handleProductImages(mainImageUrl, imageUrls);
@@ -101,18 +107,72 @@ public class ProductServiceImpl implements ProductService {
 
 		} catch (Exception e) {
 			cleanupUploadedFiles(uploadedImageUrls);
-			throw e;
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+					"Đã có lỗi trong quá trình tạo sản phẩm vui lòng thử lại sau");
 		}
 	}
 
+	@Transactional
 	@Override
-	public Product updateProduct() {
-		return null;
+	public Product createProduct(CreateProductRequestDTO dto, MultipartFile mainImage) throws IOException {
+		List<String> uploadedImageUrls = new ArrayList<>();
+		List<ProductAttributeValue> attributesValue = new ArrayList<>();
+
+		try {
+			attributesValue = handleAttributeValues(dto.attributes());
+
+			String mainImageUrl = s3Service.uploadFile(mainImage);
+			uploadedImageUrls.add(mainImageUrl);
+
+			List<ProductImage> productImages = List.of(new ProductImage(mainImageUrl, true));
+
+			Category category = handleCategory(dto.categoryId());
+
+			Product product = new Product(dto.name(), dto.description(), category, dto.price(), dto.quantity(),
+					productImages, attributesValue);
+
+			productImages.forEach(img -> img.setProduct(product));
+			attributesValue.forEach(attr -> attr.setProduct(product));
+
+			return productRepository.save(product);
+
+		} catch (Exception e) {
+			cleanupUploadedFiles(uploadedImageUrls);
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+					"Đã có lỗi trong quá trình tạo sản phẩm vui lòng thử lại sau");
+		}
 	}
 
+	@Transactional
+	@Override
+	public Product updateProduct(String productId, UpdateProductRequestDTO dto) {
+		Product product = productRepository.findById(productId).orElse(null);
+
+		if (product == null)
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+					String.format("Không tìm thấy sản phẩm với id là: %s", productId));
+
+		handleUpdateProductRequest(product, dto);
+
+		return productRepository.save(product);
+	}
+
+	@Transactional
 	@Override
 	public void deleteById(String productId) {
+		Product product = productRepository.findById(productId).orElse(null);
+		if (product == null)
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+					String.format("Không tìm thấy sản phẩm với id là: %s", productId));
 
+		ListIterator<ProductImage> productImages = product.getImages().listIterator();
+		while (productImages.hasNext()) {
+			ProductImage productImage = productImages.next();
+			s3Service.deleteFile(ProductImage.extractFileNameFromUrl(productImage.getUrl()));
+			productImages.remove();
+		}
+
+		productRepository.deleteById(productId);
 	}
 
 	@Override
@@ -124,6 +184,33 @@ public class ProductServiceImpl implements ProductService {
 	public Boolean existsProductsByCategoryId(String categoryId) {
 		Specification<Product> spec = ProductSpecification.hasCategoryId(categoryId);
 		return productRepository.count(spec) > 0;
+	}
+
+	@Transactional
+	@Override
+	public Product updateNewMainImage(String productId, MultipartFile newMainImage) {
+		String mainImage = null;
+		try {
+			Product product = productRepository.findById(productId).orElse(null);
+			if (product == null)
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+						String.format("Không tìm thấy sản phẩm với Id là: %s", productId));
+
+			mainImage = s3Service.uploadFile(newMainImage);
+			ProductImage productImage = new ProductImage(mainImage, true);
+			productImage.setProduct(product);
+
+			product.getImages().stream().filter(img -> Boolean.TRUE.equals(img.getIsPrimary())).findFirst()
+					.ifPresent(img -> img.setIsPrimary(false));
+
+			product.getImages().add(productImage);
+			
+			return productRepository.save(product);
+		} catch (Exception e) {
+			if(mainImage != null) s3Service.deleteFile(ProductImage.extractFileNameFromUrl(mainImage));
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+					"Đã có lỗi xảy ra trong quá trình cập nhật ảnh chính của sản phẩm, vui lòng thử lại sau");
+		}
 	}
 
 	private List<ProductAttributeValue> handleAttributeValues(
@@ -160,7 +247,7 @@ public class ProductServiceImpl implements ProductService {
 	private void cleanupUploadedFiles(List<String> uploadedImageUrls) {
 		for (String url : uploadedImageUrls) {
 			try {
-				s3ServiceImpl.deleteFile(ProductImage.extractFileNameFromUrl(url));
+				s3Service.deleteFile(ProductImage.extractFileNameFromUrl(url));
 			} catch (Exception ex) {
 				// Ghi log...
 			}
@@ -189,6 +276,35 @@ public class ProductServiceImpl implements ProductService {
 		}
 
 		return spec;
+	}
+
+	private Product handleUpdateProductRequest(Product product, UpdateProductRequestDTO dto) {
+		if (dto.productName() != null)
+			product.setName(dto.productName());
+
+		if (dto.description() != null)
+			product.setDescription(dto.description());
+
+		if (dto.categoryId() != null) {
+			Category category = categoryService.findById(dto.categoryId());
+			product.setCategory(category);
+		}
+
+		if (dto.price() != null) {
+			if (dto.price().compareTo(BigDecimal.valueOf(1000)) > 0)
+				product.setPrice(dto.price());
+			else
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Giá của sản phẩm phải lớn hơn 1_000 VNĐ");
+		}
+
+		if (dto.quantity() != null) {
+			if (dto.quantity() > 0)
+				product.setQuantity(dto.quantity());
+			else
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Số lượng sản phẩm phải lớn hơn 1");
+		}
+
+		return product;
 	}
 
 }

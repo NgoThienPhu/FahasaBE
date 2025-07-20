@@ -3,6 +3,7 @@ package com.example.demo.services.implement;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -45,27 +46,30 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	@Override
 	public LoginResponseDTO userLogin(LoginRequestDTO body) {
 		try {
-	        Authentication authentication = authenticationManager.authenticate(
-	                new UsernamePasswordAuthenticationToken(body.username(), body.password())
-	        );
+			Authentication authentication = authenticationManager
+					.authenticate(new UsernamePasswordAuthenticationToken(body.username(), body.password()));
 
-	        if (!authentication.isAuthenticated()) {
-	            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-	                    "Tài khoản hoặc mật khẩu không chính xác, vui lòng đăng nhập lại");
-	        }
+			if (!authentication.isAuthenticated()) {
+				throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+						"Tài khoản hoặc mật khẩu không chính xác, vui lòng đăng nhập lại");
+			}
 
-	        UserAccount account = userAccountService.findUserAccountByUsername(body.username());
+			UserAccount account = userAccountService.findUserAccountByUsername(body.username());
 
-	        String accessToken = jwtService.createToken(account.getUsername(), TokenType.ACCESS);
+			String accessToken = jwtService.createToken(account.getUsername(), TokenType.ACCESS);
 
-	        return convertUserAccountToLoginResponseDTO(account, accessToken);
+			return convertUserAccountToLoginResponseDTO(account, accessToken);
 
-	    } catch (BadCredentialsException e) {
-	        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-	                "Tài khoản hoặc mật khẩu không chính xác, vui lòng đăng nhập lại");
-	    } catch (Exception e) {
-	        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Đã xảy ra lỗi trong quá trình đăng nhập");
-	    }
+		} catch (BadCredentialsException e) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+					"Tài khoản hoặc mật khẩu không chính xác, vui lòng đăng nhập lại");
+		} catch (InternalAuthenticationServiceException e) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+					"Tài khoản hoặc mật khẩu không chính xác, vui lòng đăng nhập lại");
+		} catch (Exception e) {
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+					"Đã xảy ra lỗi trong quá trình đăng nhập");
+		}
 	}
 
 	@Transactional
@@ -132,7 +136,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 	}
 
-	private UserAccount convertUserAccountValidatorToUserAccount(UserAccountRegisterRequestDTO userAccountRegisterRequestDTO) {
+	private UserAccount convertUserAccountValidatorToUserAccount(
+			UserAccountRegisterRequestDTO userAccountRegisterRequestDTO) {
 		UserAccount userAccount = new UserAccount();
 		userAccount.setUsername(userAccountRegisterRequestDTO.username());
 		userAccount.setPassword(passwordEncoder.encode(userAccountRegisterRequestDTO.password()));

@@ -1,5 +1,6 @@
 package com.example.demo.entities;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,8 +12,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -39,12 +40,12 @@ public class Product {
 	@Column(name = "description", nullable = false)
 	private String description;
 
-	@OneToOne
+	@ManyToOne
 	@JoinColumn(name = "category_id", nullable = false)
 	private Category category;
 
 	@Column(name = "price", nullable = false)
-	private Double price;
+	private BigDecimal price;
 
 	@Column(name = "quantity", nullable = false)
 	private Integer quantity;
@@ -52,10 +53,10 @@ public class Product {
 	@Column(name = "sku_code")
 	private String skuCode;
 
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "product")
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "product", orphanRemoval = true)
 	private List<ProductImage> images = new ArrayList<>();
 	
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "product")
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "product", orphanRemoval = true)
 	private List<ProductAttributeValue> attributeValues = new ArrayList<>();
 	
 	@Column(name = "created_at", nullable = false)
@@ -64,7 +65,7 @@ public class Product {
 	@Column(name = "updated_at", nullable = false)
 	private LocalDateTime updatedAt;
 	
-	public Product(String name, String description, Category category, Double price, Integer quantity,
+	public Product(String name, String description, Category category, BigDecimal price, Integer quantity,
 			List<ProductImage> images, List<ProductAttributeValue> attributeValues) {
 		this.name = name;
 		this.description = description;
@@ -74,7 +75,7 @@ public class Product {
 		this.images = images;
 		this.attributeValues = attributeValues;
 	}
-
+	
 	@PrePersist
 	public void onCreate() {
 		this.id = UUID.randomUUID().toString();
