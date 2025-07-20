@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
@@ -85,6 +87,10 @@ public class ProductServiceImpl implements ProductService {
 		List<ProductAttributeValue> attributesValue = new ArrayList<>();
 
 		try {
+
+			if (mainImage == null)
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Vui lòng chọn ảnh đại diện cho sản phẩm");
+
 			attributesValue = handleAttributeValues(productDTO.attributes());
 
 			String mainImageUrl = s3Service.uploadFile(mainImage);
@@ -119,6 +125,10 @@ public class ProductServiceImpl implements ProductService {
 		List<ProductAttributeValue> attributesValue = new ArrayList<>();
 
 		try {
+
+			if (mainImage == null)
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Vui lòng chọn ảnh đại diện cho sản phẩm");
+
 			attributesValue = handleAttributeValues(dto.attributes());
 
 			String mainImageUrl = s3Service.uploadFile(mainImage);
@@ -204,12 +214,74 @@ public class ProductServiceImpl implements ProductService {
 					.ifPresent(img -> img.setIsPrimary(false));
 
 			product.getImages().add(productImage);
-			
+
 			return productRepository.save(product);
+		} catch (ResponseStatusException e) {
+			throw e;
 		} catch (Exception e) {
-			if(mainImage != null) s3Service.deleteFile(ProductImage.extractFileNameFromUrl(mainImage));
+			if (mainImage != null)
+				s3Service.deleteFile(ProductImage.extractFileNameFromUrl(mainImage));
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
 					"Đã có lỗi xảy ra trong quá trình cập nhật ảnh chính của sản phẩm, vui lòng thử lại sau");
+		}
+	}
+
+	@Transactional
+	@Override
+	public Product updateImages(String productId, List<MultipartFile> images) {
+		List<String> uploadedImageUrls = new ArrayList<>();
+		try {
+			Product product = productRepository.findById(productId).orElse(null);
+			if (product == null)
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+						String.format("Không tìm thấy sản phẩm với Id là: %s", productId));
+
+			List<String> imageUrls = s3Service.uploadFiles(images);
+			uploadedImageUrls.addAll(imageUrls);
+
+			List<ProductImage> productImages = imageUrls.stream()
+					.map(imageUrl -> new ProductImage(imageUrl, false, product)).collect(Collectors.toList());
+
+			product.getImages().addAll(productImages);
+
+			return productRepository.save(product);
+		} catch (ResponseStatusException e) {
+			throw e;
+		} catch (Exception e) {
+			cleanupUploadedFiles(uploadedImageUrls);
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+					"Đã có lỗi xảy ra trong quá trình cập nhật ảnh của sản phẩm, vui lòng thử lại sau");
+		}
+	}
+
+	@Transactional
+	@Override
+	public Product deleteImages(String productId, List<String> imagesId) {
+		try {
+			Product product = productRepository.findById(productId).orElse(null);
+			if (product == null)
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+						String.format("Không tìm thấy sản phẩm với Id là: %s", productId));
+
+			Optional<ProductImage> mainImage = product.getImages().stream()
+					.filter(image -> image.getIsPrimary() == true).findFirst();
+
+			if (mainImage.isPresent() && imagesId.contains(mainImage.get().getId())) {
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+						String.format("Không thể xóa ảnh chính của sản phẩm với Id là: %s", mainImage.get().getId()));
+			}
+
+			product.getImages().stream().filter(image -> imagesId.contains(image.getId())).map(ProductImage::getUrl)
+					.map(ProductImage::extractFileNameFromUrl).forEach(s3Service::deleteFile);
+
+			product.getImages().removeIf(image -> imagesId.contains(image.getId()));
+
+			return productRepository.save(product);
+		} catch (ResponseStatusException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+					"Đã xảy ra lỗi trong quá trình xóa ảnh của sản phẩm, vui lòng thử lại sau");
 		}
 	}
 

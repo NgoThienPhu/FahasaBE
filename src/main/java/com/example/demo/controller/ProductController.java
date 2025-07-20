@@ -74,9 +74,6 @@ public class ProductController {
 		if (responseError != null)
 			return responseError;
 
-		if (image == null)
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Vui lòng chọn ảnh đại diện cho sản phẩm");
-
 		Product myProduct = (images != null) ? productService.createProduct(product, image, images)
 				: productService.createProduct(product, image);
 
@@ -105,6 +102,24 @@ public class ProductController {
 			@RequestPart(required = true) MultipartFile image) {
 		Product product = productService.updateNewMainImage(productId, image);
 		ApiResponseDTO<Product> response = new ApiResponseDTO<Product>("Cập nhật ảnh chính của sản phẩm thành công",
+				"success", product);
+		return new ResponseEntity<ApiResponseDTO<Product>>(response, HttpStatus.OK);
+	}
+
+	@PatchMapping("/{productId}/images")
+	public ResponseEntity<?> updateImages(@PathVariable String productId,
+			@RequestPart(required = true) List<MultipartFile> images) {
+		Product product = productService.updateImages(productId, images);
+		ApiResponseDTO<Product> response = new ApiResponseDTO<Product>("Cập nhật danh sách ảnh của sản phẩm thành công",
+				"success", product);
+		return new ResponseEntity<ApiResponseDTO<Product>>(response, HttpStatus.OK);
+	}
+
+	@DeleteMapping("/{productId}/images")
+	public ResponseEntity<?> deleteImages(@PathVariable String productId,
+			@RequestBody(required = true) List<String> imagesId) {
+		Product product = productService.deleteImages(productId, imagesId);
+		ApiResponseDTO<Product> response = new ApiResponseDTO<Product>("Xóa danh sách ảnh của sản phẩm thành công",
 				"success", product);
 		return new ResponseEntity<ApiResponseDTO<Product>>(response, HttpStatus.OK);
 	}

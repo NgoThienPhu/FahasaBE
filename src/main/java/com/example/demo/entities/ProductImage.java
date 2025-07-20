@@ -11,7 +11,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreRemove;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -53,6 +52,11 @@ public class ProductImage {
 		this.isPrimary = isPrimary;
 	}
 	
+	public ProductImage(String url, Boolean isPrimary, Product product) {
+		this(url, isPrimary);
+		this.product = product;
+	}
+	
 	@PrePersist
 	public void onCreate() {
 		this.id = UUID.randomUUID().toString();
@@ -64,11 +68,6 @@ public class ProductImage {
     public void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
-	
-	@PreRemove
-	public void onDelete() {
-		
-	}
 	
 	public static String extractFileNameFromUrl(String fileURL) {
 		if (fileURL == null || !fileURL.contains("/")) return null;
