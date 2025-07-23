@@ -19,7 +19,9 @@ import com.example.demo.dto.CreateAttributeRequestDTO;
 import com.example.demo.dto.PagedResponseDTO;
 import com.example.demo.entities.Attribute;
 import com.example.demo.services.interfaces.AttributeService;
-import com.example.demo.utils.BindingResultUtils;
+import com.example.demo.util.validation.BindingResultUtil;
+import com.example.demo.util.view.View;
+import com.fasterxml.jackson.annotation.JsonView;
 
 import jakarta.validation.Valid;
 
@@ -34,6 +36,7 @@ public class AttributeController {
 	}
 
 	@GetMapping
+	@JsonView(View.Admin.class)
 	public ResponseEntity<?> getAttributes(@RequestParam(required = false) String attributeName,
 			@RequestParam(required = true, defaultValue = "name") String sortBy,
 			@RequestParam(required = true, defaultValue = "asc") String orderBy,
@@ -47,6 +50,7 @@ public class AttributeController {
 	}
 
 	@GetMapping("/{attributeId}")
+	@JsonView(View.Admin.class)
 	public ResponseEntity<?> findById(@PathVariable String attributeId) {
 		Attribute attribute = attributeService.findById(attributeId);
 		ApiResponseDTO<Attribute> response = new ApiResponseDTO<Attribute>("Tìm thuộc tính thành công", "success",
@@ -55,9 +59,10 @@ public class AttributeController {
 	}
 
 	@PostMapping
+	@JsonView(View.Admin.class)
 	public ResponseEntity<?> createAttribute(@Valid @RequestBody CreateAttributeRequestDTO body, BindingResult result) {
 
-		ResponseEntity<?> responseError = BindingResultUtils.handleValidationErrors(result,
+		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result,
 				"Tạo thuộc tính sản phẩm thất bại!");
 		if (responseError != null)
 			return responseError;
@@ -69,6 +74,7 @@ public class AttributeController {
 	}
 
 	@DeleteMapping("/{attributeId}")
+	@JsonView(View.Public.class)
 	public ResponseEntity<?> deleteById(@PathVariable String attributeId) {
 		attributeService.deleteById(attributeId);
 		ApiResponseDTO<Attribute> response = new ApiResponseDTO<Attribute>("Xóa thuộc tính thành công", "success");
@@ -76,10 +82,11 @@ public class AttributeController {
 	}
 
 	@PatchMapping("/{attributeId}")
+	@JsonView({View.Public.class, View.Admin.class})
 	public ResponseEntity<?> updateById(@Valid @RequestBody CreateAttributeRequestDTO body, BindingResult result,
 			@PathVariable String attributeId) {
 
-		ResponseEntity<?> responseError = BindingResultUtils.handleValidationErrors(result,
+		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result,
 				"Cập nhật thuộc tính thất bại!");
 		if (responseError != null)
 			return responseError;

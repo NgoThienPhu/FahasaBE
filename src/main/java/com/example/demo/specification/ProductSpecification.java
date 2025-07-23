@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.example.demo.entities.Product;
-import com.example.demo.entities.ProductAttributeValue;
+import com.example.demo.entities.AttributeValue;
 
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
@@ -37,7 +37,7 @@ public class ProductSpecification {
 
 	public static Specification<Product> hasAttribute(String attributeId, String value) {
 		return (root, query, cb) -> {
-			Join<Product, ProductAttributeValue> join = root.join("attributeValues");
+			Join<Product, AttributeValue> join = root.join("attributeValues");
 			return cb.and(
 					cb.equal(join.get("attribute").get("id"), attributeId),
 					cb.equal(join.get("value"), value)

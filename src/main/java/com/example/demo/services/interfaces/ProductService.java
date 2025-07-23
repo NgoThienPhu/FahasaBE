@@ -28,7 +28,7 @@ public interface ProductService {
 
 	Boolean existsProductsByCategoryId(String categoryId);
 	
-	Product updateNewMainImage(String productId, MultipartFile newMainImage);
+	Product updateNewMainImage(String productId, MultipartFile newMainImage) throws Exception;
 	
 	Product updateImages(String productId, List<MultipartFile> images);
 	

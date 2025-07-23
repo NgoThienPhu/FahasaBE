@@ -7,6 +7,7 @@ import org.springframework.security.authentication.InternalAuthenticationService
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -14,7 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.example.demo.dto.ChangePasswordRequestDTO;
 import com.example.demo.dto.LoginResponseDTO;
 import com.example.demo.dto.LoginRequestDTO;
-import com.example.demo.dto.UserAccountRegisterRequestDTO;
+import com.example.demo.dto.CreateUserRequestDTO;
 import com.example.demo.entities.UserAccount;
 import com.example.demo.entities.enums.AccountType;
 import com.example.demo.entities.enums.TokenType;
@@ -74,7 +75,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 	@Transactional
 	@Override
-	public UserAccount userRegister(UserAccountRegisterRequestDTO body) {
+	public UserAccount userRegister(CreateUserRequestDTO body) {
 		Boolean checkExistsUsername = accountService.existsByUsername(body.username());
 		Boolean checkExistsEmail = userAccountService.existsByEmail(body.email());
 		Boolean checkExistsPhoneNumber = userAccountService.existsByPhoneNumber(body.phoneNumber());
@@ -108,12 +109,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	}
 
 	@Override
-	public void userChangePassword(ChangePasswordRequestDTO body, String accessToken) {
-
+	public void userChangePassword(ChangePasswordRequestDTO body, UserDetails currentUser) {
 		try {
-			String username = jwtService.extractUsername(accessToken);
-
-			UserAccount user = userAccountService.findUserAccountByUsername(username);
+			UserAccount user = userAccountService.findUserAccountByUsername(currentUser.getUsername());
 
 			if (user == null || !passwordEncoder.matches(body.oldPassword(), user.getPassword()))
 				throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
@@ -137,18 +135,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	}
 
 	private UserAccount convertUserAccountValidatorToUserAccount(
-			UserAccountRegisterRequestDTO userAccountRegisterRequestDTO) {
+			CreateUserRequestDTO createUserRequestDTO) {
 		UserAccount userAccount = new UserAccount();
-		userAccount.setUsername(userAccountRegisterRequestDTO.username());
-		userAccount.setPassword(passwordEncoder.encode(userAccountRegisterRequestDTO.password()));
-		userAccount.setFullName(userAccountRegisterRequestDTO.fullName());
-		userAccount.setEmail(userAccountRegisterRequestDTO.email());
-		userAccount.setPhoneNumber(userAccountRegisterRequestDTO.phoneNumber());
+		userAccount.setUsername(createUserRequestDTO.username());
+		userAccount.setPassword(passwordEncoder.encode(createUserRequestDTO.password()));
+		userAccount.setFullName(createUserRequestDTO.fullName());
+		userAccount.setEmail(createUserRequestDTO.email());
+		userAccount.setPhoneNumber(createUserRequestDTO.phoneNumber());
 		return userAccount;
 	}
 
 	private LoginResponseDTO convertUserAccountToLoginResponseDTO(UserAccount account, String accessToken) {
-		LoginResponseDTO loginResponseDTO = new LoginResponseDTO(account.getId(), account.getUsername(), null,
+		LoginResponseDTO loginResponseDTO = new LoginResponseDTO(account.getId(), account.getUsername(),
 				AccountType.USER, account.getCreatedAt(), account.getUpdatedAt(), account.getFullName(),
 				account.getEmail(), account.getPhoneNumber(), account.getIsActive(), accessToken);
 		return loginResponseDTO;

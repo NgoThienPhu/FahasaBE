@@ -3,15 +3,27 @@ package com.example.demo.dto;
 import java.time.LocalDateTime;
 import java.util.Map;
 
+import com.example.demo.util.view.View;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonView;
 
 // Ẩn đi những thuộc tính có giá trị là null
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ApiResponseDTO<T>(
+	
+	@JsonView(View.Public.class)
 	String status,
+	
+	@JsonView(View.Public.class)
     String message,
+    
+    @JsonView({View.Public.class, View.Internal.class, View.Admin.class})
     T data,
+    
+    @JsonView(View.Public.class)
     Map<String, String> errors,
+    
+    @JsonView(View.Public.class)
     LocalDateTime timestamp
 ) {
 	public ApiResponseDTO(String message, String status, T data) {

@@ -2,8 +2,8 @@ package com.example.demo.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
-public record CreateProductAttributeValueRequestDTO(
-
+public record CreateAttributeValueRequestDTO(
+		
 		String attributeId,
 
 		@NotBlank(message = "Tên thuộc tính không được để trống") 

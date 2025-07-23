@@ -21,14 +21,14 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.dto.CreateAttributeRequestDTO;
-import com.example.demo.dto.CreateProductAttributeValueRequestDTO;
+import com.example.demo.dto.CreateAttributeValueRequestDTO;
 import com.example.demo.dto.ProductFilterDTO;
 import com.example.demo.dto.UpdateProductRequestDTO;
 import com.example.demo.dto.CreateProductRequestDTO;
 import com.example.demo.entities.Attribute;
 import com.example.demo.entities.Category;
 import com.example.demo.entities.Product;
-import com.example.demo.entities.ProductAttributeValue;
+import com.example.demo.entities.AttributeValue;
 import com.example.demo.entities.ProductImage;
 import com.example.demo.repository.ProductRepository;
 import com.example.demo.services.interfaces.AttributeService;
@@ -84,10 +84,8 @@ public class ProductServiceImpl implements ProductService {
 	public Product createProduct(CreateProductRequestDTO productDTO, MultipartFile mainImage,
 			List<MultipartFile> images) throws IOException {
 		List<String> uploadedImageUrls = new ArrayList<>();
-		List<ProductAttributeValue> attributesValue = new ArrayList<>();
-
+		List<AttributeValue> attributesValue = new ArrayList<>();
 		try {
-
 			if (mainImage == null)
 				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Vui lòng chọn ảnh đại diện cho sản phẩm");
 
@@ -113,8 +111,7 @@ public class ProductServiceImpl implements ProductService {
 
 		} catch (Exception e) {
 			cleanupUploadedFiles(uploadedImageUrls);
-			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-					"Đã có lỗi trong quá trình tạo sản phẩm vui lòng thử lại sau");
+			throw e;
 		}
 	}
 
@@ -122,7 +119,7 @@ public class ProductServiceImpl implements ProductService {
 	@Override
 	public Product createProduct(CreateProductRequestDTO dto, MultipartFile mainImage) throws IOException {
 		List<String> uploadedImageUrls = new ArrayList<>();
-		List<ProductAttributeValue> attributesValue = new ArrayList<>();
+		List<AttributeValue> attributesValue = new ArrayList<>();
 
 		try {
 
@@ -148,8 +145,7 @@ public class ProductServiceImpl implements ProductService {
 
 		} catch (Exception e) {
 			cleanupUploadedFiles(uploadedImageUrls);
-			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-					"Đã có lỗi trong quá trình tạo sản phẩm vui lòng thử lại sau");
+			throw e;
 		}
 	}
 
@@ -198,7 +194,7 @@ public class ProductServiceImpl implements ProductService {
 
 	@Transactional
 	@Override
-	public Product updateNewMainImage(String productId, MultipartFile newMainImage) {
+	public Product updateNewMainImage(String productId, MultipartFile newMainImage) throws Exception {
 		String mainImage = null;
 		try {
 			Product product = productRepository.findById(productId).orElse(null);
@@ -221,8 +217,7 @@ public class ProductServiceImpl implements ProductService {
 		} catch (Exception e) {
 			if (mainImage != null)
 				s3Service.deleteFile(ProductImage.extractFileNameFromUrl(mainImage));
-			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-					"Đã có lỗi xảy ra trong quá trình cập nhật ảnh chính của sản phẩm, vui lòng thử lại sau");
+			throw e;
 		}
 	}
 
@@ -280,20 +275,19 @@ public class ProductServiceImpl implements ProductService {
 		} catch (ResponseStatusException e) {
 			throw e;
 		} catch (Exception e) {
-			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-					"Đã xảy ra lỗi trong quá trình xóa ảnh của sản phẩm, vui lòng thử lại sau");
+			throw e;
 		}
 	}
 
-	private List<ProductAttributeValue> handleAttributeValues(
-			List<CreateProductAttributeValueRequestDTO> attributeDTOs) {
-		List<ProductAttributeValue> result = new ArrayList<>();
+	private List<AttributeValue> handleAttributeValues(
+			List<CreateAttributeValueRequestDTO> attributeDTOs) {
+		List<AttributeValue> result = new ArrayList<>();
 		if (attributeDTOs != null) {
-			for (CreateProductAttributeValueRequestDTO dto : attributeDTOs) {
+			for (CreateAttributeValueRequestDTO dto : attributeDTOs) {
 				Attribute attr = (dto.attributeId() != null) ? attributeServie.findById(dto.attributeId())
 						: attributeServie.createAttribute(new CreateAttributeRequestDTO(dto.attributeName()));
 
-				result.add(new ProductAttributeValue(attr, dto.attributeValue()));
+				result.add(new AttributeValue(attr, dto.attributeValue()));
 			}
 		}
 		return result;

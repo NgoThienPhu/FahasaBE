@@ -1,15 +1,21 @@
 package com.example.demo.entities;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+
+import com.example.demo.util.view.View;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
@@ -30,24 +36,35 @@ public class Category {
 
 	@Id
 	@Column(name = "id")
+	@JsonView(View.Public.class)
 	private String id;
 
 	@Column(name = "name", nullable = false, unique = true)
+	@JsonView(View.Public.class)
 	private String name;
 
 	@ManyToOne
 	@JoinColumn(name = "parent_category_id", nullable = true)
+	@JsonView(View.Public.class)
 	private Category parentCategory;
-	
+
+	@JsonIgnore
+	@ManyToMany(cascade = { CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
+	@JoinTable(name = "category_attribute", joinColumns = @JoinColumn(name = "category_id"), inverseJoinColumns = @JoinColumn(name = "attribute_id"))
+	private List<Attribute> attributes = new ArrayList<Attribute>();
+
+	@JsonIgnore
 	@OneToMany(mappedBy = "parentCategory", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Category> children = new HashSet<>();
+	private List<Category> children = new ArrayList<Category>();
 
 	@Column(name = "created_at", nullable = false)
+	@JsonView(View.Internal.class)
 	private LocalDateTime createdAt;
 
 	@Column(name = "updated_at", nullable = false)
+	@JsonView(View.Internal.class)
 	private LocalDateTime updatedAt;
-	
+
 	public Category(String name, Category parentCategory) {
 		this(name);
 		this.parentCategory = parentCategory;
@@ -65,7 +82,7 @@ public class Category {
 	}
 
 	@PreUpdate
-	protected void onUpdate() {
+	public void onUpdate() {
 		this.updatedAt = LocalDateTime.now();
 	}
 

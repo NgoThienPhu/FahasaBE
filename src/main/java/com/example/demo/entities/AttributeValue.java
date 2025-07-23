@@ -3,7 +3,9 @@ package com.example.demo.entities;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.example.demo.util.view.View;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,46 +25,51 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "product_attribute_value")
-public class ProductAttributeValue {
-	
+@Table(name = "attribute_value")
+public class AttributeValue {
+
 	@Id
 	@Column(name = "id")
+	@JsonView(View.Public.class)
 	private String id;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "attribute_id", nullable = false)
+	@JsonView(View.Public.class)
 	private Attribute attribute;
-	
+
 	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name = "product_id", nullable = false)
 	private Product product;
-	
+
 	@Column(name = "value", nullable = false)
+	@JsonView(View.Public.class)
 	private String value;
-	
+
 	@Column(name = "created_at", nullable = false)
+	@JsonView(View.Admin.class)
 	private LocalDateTime createdAt;
-	
+
 	@Column(name = "updated_at", nullable = false)
+	@JsonView(View.Admin.class)
 	private LocalDateTime updatedAt;
-	
-	public ProductAttributeValue(Attribute attribute, String value) {
+
+	public AttributeValue(Attribute attribute, String value) {
 		this.attribute = attribute;
 		this.value = value;
 	}
-	
+
 	@PrePersist
 	public void onCreate() {
 		this.id = UUID.randomUUID().toString();
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-	
+		this.createdAt = LocalDateTime.now();
+		this.updatedAt = LocalDateTime.now();
+	}
+
 	@PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
+	public void onUpdate() {
+		this.updatedAt = LocalDateTime.now();
+	}
 
 }

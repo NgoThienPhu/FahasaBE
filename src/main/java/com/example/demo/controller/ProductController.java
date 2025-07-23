@@ -27,7 +27,9 @@ import com.example.demo.dto.ProductFilterDTO;
 import com.example.demo.dto.UpdateProductRequestDTO;
 import com.example.demo.entities.Product;
 import com.example.demo.services.interfaces.ProductService;
-import com.example.demo.utils.BindingResultUtils;
+import com.example.demo.util.validation.BindingResultUtil;
+import com.example.demo.util.view.View;
+import com.fasterxml.jackson.annotation.JsonView;
 
 import jakarta.validation.Valid;
 
@@ -42,6 +44,7 @@ public class ProductController {
 	}
 
 	@GetMapping
+	@JsonView(View.Public.class)
 	public ResponseEntity<?> getProducts(@RequestBody(required = false) ProductFilterDTO dto,
 			@RequestParam(required = true, defaultValue = "name") String sortBy,
 			@RequestParam(required = true, defaultValue = "asc") String orderBy,
@@ -55,6 +58,7 @@ public class ProductController {
 	}
 
 	@GetMapping("/{productId}")
+	@JsonView(View.Public.class)
 	public ResponseEntity<?> getProductById(@PathVariable String productId) {
 		Product product = productService.findById(productId);
 		if (product == null)
@@ -65,11 +69,12 @@ public class ProductController {
 	}
 
 	@PostMapping
+	@JsonView(View.Admin.class)
 	public ResponseEntity<?> createProduct(@RequestPart(required = false) List<MultipartFile> images,
 			@RequestPart(required = true) MultipartFile image,
 			@RequestPart(required = true) @Valid CreateProductRequestDTO product, BindingResult result)
 			throws IOException {
-		ResponseEntity<?> responseError = BindingResultUtils.handleValidationErrors(result,
+		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result,
 				"Tạo mới sản phẩm thất bại!");
 		if (responseError != null)
 			return responseError;
@@ -82,6 +87,7 @@ public class ProductController {
 	}
 
 	@DeleteMapping("/{productId}")
+	@JsonView(View.Public.class)
 	public ResponseEntity<?> deleteProductById(@PathVariable String productId) {
 		productService.deleteById(productId);
 		ApiResponseDTO<Void> response = new ApiResponseDTO<Void>("Xóa sản phẩm thành công", "success");
@@ -89,6 +95,7 @@ public class ProductController {
 	}
 
 	@PatchMapping("/{productId}")
+	@JsonView(View.Admin.class)
 	public ResponseEntity<?> updateProductById(@PathVariable String productId,
 			@RequestBody UpdateProductRequestDTO dto) {
 		Product product = productService.updateProduct(productId, dto);
@@ -98,8 +105,9 @@ public class ProductController {
 	}
 
 	@PatchMapping("/{productId}/main-image")
+	@JsonView(View.Admin.class)
 	public ResponseEntity<?> updateMainImage(@PathVariable String productId,
-			@RequestPart(required = true) MultipartFile image) {
+			@RequestPart(required = true) MultipartFile image) throws Exception {
 		Product product = productService.updateNewMainImage(productId, image);
 		ApiResponseDTO<Product> response = new ApiResponseDTO<Product>("Cập nhật ảnh chính của sản phẩm thành công",
 				"success", product);
@@ -107,6 +115,7 @@ public class ProductController {
 	}
 
 	@PatchMapping("/{productId}/images")
+	@JsonView(View.Admin.class)
 	public ResponseEntity<?> updateImages(@PathVariable String productId,
 			@RequestPart(required = true) List<MultipartFile> images) {
 		Product product = productService.updateImages(productId, images);
@@ -116,6 +125,7 @@ public class ProductController {
 	}
 
 	@DeleteMapping("/{productId}/images")
+	@JsonView(View.Admin.class)
 	public ResponseEntity<?> deleteImages(@PathVariable String productId,
 			@RequestBody(required = true) List<String> imagesId) {
 		Product product = productService.deleteImages(productId, imagesId);

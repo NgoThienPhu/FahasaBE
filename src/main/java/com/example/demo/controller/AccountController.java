@@ -1,53 +1,66 @@
 package com.example.demo.controller;
 
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.dto.ApiResponseDTO;
-import com.example.demo.dto.PagedResponseDTO;
+import com.example.demo.dto.ChangeEmailRequestDTO;
+import com.example.demo.dto.ChangePhoneNumberRequestDTO;
+import com.example.demo.dto.ChangeUserInfoRequestDTO;
 import com.example.demo.entities.UserAccount;
 import com.example.demo.entities.bases.Account;
 import com.example.demo.services.interfaces.UserAccountService;
+import com.example.demo.util.view.View;
+import com.fasterxml.jackson.annotation.JsonView;
 
 @RestController
 @RequestMapping("/api/accounts")
 public class AccountController {
 
-	private UserAccountService accountService;
+	private UserAccountService userAccountService;
 
-	public AccountController(UserAccountService accountService) {
-		this.accountService = accountService;
+	public AccountController(UserAccountService userAccountService) {
+		this.userAccountService = userAccountService;
 	}
 
-	@GetMapping
-//	@PreAuthorize("hasRole('ADMIN')")
-	public ResponseEntity<?> getUserAccounts(@RequestParam(required = true, defaultValue = "asc") String orderBy,
-			@RequestParam(required = true, defaultValue = "username") String sortBy,
-			@RequestParam(required = true, defaultValue = "0") int page,
-			@RequestParam(required = true, defaultValue = "20") int size) {
-		Page<UserAccount> accounts = accountService.getUserAccounts(orderBy, sortBy, page, size);
-		PagedResponseDTO<UserAccount> pagedResponseDTO = PagedResponseDTO.convertPageToPagedResponseDTO(accounts);
-		ApiResponseDTO<PagedResponseDTO<UserAccount>> response = new ApiResponseDTO<PagedResponseDTO<UserAccount>>(
-				"Lấy danh sách tài khoản thành công", "success", pagedResponseDTO);
-		return new ResponseEntity<>(response, HttpStatus.OK);
-	}
-
-	@GetMapping("/{id}")
-	public ResponseEntity<?> getUserAccountById(@PathVariable("id") String userAccountId) {
-		UserAccount account = accountService.findUserAccountById(userAccountId);
+	@GetMapping("/me")
+	@JsonView(View.Self.class)
+	public ResponseEntity<?> getInfo(@AuthenticationPrincipal UserDetails currentUser) {
+		UserAccount account = userAccountService.findUserAccountByUsername(currentUser.getUsername());
 		if (account == null)
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-					String.format("Không tìm thấy tài khoản với id = %s", userAccountId));
+					String.format("Người dùng không tồn tại", currentUser.getUsername()));
 		ApiResponseDTO<Account> response = new ApiResponseDTO<Account>("Lấy thông tin tài khoản thành công", "success",
 				account);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
+	
+	@PatchMapping("/me")
+	public ResponseEntity<?> changeInfo(@RequestBody ChangeUserInfoRequestDTO dto, @AuthenticationPrincipal UserDetails currentUser) {
+		UserAccount account = userAccountService.changeUserInfo(dto, currentUser.getUsername());
+		ApiResponseDTO<Account> response = new ApiResponseDTO<Account>("Cập nhật thông tin tài khoản thành công", "success",
+				account);
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+	
+	@PatchMapping("/me/change-email")
+	@JsonView(View.Self.class)
+	public ResponseEntity<?> changeEmail(@RequestBody ChangeEmailRequestDTO dto, @AuthenticationPrincipal UserDetails currentUser) {
+		return null;
+	}
+	
+	@PatchMapping("/me/change-phone")
+	@JsonView(View.Self.class)
+	public ResponseEntity<?> changeEmail(@RequestBody ChangePhoneNumberRequestDTO dto, @AuthenticationPrincipal UserDetails currentUser) {
+		return null;
+	}
+
 }

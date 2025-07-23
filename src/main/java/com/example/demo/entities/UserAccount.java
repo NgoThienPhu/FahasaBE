@@ -1,13 +1,19 @@
 package com.example.demo.entities;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.example.demo.entities.bases.Account;
+import com.example.demo.entities.enums.Gender;
+import com.example.demo.util.view.View;
+import com.fasterxml.jackson.annotation.JsonView;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.PrePersist;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,15 +27,28 @@ import lombok.Setter;
 public class UserAccount extends Account {
 	
 	@Column(name = "full_name", nullable = false)
+	@JsonView(View.Public.class)
 	private String fullName;
 	
+	@Column(name = "gender", nullable = false)
+	@Enumerated(EnumType.STRING)
+	@JsonView(View.Public.class)
+	private Gender gender;
+	
+	@Column(name = "date_of_birth", nullable = false)
+	@JsonView(View.Public.class)
+	private LocalDate dateOfBirth;
+	
 	@Column(name = "email", nullable = false, unique = true)
+	@JsonView(View.Self.class)
 	private  String email;
 	
 	@Column(name = "phone_number", nullable = false, unique = true)
+	@JsonView(View.Self.class)
 	private  String phoneNumber;
 	
 	@Column(name = "isActive", nullable = false)
+	@JsonView(View.Admin.class)
 	protected Boolean isActive;
 
 	public UserAccount(String username, String password, String fullName, String email, String phoneNumber) {

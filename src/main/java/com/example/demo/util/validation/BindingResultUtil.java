@@ -1,4 +1,4 @@
-package com.example.demo.utils;
+package com.example.demo.util.validation;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,7 +9,7 @@ import org.springframework.validation.BindingResult;
 
 import com.example.demo.dto.ApiResponseDTO;
 
-public class BindingResultUtils {
+public class BindingResultUtil {
 	
 	public static ResponseEntity<?> handleValidationErrors(BindingResult result, String message) {
         if (result.hasErrors()) {

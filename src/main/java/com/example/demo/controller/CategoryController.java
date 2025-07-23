@@ -20,7 +20,9 @@ import com.example.demo.dto.PagedResponseDTO;
 import com.example.demo.dto.UpdateCategoryNameRequestDTO;
 import com.example.demo.entities.Category;
 import com.example.demo.services.interfaces.CategoryService;
-import com.example.demo.utils.BindingResultUtils;
+import com.example.demo.util.validation.BindingResultUtil;
+import com.example.demo.util.view.View;
+import com.fasterxml.jackson.annotation.JsonView;
 
 import jakarta.validation.Valid;
 
@@ -35,6 +37,7 @@ public class CategoryController {
 	}
 
 	@GetMapping
+	@JsonView(View.Public.class)
 	public ResponseEntity<?> getCategories(@RequestParam(required = false) String categoryName,
 			@RequestParam(required = true, defaultValue = "asc") String orderBy,
 			@RequestParam(required = true, defaultValue = "name") String sortBy,
@@ -48,6 +51,7 @@ public class CategoryController {
 	}
 
 	@GetMapping("/{categoryId}")
+	@JsonView(View.Public.class)
 	public ResponseEntity<?> findCategoryById(@PathVariable String categoryId) {
 		Category category = categoryService.findById(categoryId);
 		ApiResponseDTO<Category> response = new ApiResponseDTO<Category>("Tìm loại sản phẩm thành công", "success",
@@ -56,9 +60,11 @@ public class CategoryController {
 	}
 
 	@PostMapping
-	public ResponseEntity<?> createCategoryRequestDTO(@Valid @RequestBody CreateCategoryRequestDTO body, BindingResult result) {
+	@JsonView(View.Admin.class)
+	public ResponseEntity<?> createCategoryRequestDTO(@Valid @RequestBody CreateCategoryRequestDTO body,
+			BindingResult result) {
 
-		ResponseEntity<?> responseError = BindingResultUtils.handleValidationErrors(result,
+		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result,
 				"Tạo mới loại sản phẩm thất bại!");
 		if (responseError != null)
 			return responseError;
@@ -70,9 +76,10 @@ public class CategoryController {
 	}
 
 	@PatchMapping("/{categoryId}")
+	@JsonView(View.Admin.class)
 	public ResponseEntity<?> updateCategoryName(@PathVariable String categoryId,
 			@Valid @RequestBody UpdateCategoryNameRequestDTO updateCategoryNameRequestDTO, BindingResult result) {
-		ResponseEntity<?> responseError = BindingResultUtils.handleValidationErrors(result,
+		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result,
 				"Cập nhật loại sản phẩm thất bại!");
 		if (responseError != null)
 			return responseError;
@@ -83,6 +90,7 @@ public class CategoryController {
 	}
 
 	@DeleteMapping("/{categoryId}")
+	@JsonView(View.Public.class)
 	public ResponseEntity<?> deleteCategory(@PathVariable String categoryId) {
 		categoryService.deleteById(categoryId);
 		ApiResponseDTO<Void> response = new ApiResponseDTO<Void>(
