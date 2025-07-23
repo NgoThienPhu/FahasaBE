@@ -18,6 +18,7 @@ import com.example.demo.dto.LoginRequestDTO;
 import com.example.demo.dto.CreateUserRequestDTO;
 import com.example.demo.entities.UserAccount;
 import com.example.demo.entities.enums.AccountType;
+import com.example.demo.entities.enums.Gender;
 import com.example.demo.entities.enums.TokenType;
 import com.example.demo.services.interfaces.AccountService;
 import com.example.demo.services.interfaces.AuthenticationService;
@@ -135,13 +136,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	}
 
 	private UserAccount convertUserAccountValidatorToUserAccount(
-			CreateUserRequestDTO createUserRequestDTO) {
+			CreateUserRequestDTO dto) {
 		UserAccount userAccount = new UserAccount();
-		userAccount.setUsername(createUserRequestDTO.username());
-		userAccount.setPassword(passwordEncoder.encode(createUserRequestDTO.password()));
-		userAccount.setFullName(createUserRequestDTO.fullName());
-		userAccount.setEmail(createUserRequestDTO.email());
-		userAccount.setPhoneNumber(createUserRequestDTO.phoneNumber());
+		userAccount.setUsername(dto.username());
+		userAccount.setPassword(passwordEncoder.encode(dto.password()));
+		userAccount.setFullName(dto.fullName());
+		userAccount.setGender(Gender.valueOf(dto.gender()));
+		userAccount.setDateOfBirth(dto.dateOfBirth());
+		userAccount.setEmail(dto.email());
+		userAccount.setPhoneNumber(dto.phoneNumber());
 		return userAccount;
 	}
 

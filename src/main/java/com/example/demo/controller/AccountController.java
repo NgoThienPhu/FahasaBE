@@ -44,6 +44,7 @@ public class AccountController {
 	}
 	
 	@PatchMapping("/me")
+	@JsonView(View.Self.class)
 	public ResponseEntity<?> changeInfo(@RequestBody ChangeUserInfoRequestDTO dto, @AuthenticationPrincipal UserDetails currentUser) {
 		UserAccount account = userAccountService.changeUserInfo(dto, currentUser.getUsername());
 		ApiResponseDTO<Account> response = new ApiResponseDTO<Account>("Cập nhật thông tin tài khoản thành công", "success",

@@ -2,8 +2,11 @@ package com.example.demo.dto;
 
 import java.time.LocalDate;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 
@@ -18,16 +21,20 @@ public record CreateUserRequestDTO(
 		@NotBlank(message = "Họ và tên không được để trống") 
 		String fullName,
 		
+		@NotNull(message = "Giói tính không được để trống")
 		@Pattern(regexp = "^(MALE|FEMALE|OTHER)$", message = "Giới tính phải là MALE | FEMALE | OTHER")
 		String gender,
 		
-		@Past(message = "Ngày sinh phải là ngày trong quá khứ")
+		@NotNull(message = "Ngày sinh không được để trống")
+		@Past(message = "Ngày sinh phải nằm trong quá khứ")
 		LocalDate dateOfBirth,
 
+		@NotNull(message = "Email không được để trống")
 		@Email(message = "Email không hợp lệ") 
 		String email,
 
-		@NotBlank(message = "Số điện thoại không được để trống") 
+		@NotNull(message = "Số điện thoại không được để trống")
+		@Pattern(regexp = "^(0|\\+84)(3[2-9]|5[6|8|9]|7[0|6-9]|8[1-5]|9[0-9])\\d{7}$", message = "Số điện thoại không hợp lệ")
 		String phoneNumber
 
 ) {}
