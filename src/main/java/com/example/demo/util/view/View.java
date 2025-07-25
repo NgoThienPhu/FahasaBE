@@ -4,9 +4,9 @@ public interface View {
 	
 	interface Public {}
 	
-    interface Internal extends Public {}
+    interface Internal extends Public, Self {}
     
-    interface Admin extends Internal, Self {}
+    interface Admin extends Internal {}
     
     
     interface Self extends Public {}

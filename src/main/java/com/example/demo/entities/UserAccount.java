@@ -9,11 +9,14 @@ import com.example.demo.entities.enums.Gender;
 import com.example.demo.util.view.View;
 import com.fasterxml.jackson.annotation.JsonView;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,27 +38,27 @@ public class UserAccount extends Account {
 	@JsonView(View.Public.class)
 	private Gender gender;
 	
-	@Column(name = "date_of_birth", nullable = false)
+	@Column(name = "date_of_birth", nullable = true)
 	@JsonView(View.Public.class)
 	private LocalDate dateOfBirth;
 	
-	@Column(name = "email", nullable = false, unique = true)
+	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(name = "email")
 	@JsonView(View.Self.class)
-	private  String email;
+	private Email email;
 	
-	@Column(name = "phone_number", nullable = false, unique = true)
+	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(name = "phone_number")
 	@JsonView(View.Self.class)
-	private  String phoneNumber;
+	private PhoneNumber phoneNumber;
 	
-	@Column(name = "isActive", nullable = false)
+	@Column(name = "is_active", nullable = false)
 	@JsonView(View.Admin.class)
 	protected Boolean isActive;
 
-	public UserAccount(String username, String password, String fullName, String email, String phoneNumber) {
+	public UserAccount(String username, String password, String fullName) {
 		super(username, password);
 		this.fullName = fullName;
-		this.email = email;
-		this.phoneNumber = phoneNumber;
 		this.isActive = true;
 	}
 	
@@ -65,12 +68,7 @@ public class UserAccount extends Account {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
 		this.isActive = true;
+		this.gender = Gender.UNSPECIFIED;
     }
-
-	@Override
-	public String toString() {
-		return "UserAccount [fullName=" + fullName + ", email=" + email + ", phoneNumber=" + phoneNumber + ", isActive="
-				+ isActive + "]";
-	}
 
 }

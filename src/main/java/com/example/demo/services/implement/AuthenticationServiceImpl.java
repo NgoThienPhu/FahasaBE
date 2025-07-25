@@ -16,9 +16,9 @@ import com.example.demo.dto.ChangePasswordRequestDTO;
 import com.example.demo.dto.LoginResponseDTO;
 import com.example.demo.dto.LoginRequestDTO;
 import com.example.demo.dto.CreateUserRequestDTO;
+import com.example.demo.entities.Email;
+import com.example.demo.entities.PhoneNumber;
 import com.example.demo.entities.UserAccount;
-import com.example.demo.entities.enums.AccountType;
-import com.example.demo.entities.enums.Gender;
 import com.example.demo.entities.enums.TokenType;
 import com.example.demo.services.interfaces.AccountService;
 import com.example.demo.services.interfaces.AuthenticationService;
@@ -32,15 +32,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 	private AuthenticationManager authenticationManager;
 	private UserAccountService userAccountService;
-	private AccountService accountService;
 	private JwtService jwtService;
 	private PasswordEncoder passwordEncoder;
 
 	public AuthenticationServiceImpl(AuthenticationManager authenticationManager, UserAccountService userAccountService,
-			AccountService accountService, JwtService jwtService, PasswordEncoder passwordEncoder) {
+			JwtService jwtService, PasswordEncoder passwordEncoder) {
 		this.authenticationManager = authenticationManager;
 		this.userAccountService = userAccountService;
-		this.accountService = accountService;
 		this.jwtService = jwtService;
 		this.passwordEncoder = passwordEncoder;
 	}
@@ -58,6 +56,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 			UserAccount account = userAccountService.findUserAccountByUsername(body.username());
 
+			if (account.getIsActive() == false)
+				throw new ResponseStatusException(HttpStatus.LOCKED,
+						"Tài khoản của bạn đã bị khóa vui lòng thử lại sau");
+
 			String accessToken = jwtService.createToken(account.getUsername(), TokenType.ACCESS);
 
 			return convertUserAccountToLoginResponseDTO(account, accessToken);
@@ -68,16 +70,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		} catch (InternalAuthenticationServiceException e) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
 					"Tài khoản hoặc mật khẩu không chính xác, vui lòng đăng nhập lại");
+		} catch (ResponseStatusException e) {
+			throw e;
 		} catch (Exception e) {
-			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-					"Đã xảy ra lỗi trong quá trình đăng nhập");
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 		}
 	}
 
 	@Transactional
 	@Override
 	public UserAccount userRegister(CreateUserRequestDTO body) {
-		Boolean checkExistsUsername = accountService.existsByUsername(body.username());
+		Boolean checkExistsUsername = userAccountService.existsByUsername(body.username());
 		Boolean checkExistsEmail = userAccountService.existsByEmail(body.email());
 		Boolean checkExistsPhoneNumber = userAccountService.existsByPhoneNumber(body.phoneNumber());
 
@@ -135,23 +138,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 	}
 
-	private UserAccount convertUserAccountValidatorToUserAccount(
-			CreateUserRequestDTO dto) {
+	private UserAccount convertUserAccountValidatorToUserAccount(CreateUserRequestDTO dto) {
 		UserAccount userAccount = new UserAccount();
 		userAccount.setUsername(dto.username());
 		userAccount.setPassword(passwordEncoder.encode(dto.password()));
 		userAccount.setFullName(dto.fullName());
-		userAccount.setGender(Gender.valueOf(dto.gender()));
-		userAccount.setDateOfBirth(dto.dateOfBirth());
-		userAccount.setEmail(dto.email());
-		userAccount.setPhoneNumber(dto.phoneNumber());
+		userAccount.setEmail(new Email(dto.email()));
+		userAccount.setPhoneNumber(new PhoneNumber(dto.phoneNumber()));
 		return userAccount;
 	}
 
 	private LoginResponseDTO convertUserAccountToLoginResponseDTO(UserAccount account, String accessToken) {
 		LoginResponseDTO loginResponseDTO = new LoginResponseDTO(account.getId(), account.getUsername(),
-				AccountType.USER, account.getCreatedAt(), account.getUpdatedAt(), account.getFullName(),
-				account.getEmail(), account.getPhoneNumber(), account.getIsActive(), accessToken);
+				account.getFullName(), account.getEmail(), account.getPhoneNumber(), accessToken);
 		return loginResponseDTO;
 	}
 
