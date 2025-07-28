@@ -4,11 +4,14 @@ public interface View {
 	
 	interface Public {}
 	
-    interface Internal extends Public, Self {}
-    
-    interface Admin extends Internal {}
-    
-    
-    interface Self extends Public {}
+	interface User extends Public {}
+	
+	interface Self extends Public {}
+	
+	interface Employee extends User, Self {}
+	
+	interface Internal extends Employee {}
+	
+	interface Admin extends Internal {}
 
 }

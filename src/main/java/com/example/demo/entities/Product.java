@@ -72,11 +72,11 @@ public class Product {
 	private List<AttributeValue> attributeValues = new ArrayList<>();
 
 	@Column(name = "created_at", nullable = false)
-	@JsonView(View.Internal.class)
+	@JsonView(View.Employee.class)
 	private LocalDateTime createdAt;
 
 	@Column(name = "updated_at", nullable = false)
-	@JsonView(View.Internal.class)
+	@JsonView(View.Employee.class)
 	private LocalDateTime updatedAt;
 
 	public Product(String name, String description, Category category, BigDecimal price, Integer quantity,

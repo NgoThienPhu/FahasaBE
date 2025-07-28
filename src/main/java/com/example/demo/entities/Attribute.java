@@ -51,11 +51,11 @@ public class Attribute {
 	private List<AttributeValue> attributeValues = new ArrayList<>();
 
 	@Column(name = "created_at", nullable = false)
-	@JsonView(View.Internal.class)
+	@JsonView(View.Employee.class)
 	private LocalDateTime createdAt;
 
 	@Column(name = "updated_at", nullable = false)
-	@JsonView(View.Internal.class)
+	@JsonView(View.Employee.class)
 	private LocalDateTime updatedAt;
 
 	@PrePersist

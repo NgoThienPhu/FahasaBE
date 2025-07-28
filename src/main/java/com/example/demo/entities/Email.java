@@ -34,11 +34,11 @@ public class Email {
 	private Boolean isVerify;
 	
 	@Column(name = "created_at", nullable = false)
-	@JsonView(View.Internal.class)
+	@JsonView(View.Employee.class)
 	private LocalDateTime createdAt;
 	
 	@Column(name = "updated_at", nullable = false)
-	@JsonView(View.Internal.class)
+	@JsonView(View.Employee.class)
 	private LocalDateTime updatedAt;
 	
 	public Email(String email) {

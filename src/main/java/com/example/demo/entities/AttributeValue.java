@@ -48,11 +48,11 @@ public class AttributeValue {
 	private String value;
 
 	@Column(name = "created_at", nullable = false)
-	@JsonView(View.Admin.class)
+	@JsonView(View.Employee.class)
 	private LocalDateTime createdAt;
 
 	@Column(name = "updated_at", nullable = false)
-	@JsonView(View.Admin.class)
+	@JsonView(View.Employee.class)
 	private LocalDateTime updatedAt;
 
 	public AttributeValue(Attribute attribute, String value) {

@@ -41,11 +41,11 @@ public abstract class Account {
 	protected String password;
 
 	@Column(name = "created_at", nullable = false)
-	@JsonView(View.Internal.class)
+	@JsonView(View.Employee.class)
 	protected LocalDateTime createdAt;
 
 	@Column(name = "updated_at", nullable = false)
-	@JsonView(View.Internal.class)
+	@JsonView(View.Employee.class)
 	protected LocalDateTime updatedAt;
 
 	public Account(String username, String password) {

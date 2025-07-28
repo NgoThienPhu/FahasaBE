@@ -53,7 +53,7 @@ public class UserAccount extends Account {
 	private PhoneNumber phoneNumber;
 	
 	@Column(name = "is_active", nullable = false)
-	@JsonView(View.Admin.class)
+	@JsonView(View.Employee.class)
 	protected Boolean isActive;
 
 	public UserAccount(String username, String password, String fullName) {

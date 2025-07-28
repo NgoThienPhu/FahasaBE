@@ -44,8 +44,8 @@ public class Category {
 	private String name;
 
 	@ManyToOne
+	@JsonIgnore
 	@JoinColumn(name = "parent_category_id", nullable = true)
-	@JsonView(View.Public.class)
 	private Category parentCategory;
 
 	@JsonIgnore
@@ -53,16 +53,16 @@ public class Category {
 	@JoinTable(name = "category_attribute", joinColumns = @JoinColumn(name = "category_id"), inverseJoinColumns = @JoinColumn(name = "attribute_id"))
 	private List<Attribute> attributes = new ArrayList<Attribute>();
 
-	@JsonIgnore
 	@OneToMany(mappedBy = "parentCategory", cascade = CascadeType.ALL, orphanRemoval = true)
+	@JsonView(View.Public.class)
 	private List<Category> children = new ArrayList<Category>();
 
 	@Column(name = "created_at", nullable = false)
-	@JsonView(View.Internal.class)
+	@JsonView(View.Employee.class)
 	private LocalDateTime createdAt;
 
 	@Column(name = "updated_at", nullable = false)
-	@JsonView(View.Internal.class)
+	@JsonView(View.Employee.class)
 	private LocalDateTime updatedAt;
 
 	public Category(String name, Category parentCategory) {

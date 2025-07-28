@@ -47,11 +47,11 @@ public class ProductImage {
 	private Product product;
 
 	@Column(name = "created_at", nullable = false)
-	@JsonView(View.Internal.class)
+	@JsonView(View.Employee.class)
 	private LocalDateTime createdAt;
 
 	@Column(name = "updated_at", nullable = false)
-	@JsonView(View.Internal.class)
+	@JsonView(View.Employee.class)
 	private LocalDateTime updatedAt;
 
 	public ProductImage(String url, Boolean isPrimary) {
