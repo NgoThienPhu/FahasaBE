@@ -51,9 +51,10 @@ public class CategoryServiceImpl implements CategoryService {
 					.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
 							String.format("Không tìm thấy loại sản phẩm có Id là: %s", body.parentCategoryId())));
 
-			Category category = new Category(body.categoryName(), parentCategory);
+			Category category = new Category(body.categoryName());
+			parentCategory.getChildren().add(category);
 
-			return categoryRepository.save(category);
+			return categoryRepository.save(parentCategory);
 		}
 
 		Category category = new Category(body.categoryName());

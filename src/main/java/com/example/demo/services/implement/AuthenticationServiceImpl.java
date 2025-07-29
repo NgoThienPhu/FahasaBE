@@ -20,7 +20,6 @@ import com.example.demo.entities.Email;
 import com.example.demo.entities.PhoneNumber;
 import com.example.demo.entities.UserAccount;
 import com.example.demo.entities.enums.TokenType;
-import com.example.demo.services.interfaces.AccountService;
 import com.example.demo.services.interfaces.AuthenticationService;
 import com.example.demo.services.interfaces.JwtService;
 import com.example.demo.services.interfaces.UserAccountService;
@@ -149,7 +148,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	}
 
 	private LoginResponseDTO convertUserAccountToLoginResponseDTO(UserAccount account, String accessToken) {
-		LoginResponseDTO loginResponseDTO = new LoginResponseDTO(account.getId(), account.getUsername(),
+		LoginResponseDTO loginResponseDTO = new LoginResponseDTO(account.getAccountId(), account.getUsername(),
 				account.getFullName(), account.getEmail(), account.getPhoneNumber(), accessToken);
 		return loginResponseDTO;
 	}

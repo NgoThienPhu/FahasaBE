@@ -9,8 +9,6 @@ import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -24,39 +22,37 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "attribute_value")
-public class AttributeValue {
-
+@Table(name = "address")
+public class Address {
+	
 	@Id
-	@Column(name = "attribute_value_id")
-	@JsonView(View.Public.class)
-	private String attributeValueId;
-
-	@ManyToOne
-	@JoinColumn(name = "attribute_id", nullable = false)
-	@JsonView(View.Public.class)
-	private Attribute attribute;
-
-	@Column(name = "value", nullable = false)
-	@JsonView(View.Public.class)
-	private String value;
-
+	@Column(name = "address_id")
+	@JsonView(View.Self.class)
+	private String id;
+	
+	@Column(name = "fullname")
+	@JsonView(View.Self.class)
+	private String fullName;
+	
+	@Column(name = "phone_number")
+	@JsonView(View.Self.class)
+	private String phoneNumber;
+	
+	@Column(name = "address")
+	@JsonView(View.Self.class)
+	private String address;
+	
 	@Column(name = "created_at", nullable = false)
 	@JsonView(View.Employee.class)
 	private LocalDateTime createdAt;
-
+	
 	@Column(name = "updated_at", nullable = false)
 	@JsonView(View.Employee.class)
 	private LocalDateTime updatedAt;
-
-	public AttributeValue(Attribute attribute, String value) {
-		this.attribute = attribute;
-		this.value = value;
-	}
-
+	
 	@PrePersist
 	public void onCreate() {
-		this.attributeValueId = UUID.randomUUID().toString();
+		this.id = UUID.randomUUID().toString();
 		this.createdAt = LocalDateTime.now();
 		this.updatedAt = LocalDateTime.now();
 	}
@@ -65,5 +61,5 @@ public class AttributeValue {
 	public void onUpdate() {
 		this.updatedAt = LocalDateTime.now();
 	}
-
+	
 }

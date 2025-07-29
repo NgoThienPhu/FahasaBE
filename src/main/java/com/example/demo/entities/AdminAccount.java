@@ -25,7 +25,7 @@ public class AdminAccount extends Account {
 	
 	@PrePersist
 	public void onCreate() {
-		this.id = UUID.randomUUID().toString();
+		this.accountId = UUID.randomUUID().toString();
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }

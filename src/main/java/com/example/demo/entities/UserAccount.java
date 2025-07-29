@@ -2,6 +2,8 @@ package com.example.demo.entities;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import com.example.demo.entities.bases.Account;
@@ -16,6 +18,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import lombok.Getter;
@@ -52,6 +55,9 @@ public class UserAccount extends Account {
 	@JsonView(View.Self.class)
 	private PhoneNumber phoneNumber;
 	
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Address> addresses = new ArrayList<>();
+	
 	@Column(name = "is_active", nullable = false)
 	@JsonView(View.Employee.class)
 	protected Boolean isActive;
@@ -64,7 +70,7 @@ public class UserAccount extends Account {
 	
 	@PrePersist
 	public void onCreate() {
-		this.id = UUID.randomUUID().toString();
+		this.accountId = UUID.randomUUID().toString();
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
 		this.isActive = true;

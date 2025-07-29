@@ -4,14 +4,11 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.example.demo.util.view.View;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -29,9 +26,9 @@ import lombok.Setter;
 public class ProductImage {
 
 	@Id
-	@Column(name = "id")
+	@Column(name = "product_image_id")
 	@JsonView(View.Public.class)
-	private String id;
+	private String productImageId;
 
 	@Column(name = "url", nullable = false)
 	@JsonView(View.Public.class)
@@ -40,11 +37,6 @@ public class ProductImage {
 	@Column(name = "is_primary", nullable = false)
 	@JsonView(View.Public.class)
 	private Boolean isPrimary;
-
-	@JsonIgnore
-	@ManyToOne
-	@JoinColumn(name = "product_id", nullable = false)
-	private Product product;
 
 	@Column(name = "created_at", nullable = false)
 	@JsonView(View.Employee.class)
@@ -59,14 +51,9 @@ public class ProductImage {
 		this.isPrimary = isPrimary;
 	}
 
-	public ProductImage(String url, Boolean isPrimary, Product product) {
-		this(url, isPrimary);
-		this.product = product;
-	}
-
 	@PrePersist
 	public void onCreate() {
-		this.id = UUID.randomUUID().toString();
+		this.productImageId = UUID.randomUUID().toString();
 		this.createdAt = LocalDateTime.now();
 		this.updatedAt = LocalDateTime.now();
 	}

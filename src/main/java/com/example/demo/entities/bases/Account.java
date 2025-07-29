@@ -28,12 +28,12 @@ import lombok.Setter;
 public abstract class Account {
 
 	@Id
-	@Column(name = "id")
-	@JsonView(View.Public.class)
-	protected String id;
+	@Column(name = "account_id")
+	@JsonView(View.Self.class)
+	protected String accountId;
 
 	@Column(name = "username", nullable = false, unique = true)
-	@JsonView(View.Public.class)
+	@JsonView(View.Self.class)
 	protected String username;
 
 	@Column(name = "password", nullable = false)
@@ -56,12 +56,6 @@ public abstract class Account {
 	@PreUpdate
 	protected void onUpdate() {
 		this.updatedAt = LocalDateTime.now();
-	}
-
-	@Override
-	public String toString() {
-		return "Account [id=" + id + ", username=" + username + ", password=" + password + ", createdAt=" + createdAt
-				+ ", updatedAt=" + updatedAt + "]";
 	}
 
 }

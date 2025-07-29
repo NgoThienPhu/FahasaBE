@@ -34,9 +34,9 @@ import lombok.Setter;
 public class Product {
 
 	@Id
-	@Column(name = "id")
+	@Column(name = "product_id")
 	@JsonView(View.Public.class)
-	private String id;
+	private String productId;
 
 	@Column(name = "name", nullable = false)
 	@JsonView(View.Public.class)
@@ -63,11 +63,11 @@ public class Product {
 	@JsonView(View.Public.class)
 	private String skuCode;
 
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "product", orphanRemoval = true)
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
 	@JsonView(View.Public.class)
 	private List<ProductImage> images = new ArrayList<>();
 
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "product", orphanRemoval = true)
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
 	@JsonView(View.Public.class)
 	private List<AttributeValue> attributeValues = new ArrayList<>();
 
@@ -92,7 +92,7 @@ public class Product {
 
 	@PrePersist
 	public void onCreate() {
-		this.id = UUID.randomUUID().toString();
+		this.productId = UUID.randomUUID().toString();
 		this.skuCode = UUID.randomUUID().toString();
 		this.createdAt = LocalDateTime.now();
 		this.updatedAt = LocalDateTime.now();

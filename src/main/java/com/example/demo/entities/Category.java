@@ -16,7 +16,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
@@ -35,25 +34,20 @@ import lombok.Setter;
 public class Category {
 
 	@Id
-	@Column(name = "id")
+	@Column(name = "category_id")
 	@JsonView(View.Public.class)
-	private String id;
+	private String categoryId;
 
 	@Column(name = "name", nullable = false, unique = true)
 	@JsonView(View.Public.class)
 	private String name;
-
-	@ManyToOne
-	@JsonIgnore
-	@JoinColumn(name = "parent_category_id", nullable = true)
-	private Category parentCategory;
 
 	@JsonIgnore
 	@ManyToMany(cascade = { CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
 	@JoinTable(name = "category_attribute", joinColumns = @JoinColumn(name = "category_id"), inverseJoinColumns = @JoinColumn(name = "attribute_id"))
 	private List<Attribute> attributes = new ArrayList<Attribute>();
 
-	@OneToMany(mappedBy = "parentCategory", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JsonView(View.Public.class)
 	private List<Category> children = new ArrayList<Category>();
 
@@ -65,18 +59,13 @@ public class Category {
 	@JsonView(View.Employee.class)
 	private LocalDateTime updatedAt;
 
-	public Category(String name, Category parentCategory) {
-		this(name);
-		this.parentCategory = parentCategory;
-	}
-
 	public Category(String name) {
 		this.name = name;
 	}
 
 	@PrePersist
 	public void onCreate() {
-		this.id = UUID.randomUUID().toString();
+		this.categoryId = UUID.randomUUID().toString();
 		this.createdAt = LocalDateTime.now();
 		this.updatedAt = LocalDateTime.now();
 	}

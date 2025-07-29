@@ -1,16 +1,20 @@
 package com.example.demo.entities;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import com.example.demo.util.view.View;
 import com.fasterxml.jackson.annotation.JsonView;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -24,23 +28,27 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "attribute_value")
-public class AttributeValue {
+@Table(name = "my_order")
+public class MyOrder {
 
 	@Id
-	@Column(name = "attribute_value_id")
-	@JsonView(View.Public.class)
-	private String attributeValueId;
-
+	@Column(name = "my_order_id", nullable = false)
+	@JsonView(View.Self.class)
+	private String myOrderId;
+	
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	@JsonView(View.Self.class)
+	private List<OrderDetail> orderDetails = new ArrayList<>();
+	
 	@ManyToOne
-	@JoinColumn(name = "attribute_id", nullable = false)
-	@JsonView(View.Public.class)
-	private Attribute attribute;
-
-	@Column(name = "value", nullable = false)
-	@JsonView(View.Public.class)
-	private String value;
-
+	@JoinColumn(name = "address_id", nullable = false)
+	@JsonView(View.Self.class)
+	private Address address;
+	
+	@Column(name = "payment_method", nullable = false)
+	@JsonView(View.Self.class)
+	private String paymentMethod;
+	
 	@Column(name = "created_at", nullable = false)
 	@JsonView(View.Employee.class)
 	private LocalDateTime createdAt;
@@ -48,15 +56,10 @@ public class AttributeValue {
 	@Column(name = "updated_at", nullable = false)
 	@JsonView(View.Employee.class)
 	private LocalDateTime updatedAt;
-
-	public AttributeValue(Attribute attribute, String value) {
-		this.attribute = attribute;
-		this.value = value;
-	}
-
+	
 	@PrePersist
 	public void onCreate() {
-		this.attributeValueId = UUID.randomUUID().toString();
+		this.myOrderId = UUID.randomUUID().toString();
 		this.createdAt = LocalDateTime.now();
 		this.updatedAt = LocalDateTime.now();
 	}
@@ -65,5 +68,5 @@ public class AttributeValue {
 	public void onUpdate() {
 		this.updatedAt = LocalDateTime.now();
 	}
-
+	
 }

@@ -24,23 +24,23 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "attribute_value")
-public class AttributeValue {
-
+@Table(name = "order_detail")
+public class OrderDetail {
+	
 	@Id
-	@Column(name = "attribute_value_id")
-	@JsonView(View.Public.class)
-	private String attributeValueId;
-
+	@Column(name = "order_detail_id")
+	@JsonView(View.Self.class)
+	private String orderDetailId;
+	
 	@ManyToOne
-	@JoinColumn(name = "attribute_id", nullable = false)
-	@JsonView(View.Public.class)
-	private Attribute attribute;
-
-	@Column(name = "value", nullable = false)
-	@JsonView(View.Public.class)
-	private String value;
-
+	@JoinColumn(name = "product_id")
+	@JsonView(View.Self.class)
+	private Product product;
+	
+	@Column(name = "quantity")
+	@JsonView(View.Self.class)
+	private int quantity;
+	
 	@Column(name = "created_at", nullable = false)
 	@JsonView(View.Employee.class)
 	private LocalDateTime createdAt;
@@ -48,15 +48,10 @@ public class AttributeValue {
 	@Column(name = "updated_at", nullable = false)
 	@JsonView(View.Employee.class)
 	private LocalDateTime updatedAt;
-
-	public AttributeValue(Attribute attribute, String value) {
-		this.attribute = attribute;
-		this.value = value;
-	}
-
+	
 	@PrePersist
 	public void onCreate() {
-		this.attributeValueId = UUID.randomUUID().toString();
+		this.orderDetailId = UUID.randomUUID().toString();
 		this.createdAt = LocalDateTime.now();
 		this.updatedAt = LocalDateTime.now();
 	}
@@ -65,5 +60,5 @@ public class AttributeValue {
 	public void onUpdate() {
 		this.updatedAt = LocalDateTime.now();
 	}
-
+	
 }

@@ -104,9 +104,6 @@ public class ProductServiceImpl implements ProductService {
 			Product product = new Product(productDTO.name(), productDTO.description(), category, productDTO.price(),
 					productDTO.quantity(), productImages, attributesValue);
 
-			productImages.forEach(img -> img.setProduct(product));
-			attributesValue.forEach(attr -> attr.setProduct(product));
-
 			return productRepository.save(product);
 
 		} catch (Exception e) {
@@ -137,9 +134,6 @@ public class ProductServiceImpl implements ProductService {
 
 			Product product = new Product(dto.name(), dto.description(), category, dto.price(), dto.quantity(),
 					productImages, attributesValue);
-
-			productImages.forEach(img -> img.setProduct(product));
-			attributesValue.forEach(attr -> attr.setProduct(product));
 
 			return productRepository.save(product);
 
@@ -204,7 +198,6 @@ public class ProductServiceImpl implements ProductService {
 
 			mainImage = s3Service.uploadFile(newMainImage);
 			ProductImage productImage = new ProductImage(mainImage, true);
-			productImage.setProduct(product);
 
 			product.getImages().stream().filter(img -> Boolean.TRUE.equals(img.getIsPrimary())).findFirst()
 					.ifPresent(img -> img.setIsPrimary(false));
@@ -235,7 +228,7 @@ public class ProductServiceImpl implements ProductService {
 			uploadedImageUrls.addAll(imageUrls);
 
 			List<ProductImage> productImages = imageUrls.stream()
-					.map(imageUrl -> new ProductImage(imageUrl, false, product)).collect(Collectors.toList());
+					.map(imageUrl -> new ProductImage(imageUrl, false)).collect(Collectors.toList());
 
 			product.getImages().addAll(productImages);
 
@@ -261,15 +254,15 @@ public class ProductServiceImpl implements ProductService {
 			Optional<ProductImage> mainImage = product.getImages().stream()
 					.filter(image -> image.getIsPrimary() == true).findFirst();
 
-			if (mainImage.isPresent() && imagesId.contains(mainImage.get().getId())) {
+			if (mainImage.isPresent() && imagesId.contains(mainImage.get().getProductImageId())) {
 				throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-						String.format("Không thể xóa ảnh chính của sản phẩm với Id là: %s", mainImage.get().getId()));
+						String.format("Không thể xóa ảnh chính của sản phẩm với Id là: %s", mainImage.get().getProductImageId()));
 			}
 
-			product.getImages().stream().filter(image -> imagesId.contains(image.getId())).map(ProductImage::getUrl)
+			product.getImages().stream().filter(image -> imagesId.contains(image.getProductImageId())).map(ProductImage::getUrl)
 					.map(ProductImage::extractFileNameFromUrl).forEach(s3Service::deleteFile);
 
-			product.getImages().removeIf(image -> imagesId.contains(image.getId()));
+			product.getImages().removeIf(image -> imagesId.contains(image.getProductImageId()));
 
 			return productRepository.save(product);
 		} catch (ResponseStatusException e) {

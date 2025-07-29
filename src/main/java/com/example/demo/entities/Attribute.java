@@ -15,7 +15,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -33,9 +32,9 @@ import lombok.Setter;
 public class Attribute {
 
 	@Id
-	@Column(name = "id")
+	@Column(name = "attribute_id")
 	@JsonView(View.Public.class)
-	private String id;
+	private String attributeId;
 
 	@Column(name = "name", nullable = false, unique = true)
 	@JsonView(View.Public.class)
@@ -45,10 +44,6 @@ public class Attribute {
 	@ManyToMany(fetch = FetchType.LAZY ,mappedBy = "attributes", cascade = { CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST,
 			CascadeType.REFRESH })
 	private List<Category> categories = new ArrayList<>();
-
-	@JsonIgnore
-	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "attribute")
-	private List<AttributeValue> attributeValues = new ArrayList<>();
 
 	@Column(name = "created_at", nullable = false)
 	@JsonView(View.Employee.class)
@@ -60,7 +55,7 @@ public class Attribute {
 
 	@PrePersist
 	public void onCreate() {
-		this.id = UUID.randomUUID().toString();
+		this.attributeId = UUID.randomUUID().toString();
 		this.createdAt = LocalDateTime.now();
 		this.updatedAt = LocalDateTime.now();
 	}
