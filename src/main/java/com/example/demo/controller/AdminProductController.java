@@ -24,6 +24,7 @@ import com.example.demo.dto.ApiResponseDTO;
 import com.example.demo.dto.CreateProductRequestDTO;
 import com.example.demo.dto.PagedResponseDTO;
 import com.example.demo.dto.ProductFilterDTO;
+import com.example.demo.dto.ProductResponseDTO;
 import com.example.demo.dto.UpdateProductRequestDTO;
 import com.example.demo.entities.Product;
 import com.example.demo.services.interfaces.ProductService;
@@ -62,19 +63,19 @@ public class AdminProductController {
 //	@PreAuthorize("hasRole('ADMIN')")
 	@JsonView(View.Admin.class)
 	public ResponseEntity<?> getProductById(@PathVariable String productId) {
-		Product product = productService.findById(productId);
+		ProductResponseDTO product = productService.findById(productId);
 		if (product == null)
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND,
 					String.format("Không tìm thấy sản phẩm với id là: %s", productId));
-		ApiResponseDTO<Product> response = new ApiResponseDTO<Product>("Tìm sản phẩm thành công", "success", product);
-		return new ResponseEntity<ApiResponseDTO<Product>>(response, HttpStatus.OK);
+		ApiResponseDTO<ProductResponseDTO> response = new ApiResponseDTO<>("Tìm sản phẩm thành công", "success", product);
+		return new ResponseEntity<ApiResponseDTO<ProductResponseDTO>>(response, HttpStatus.OK);
 	}
 
 	@PostMapping
 //	@PreAuthorize("hasRole('ADMIN')")
 	@JsonView(View.Admin.class)
 	public ResponseEntity<?> createProduct(@RequestPart(required = false) List<MultipartFile> images,
-			@RequestPart(required = true) MultipartFile image,
+			@RequestPart(required = false) MultipartFile image,
 			@RequestPart(required = true) @Valid CreateProductRequestDTO product, BindingResult result)
 			throws IOException {
 		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result,
@@ -82,11 +83,10 @@ public class AdminProductController {
 		if (responseError != null)
 			return responseError;
 
-		Product myProduct = (images != null) ? productService.createProduct(product, image, images)
-				: productService.createProduct(product, image);
+		ProductResponseDTO myProduct = productService.createProduct(product, image, images);
 
-		ApiResponseDTO<Product> response = new ApiResponseDTO<Product>("Tạo sản phẩm thành công", "success", myProduct);
-		return new ResponseEntity<ApiResponseDTO<Product>>(response, HttpStatus.OK);
+		ApiResponseDTO<ProductResponseDTO> response = new ApiResponseDTO<>("Tạo sản phẩm thành công", "success", myProduct);
+		return new ResponseEntity<ApiResponseDTO<ProductResponseDTO>>(response, HttpStatus.OK);
 	}
 
 	@DeleteMapping("/{productId}")

@@ -134,7 +134,7 @@ public class UserAccountServiceImpl implements UserAccountService {
 	
 	@Transactional
 	@Override
-	public UserAccount updateUserAccount(UserAccount userAccount) {
+	public UserAccount save(UserAccount userAccount) {
 		return userAccountRepository.save(userAccount);
 	}
 	

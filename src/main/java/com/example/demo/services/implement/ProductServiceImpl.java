@@ -23,6 +23,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.example.demo.dto.CreateAttributeRequestDTO;
 import com.example.demo.dto.CreateAttributeValueRequestDTO;
 import com.example.demo.dto.ProductFilterDTO;
+import com.example.demo.dto.ProductResponseDTO;
 import com.example.demo.dto.UpdateProductRequestDTO;
 import com.example.demo.dto.CreateProductRequestDTO;
 import com.example.demo.entities.Attribute;
@@ -30,9 +31,12 @@ import com.example.demo.entities.Category;
 import com.example.demo.entities.Product;
 import com.example.demo.entities.AttributeValue;
 import com.example.demo.entities.ProductImage;
+import com.example.demo.entities.PurchasePrice;
+import com.example.demo.entities.SellPrice;
 import com.example.demo.repository.ProductRepository;
 import com.example.demo.services.interfaces.AttributeService;
 import com.example.demo.services.interfaces.CategoryService;
+import com.example.demo.services.interfaces.ProductPriceService;
 import com.example.demo.services.interfaces.ProductService;
 import com.example.demo.services.interfaces.S3Service;
 import com.example.demo.specification.ProductSpecification;
@@ -50,12 +54,15 @@ public class ProductServiceImpl implements ProductService {
 
 	private S3Service s3Service;
 
+	private ProductPriceService productPriceService;
+
 	public ProductServiceImpl(ProductRepository productRepository, @Lazy CategoryService categoryService,
-			AttributeService attributeServie, S3Service s3Service) {
+			AttributeService attributeServie, S3Service s3Service, ProductPriceService productPriceService) {
 		this.productRepository = productRepository;
 		this.categoryService = categoryService;
 		this.attributeServie = attributeServie;
 		this.s3Service = s3Service;
+		this.productPriceService = productPriceService;
 	}
 
 	@Override
@@ -81,61 +88,47 @@ public class ProductServiceImpl implements ProductService {
 
 	@Transactional
 	@Override
-	public Product createProduct(CreateProductRequestDTO productDTO, MultipartFile mainImage,
+	public ProductResponseDTO createProduct(CreateProductRequestDTO productDTO, MultipartFile mainImage,
 			List<MultipartFile> images) throws IOException {
 		List<String> uploadedImageUrls = new ArrayList<>();
 		List<AttributeValue> attributesValue = new ArrayList<>();
 		try {
-			if (mainImage == null)
-				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Vui lòng chọn ảnh đại diện cho sản phẩm");
 
 			attributesValue = handleAttributeValues(productDTO.attributes());
 
-			String mainImageUrl = s3Service.uploadFile(mainImage);
-			uploadedImageUrls.add(mainImageUrl);
+			List<ProductImage> productImages = new ArrayList<>();
 
-			List<String> imageUrls = s3Service.uploadFiles(images);
-			uploadedImageUrls.addAll(imageUrls);
+			if (mainImage != null) {
+				String mainImageUrl = s3Service.uploadFile(mainImage);
+				productImages.add(new ProductImage(mainImageUrl, true));
+				uploadedImageUrls.add(mainImageUrl);
+			}
 
-			List<ProductImage> productImages = handleProductImages(mainImageUrl, imageUrls);
+			if (images != null) {
+				List<String> imageUrls = s3Service.uploadFiles(images);
+				List<ProductImage> bookImages = imageUrls.stream().map(url -> new ProductImage(url, false))
+						.collect(Collectors.toList());
+				productImages.addAll(bookImages);
+				uploadedImageUrls.addAll(imageUrls);
+			}
 
 			Category category = handleCategory(productDTO.categoryId());
 
-			Product product = new Product(productDTO.name(), productDTO.description(), category, productDTO.price(),
-					productDTO.quantity(), productImages, attributesValue);
-
-			return productRepository.save(product);
-
-		} catch (Exception e) {
-			cleanupUploadedFiles(uploadedImageUrls);
-			throw e;
-		}
-	}
-
-	@Transactional
-	@Override
-	public Product createProduct(CreateProductRequestDTO dto, MultipartFile mainImage) throws IOException {
-		List<String> uploadedImageUrls = new ArrayList<>();
-		List<AttributeValue> attributesValue = new ArrayList<>();
-
-		try {
-
-			if (mainImage == null)
-				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Vui lòng chọn ảnh đại diện cho sản phẩm");
-
-			attributesValue = handleAttributeValues(dto.attributes());
-
-			String mainImageUrl = s3Service.uploadFile(mainImage);
-			uploadedImageUrls.add(mainImageUrl);
-
-			List<ProductImage> productImages = List.of(new ProductImage(mainImageUrl, true));
-
-			Category category = handleCategory(dto.categoryId());
-
-			Product product = new Product(dto.name(), dto.description(), category, dto.price(), dto.quantity(),
+			Product product = new Product(productDTO.name(), productDTO.description(), category, productDTO.quantity(),
 					productImages, attributesValue);
 
-			return productRepository.save(product);
+			product = productRepository.save(product);
+
+			SellPrice sellPrice = new SellPrice(product, productDTO.sellPrice());
+
+			PurchasePrice purchasePrice = new PurchasePrice(product,
+					productDTO.purchasePrice() == null ? productDTO.sellPrice() : productDTO.purchasePrice());
+
+			productPriceService.save(purchasePrice);
+			
+			sellPrice = (SellPrice) productPriceService.save(sellPrice);
+			
+			return convertProductToProductResponseDTO(product, sellPrice);
 
 		} catch (Exception e) {
 			cleanupUploadedFiles(uploadedImageUrls);
@@ -176,8 +169,9 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public Product findById(String productId) {
-		return productRepository.findById(productId).orElse(null);
+	public ProductResponseDTO findById(String productId) {
+		Product product =  productRepository.findById(productId).orElse(null);
+		return convertProductToProductResponseDTO(product);
 	}
 
 	@Override
@@ -227,8 +221,8 @@ public class ProductServiceImpl implements ProductService {
 			List<String> imageUrls = s3Service.uploadFiles(images);
 			uploadedImageUrls.addAll(imageUrls);
 
-			List<ProductImage> productImages = imageUrls.stream()
-					.map(imageUrl -> new ProductImage(imageUrl, false)).collect(Collectors.toList());
+			List<ProductImage> productImages = imageUrls.stream().map(imageUrl -> new ProductImage(imageUrl, false))
+					.collect(Collectors.toList());
 
 			product.getImages().addAll(productImages);
 
@@ -255,12 +249,12 @@ public class ProductServiceImpl implements ProductService {
 					.filter(image -> image.getIsPrimary() == true).findFirst();
 
 			if (mainImage.isPresent() && imagesId.contains(mainImage.get().getProductImageId())) {
-				throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-						String.format("Không thể xóa ảnh chính của sản phẩm với Id là: %s", mainImage.get().getProductImageId()));
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(
+						"Không thể xóa ảnh chính của sản phẩm với Id là: %s", mainImage.get().getProductImageId()));
 			}
 
-			product.getImages().stream().filter(image -> imagesId.contains(image.getProductImageId())).map(ProductImage::getUrl)
-					.map(ProductImage::extractFileNameFromUrl).forEach(s3Service::deleteFile);
+			product.getImages().stream().filter(image -> imagesId.contains(image.getProductImageId()))
+					.map(ProductImage::getUrl).map(ProductImage::extractFileNameFromUrl).forEach(s3Service::deleteFile);
 
 			product.getImages().removeIf(image -> imagesId.contains(image.getProductImageId()));
 
@@ -272,8 +266,7 @@ public class ProductServiceImpl implements ProductService {
 		}
 	}
 
-	private List<AttributeValue> handleAttributeValues(
-			List<CreateAttributeValueRequestDTO> attributeDTOs) {
+	private List<AttributeValue> handleAttributeValues(List<CreateAttributeValueRequestDTO> attributeDTOs) {
 		List<AttributeValue> result = new ArrayList<>();
 		if (attributeDTOs != null) {
 			for (CreateAttributeValueRequestDTO dto : attributeDTOs) {
@@ -286,15 +279,6 @@ public class ProductServiceImpl implements ProductService {
 		return result;
 	}
 
-	private List<ProductImage> handleProductImages(String mainImageUrl, List<String> imageUrls) {
-		List<ProductImage> images = new ArrayList<>();
-		images.add(new ProductImage(mainImageUrl, true));
-		for (String url : imageUrls) {
-			images.add(new ProductImage(url, false));
-		}
-		return images;
-	}
-
 	private Category handleCategory(String categoryId) {
 		Category category = categoryService.findById(categoryId);
 		if (category == null)
@@ -305,11 +289,7 @@ public class ProductServiceImpl implements ProductService {
 
 	private void cleanupUploadedFiles(List<String> uploadedImageUrls) {
 		for (String url : uploadedImageUrls) {
-			try {
-				s3Service.deleteFile(ProductImage.extractFileNameFromUrl(url));
-			} catch (Exception ex) {
-				// Ghi log...
-			}
+			s3Service.deleteFile(ProductImage.extractFileNameFromUrl(url));
 		}
 	}
 
@@ -349,13 +329,6 @@ public class ProductServiceImpl implements ProductService {
 			product.setCategory(category);
 		}
 
-		if (dto.price() != null) {
-			if (dto.price().compareTo(BigDecimal.valueOf(1000)) > 0)
-				product.setPrice(dto.price());
-			else
-				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Giá của sản phẩm phải lớn hơn 1_000 VNĐ");
-		}
-
 		if (dto.quantity() != null) {
 			if (dto.quantity() > 0)
 				product.setQuantity(dto.quantity());
@@ -364,6 +337,42 @@ public class ProductServiceImpl implements ProductService {
 		}
 
 		return product;
+	}
+	
+	private ProductResponseDTO convertProductToProductResponseDTO(Product product) {
+		if(product == null) return null;
+		ProductResponseDTO productResponseDTO = new ProductResponseDTO(
+				product.getProductId(),
+				product.getName(),
+				product.getDescription(),
+				product.getCategory(),
+				null,
+				product.getQuantity(),
+				product.getSkuCode(),
+				product.getImages(),
+				product.getAttributeValues(),
+				product.getCreatedAt(),
+				product.getUpdatedAt()
+		);
+		return productResponseDTO;
+	}
+	
+	private ProductResponseDTO convertProductToProductResponseDTO(Product product, SellPrice sellPrice) {
+		if(product == null) return null;
+		ProductResponseDTO productResponseDTO = new ProductResponseDTO(
+				product.getProductId(),
+				product.getName(),
+				product.getDescription(),
+				product.getCategory(),
+				sellPrice,
+				product.getQuantity(),
+				product.getSkuCode(),
+				product.getImages(),
+				product.getAttributeValues(),
+				product.getCreatedAt(),
+				product.getUpdatedAt()
+		);
+		return productResponseDTO;
 	}
 
 }

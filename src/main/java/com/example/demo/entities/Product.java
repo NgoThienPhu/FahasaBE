@@ -1,6 +1,5 @@
 package com.example.demo.entities;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,10 +50,6 @@ public class Product {
 	@JsonView(View.Public.class)
 	private Category category;
 
-	@Column(name = "price", nullable = false)
-	@JsonView(View.Public.class)
-	private BigDecimal price;
-
 	@Column(name = "quantity", nullable = false)
 	@JsonView(View.Public.class)
 	private Integer quantity;
@@ -79,12 +74,11 @@ public class Product {
 	@JsonView(View.Employee.class)
 	private LocalDateTime updatedAt;
 
-	public Product(String name, String description, Category category, BigDecimal price, Integer quantity,
+	public Product(String name, String description, Category category, Integer quantity,
 			List<ProductImage> images, List<AttributeValue> attributeValues) {
 		this.name = name;
 		this.description = description;
 		this.category = category;
-		this.price = price;
 		this.quantity = quantity;
 		this.images = images;
 		this.attributeValues = attributeValues;

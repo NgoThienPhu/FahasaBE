@@ -124,7 +124,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 			user.setPassword(newPassword);
 
-			userAccountService.updateUserAccount(user);
+			userAccountService.save(user);
 
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());

@@ -12,8 +12,6 @@ public interface UserAccountService {
 	UserAccount createUserAccount(UserAccount userAccount);
 	
 	UserAccount adminCreateUserAccount(AdminCreateUserRequestDTO dto);
-	
-	UserAccount updateUserAccount(UserAccount userAccount);
 
 	UserAccount changeUserInfo(ChangeUserInfoRequestDTO newUserInfo, String userAccountId);
 	
@@ -39,5 +37,7 @@ public interface UserAccountService {
 	UserAccount unlockUserAccount(String userAccountId);
 	
 	void resetPassword(String userAccountId);
+	
+	UserAccount save(UserAccount userAccount);
 	
 }
