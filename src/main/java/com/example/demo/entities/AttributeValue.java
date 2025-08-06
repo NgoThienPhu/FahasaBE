@@ -1,18 +1,13 @@
 package com.example.demo.entities;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
-
-import com.example.demo.util.view.View;
+import com.example.demo.entities.common.BaseEntity;
+import com.example.demo.utils.view.View;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,12 +20,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @Table(name = "attribute_value")
-public class AttributeValue {
-
-	@Id
-	@Column(name = "attribute_value_id")
-	@JsonView(View.Public.class)
-	private String attributeValueId;
+public class AttributeValue extends BaseEntity {
 
 	@ManyToOne
 	@JoinColumn(name = "attribute_id", nullable = false)
@@ -40,30 +30,5 @@ public class AttributeValue {
 	@Column(name = "value", nullable = false)
 	@JsonView(View.Public.class)
 	private String value;
-
-	@Column(name = "created_at", nullable = false)
-	@JsonView(View.Employee.class)
-	private LocalDateTime createdAt;
-
-	@Column(name = "updated_at", nullable = false)
-	@JsonView(View.Employee.class)
-	private LocalDateTime updatedAt;
-
-	public AttributeValue(Attribute attribute, String value) {
-		this.attribute = attribute;
-		this.value = value;
-	}
-
-	@PrePersist
-	public void onCreate() {
-		this.attributeValueId = UUID.randomUUID().toString();
-		this.createdAt = LocalDateTime.now();
-		this.updatedAt = LocalDateTime.now();
-	}
-
-	@PreUpdate
-	public void onUpdate() {
-		this.updatedAt = LocalDateTime.now();
-	}
 
 }

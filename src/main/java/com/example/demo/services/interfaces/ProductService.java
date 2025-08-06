@@ -6,10 +6,10 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.demo.dto.ProductFilterDTO;
-import com.example.demo.dto.ProductResponseDTO;
-import com.example.demo.dto.UpdateProductRequestDTO;
-import com.example.demo.dto.CreateProductRequestDTO;
+import com.example.demo.dto.product.CreateProductRequestDTO;
+import com.example.demo.dto.product.ProductFilterDTO;
+import com.example.demo.dto.product.ProductResponseDTO;
+import com.example.demo.dto.product.UpdateProductRequestDTO;
 import com.example.demo.entities.Product;
 
 public interface ProductService {

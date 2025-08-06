@@ -19,12 +19,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.example.demo.dto.CreateAttributeRequestDTO;
-import com.example.demo.dto.CreateAttributeValueRequestDTO;
-import com.example.demo.dto.ProductFilterDTO;
-import com.example.demo.dto.ProductResponseDTO;
-import com.example.demo.dto.UpdateProductRequestDTO;
-import com.example.demo.dto.CreateProductRequestDTO;
+import com.example.demo.dto.attribute.CreateAttributeRequestDTO;
+import com.example.demo.dto.attribute.CreateAttributeValueRequestDTO;
+import com.example.demo.dto.product.CreateProductRequestDTO;
+import com.example.demo.dto.product.ProductFilterDTO;
+import com.example.demo.dto.product.ProductResponseDTO;
+import com.example.demo.dto.product.UpdateProductRequestDTO;
 import com.example.demo.entities.Attribute;
 import com.example.demo.entities.Category;
 import com.example.demo.entities.Product;
@@ -33,13 +33,13 @@ import com.example.demo.entities.ProductImage;
 import com.example.demo.entities.price.PromoPrice;
 import com.example.demo.entities.price.PurchasePrice;
 import com.example.demo.entities.price.SellPrice;
-import com.example.demo.repository.ProductRepository;
+import com.example.demo.repositories.ProductRepository;
 import com.example.demo.services.interfaces.AttributeService;
 import com.example.demo.services.interfaces.CategoryService;
 import com.example.demo.services.interfaces.ProductPriceService;
 import com.example.demo.services.interfaces.ProductService;
 import com.example.demo.services.interfaces.S3Service;
-import com.example.demo.specification.ProductSpecification;
+import com.example.demo.specifications.ProductSpecification;
 
 import jakarta.transaction.Transactional;
 
@@ -114,8 +114,8 @@ public class ProductServiceImpl implements ProductService {
 
 			Category category = handleCategory(productDTO.categoryId());
 
-			Product product = new Product(productDTO.name(), productDTO.description(), category, productDTO.quantity(),
-					productImages, attributesValue);
+			Product product = new Product(productDTO.name(), productDTO.description(), category, productImages,
+					attributesValue);
 
 			product = productRepository.save(product);
 
@@ -126,7 +126,7 @@ public class ProductServiceImpl implements ProductService {
 
 			productPriceService.save(purchasePrice);
 			productPriceService.save(sellPrice);
-			
+
 			return convertProductToProductResponseDTO(product);
 
 		} catch (Exception e) {
@@ -169,7 +169,7 @@ public class ProductServiceImpl implements ProductService {
 
 	@Override
 	public ProductResponseDTO findById(String productId) {
-		Product product =  productRepository.findById(productId).orElse(null);
+		Product product = productRepository.findById(productId).orElse(null);
 		return convertProductToProductResponseDTO(product);
 	}
 
@@ -247,15 +247,15 @@ public class ProductServiceImpl implements ProductService {
 			Optional<ProductImage> mainImage = product.getImages().stream()
 					.filter(image -> image.getIsPrimary() == true).findFirst();
 
-			if (mainImage.isPresent() && imagesId.contains(mainImage.get().getProductImageId())) {
+			if (mainImage.isPresent() && imagesId.contains(mainImage.get().getId())) {
 				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(
-						"Không thể xóa ảnh chính của sản phẩm với Id là: %s", mainImage.get().getProductImageId()));
+						"Không thể xóa ảnh chính của sản phẩm với Id là: %s", mainImage.get().getId()));
 			}
 
-			product.getImages().stream().filter(image -> imagesId.contains(image.getProductImageId()))
+			product.getImages().stream().filter(image -> imagesId.contains(image.getId()))
 					.map(ProductImage::getUrl).map(ProductImage::extractFileNameFromUrl).forEach(s3Service::deleteFile);
 
-			product.getImages().removeIf(image -> imagesId.contains(image.getProductImageId()));
+			product.getImages().removeIf(image -> imagesId.contains(image.getId()));
 
 			return productRepository.save(product);
 		} catch (ResponseStatusException e) {
@@ -328,39 +328,22 @@ public class ProductServiceImpl implements ProductService {
 			product.setCategory(category);
 		}
 
-		if (dto.quantity() != null) {
-			if (dto.quantity() > 0)
-				product.setQuantity(dto.quantity());
-			else
-				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Số lượng sản phẩm phải lớn hơn 1");
-		}
-
 		return product;
 	}
-	
+
 	private ProductResponseDTO convertProductToProductResponseDTO(Product product) {
-		if(product == null) return null;
-		
-		SellPrice sellPrice = (SellPrice) productPriceService.getProductCurrentSellPrice(product.getProductId());
-		
-		PromoPrice promoPrice = (PromoPrice) productPriceService.getProductCurrentPromoPrice(product.getProductId());
-		
-		ProductResponseDTO productResponseDTO = new ProductResponseDTO(
-				product.getProductId(),
-				product.getName(),
-				product.getDescription(),
-				product.getCategory(),
-				sellPrice,
-				promoPrice,
-				product.getQuantity(),
-				product.getSkuCode(),
-				product.getImages(),
-				product.getAttributeValues(),
-				product.getCreatedAt(),
-				product.getUpdatedAt()
-		);
-		
+		if (product == null)
+			return null;
+
+		SellPrice sellPrice = (SellPrice) productPriceService.getProductCurrentSellPrice(product.getId());
+
+		PromoPrice promoPrice = (PromoPrice) productPriceService.getProductCurrentPromoPrice(product.getId());
+
+		ProductResponseDTO productResponseDTO = new ProductResponseDTO(product.getId(), product.getName(),
+				product.getDescription(), product.getCategory(), sellPrice, promoPrice, product.getSkuCode(),
+				product.getImages(), product.getAttributeValues(), product.getCreatedAt(), product.getUpdatedAt());
+
 		return productResponseDTO;
 	}
-	
+
 }

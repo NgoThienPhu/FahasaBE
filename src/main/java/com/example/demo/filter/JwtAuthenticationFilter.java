@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.example.demo.config.EndPoint;
+import com.example.demo.configs.EndPoint;
 import com.example.demo.services.interfaces.CustomUserDetailService;
 import com.example.demo.services.interfaces.JwtService;
 import com.fasterxml.jackson.core.JsonProcessingException;

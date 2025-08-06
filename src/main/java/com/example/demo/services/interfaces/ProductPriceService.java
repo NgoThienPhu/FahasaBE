@@ -1,6 +1,6 @@
 package com.example.demo.services.interfaces;
 
-import com.example.demo.entities.price.ProductPrice;
+import com.example.demo.entities.common.ProductPrice;
 
 public interface ProductPriceService {
 	

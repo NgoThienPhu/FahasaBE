@@ -148,7 +148,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	}
 
 	private LoginResponseDTO convertUserAccountToLoginResponseDTO(UserAccount account, String accessToken) {
-		LoginResponseDTO loginResponseDTO = new LoginResponseDTO(account.getAccountId(), account.getUsername(),
+		LoginResponseDTO loginResponseDTO = new LoginResponseDTO(account.getId(), account.getUsername(),
 				account.getFullName(), account.getEmail(), account.getPhoneNumber(), accessToken);
 		return loginResponseDTO;
 	}

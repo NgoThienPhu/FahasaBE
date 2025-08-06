@@ -2,7 +2,7 @@ package com.example.demo.dto;
 
 import com.example.demo.entities.Email;
 import com.example.demo.entities.PhoneNumber;
-import com.example.demo.util.view.View;
+import com.example.demo.utils.view.View;
 import com.fasterxml.jackson.annotation.JsonView;
 
 public record LoginResponseDTO(

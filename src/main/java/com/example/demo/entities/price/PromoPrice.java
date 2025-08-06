@@ -7,15 +7,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.entities.Product;
-import com.example.demo.util.view.View;
+import com.example.demo.entities.common.ProductPrice;
+import com.example.demo.utils.view.View;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.PrePersist;
+import lombok.NoArgsConstructor;
 
 @Entity
+@NoArgsConstructor
 @DiscriminatorValue(value = "PROMO")
 public class PromoPrice extends ProductPrice {
 	

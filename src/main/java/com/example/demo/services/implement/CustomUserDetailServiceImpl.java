@@ -8,8 +8,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.example.demo.entities.account.Account;
 import com.example.demo.entities.account.AdminAccount;
+import com.example.demo.entities.common.Account;
 import com.example.demo.entities.enums.AccountType;
 import com.example.demo.services.interfaces.AccountService;
 import com.example.demo.services.interfaces.CustomUserDetailService;

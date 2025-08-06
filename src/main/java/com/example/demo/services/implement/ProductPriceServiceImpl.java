@@ -6,12 +6,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import com.example.demo.entities.price.ProductPrice;
+import com.example.demo.entities.common.ProductPrice;
 import com.example.demo.entities.price.PromoPrice;
 import com.example.demo.entities.price.SellPrice;
-import com.example.demo.repository.ProductPriceRepository;
+import com.example.demo.repositories.ProductPriceRepository;
 import com.example.demo.services.interfaces.ProductPriceService;
-import com.example.demo.specification.ProductPriceSpecification;
+import com.example.demo.specifications.ProductPriceSpecification;
 
 @Service
 public class ProductPriceServiceImpl implements ProductPriceService {

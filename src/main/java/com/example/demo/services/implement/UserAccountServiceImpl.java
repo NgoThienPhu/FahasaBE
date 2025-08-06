@@ -19,10 +19,10 @@ import com.example.demo.entities.Email;
 import com.example.demo.entities.PhoneNumber;
 import com.example.demo.entities.account.UserAccount;
 import com.example.demo.entities.enums.Gender;
-import com.example.demo.repository.UserAccountRepository;
+import com.example.demo.repositories.UserAccountRepository;
 import com.example.demo.services.interfaces.AuthenticationService;
 import com.example.demo.services.interfaces.UserAccountService;
-import com.example.demo.specification.UserAccountSpecification;
+import com.example.demo.specifications.UserAccountSpecification;
 
 import jakarta.transaction.Transactional;
 

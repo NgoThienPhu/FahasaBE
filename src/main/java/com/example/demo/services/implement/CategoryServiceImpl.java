@@ -12,13 +12,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.example.demo.dto.CreateCategoryRequestDTO;
-import com.example.demo.dto.UpdateCategoryNameRequestDTO;
+import com.example.demo.dto.category.CreateCategoryRequestDTO;
+import com.example.demo.dto.category.UpdateCategoryNameRequestDTO;
 import com.example.demo.entities.Category;
-import com.example.demo.repository.CategoryRepository;
+import com.example.demo.repositories.CategoryRepository;
 import com.example.demo.services.interfaces.CategoryService;
 import com.example.demo.services.interfaces.ProductService;
-import com.example.demo.specification.CategorySpecification;
+import com.example.demo.specifications.CategorySpecification;
 
 import jakarta.transaction.Transactional;
 

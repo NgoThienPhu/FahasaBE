@@ -2,7 +2,7 @@ package com.example.demo.services.interfaces;
 
 import org.springframework.data.domain.Page;
 
-import com.example.demo.dto.CreateAttributeRequestDTO;
+import com.example.demo.dto.attribute.CreateAttributeRequestDTO;
 import com.example.demo.entities.Attribute;
 
 public interface AttributeService {

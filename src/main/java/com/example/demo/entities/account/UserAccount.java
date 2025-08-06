@@ -1,16 +1,14 @@
 package com.example.demo.entities.account;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import com.example.demo.entities.Address;
-import com.example.demo.entities.Email;
 import com.example.demo.entities.PhoneNumber;
+import com.example.demo.entities.common.Account;
 import com.example.demo.entities.enums.Gender;
-import com.example.demo.util.view.View;
+import com.example.demo.utils.view.View;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import jakarta.persistence.CascadeType;
@@ -48,11 +46,6 @@ public class UserAccount extends Account {
 	private LocalDate dateOfBirth;
 	
 	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinColumn(name = "email")
-	@JsonView(View.Self.class)
-	private Email email;
-	
-	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "phone_number")
 	@JsonView(View.Self.class)
 	private PhoneNumber phoneNumber;
@@ -72,9 +65,7 @@ public class UserAccount extends Account {
 	
 	@PrePersist
 	public void onCreate() {
-		this.accountId = UUID.randomUUID().toString();
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+		super.onCreate();
 		this.isActive = true;
 		this.gender = Gender.UNSPECIFIED;
     }

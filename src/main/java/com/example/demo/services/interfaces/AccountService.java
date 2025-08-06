@@ -2,7 +2,7 @@ package com.example.demo.services.interfaces;
 
 import java.util.Optional;
 
-import com.example.demo.entities.account.Account;
+import com.example.demo.entities.common.Account;
 
 public interface AccountService {
 

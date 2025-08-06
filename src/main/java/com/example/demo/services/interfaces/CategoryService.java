@@ -2,8 +2,8 @@ package com.example.demo.services.interfaces;
 
 import org.springframework.data.domain.Page;
 
-import com.example.demo.dto.CreateCategoryRequestDTO;
-import com.example.demo.dto.UpdateCategoryNameRequestDTO;
+import com.example.demo.dto.category.CreateCategoryRequestDTO;
+import com.example.demo.dto.category.UpdateCategoryNameRequestDTO;
 import com.example.demo.entities.Category;
 
 public interface CategoryService {

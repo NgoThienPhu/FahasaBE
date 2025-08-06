@@ -1,11 +1,9 @@
 package com.example.demo.entities.account;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
+import com.example.demo.entities.common.Account;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-import jakarta.persistence.PrePersist;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,11 +19,4 @@ public class AdminAccount extends Account {
 		super(username, password);
 	}
 	
-	@PrePersist
-	public void onCreate() {
-		this.accountId = UUID.randomUUID().toString();
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-
 }

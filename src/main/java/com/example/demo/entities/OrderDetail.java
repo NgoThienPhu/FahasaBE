@@ -1,18 +1,13 @@
 package com.example.demo.entities;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
-
-import com.example.demo.util.view.View;
+import com.example.demo.entities.common.BaseEntity;
+import com.example.demo.utils.view.View;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,12 +20,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @Table(name = "order_detail")
-public class OrderDetail {
-	
-	@Id
-	@Column(name = "order_detail_id")
-	@JsonView(View.Self.class)
-	private String orderDetailId;
+public class OrderDetail extends BaseEntity {
 	
 	@ManyToOne
 	@JoinColumn(name = "product_id")
@@ -40,25 +30,5 @@ public class OrderDetail {
 	@Column(name = "quantity")
 	@JsonView(View.Self.class)
 	private int quantity;
-	
-	@Column(name = "created_at", nullable = false)
-	@JsonView(View.Employee.class)
-	private LocalDateTime createdAt;
-
-	@Column(name = "updated_at", nullable = false)
-	@JsonView(View.Employee.class)
-	private LocalDateTime updatedAt;
-	
-	@PrePersist
-	public void onCreate() {
-		this.orderDetailId = UUID.randomUUID().toString();
-		this.createdAt = LocalDateTime.now();
-		this.updatedAt = LocalDateTime.now();
-	}
-
-	@PreUpdate
-	public void onUpdate() {
-		this.updatedAt = LocalDateTime.now();
-	}
 	
 }
