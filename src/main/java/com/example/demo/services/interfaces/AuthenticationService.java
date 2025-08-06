@@ -6,9 +6,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.example.demo.dto.ChangePasswordRequestDTO;
 import com.example.demo.dto.LoginResponseDTO;
+import com.example.demo.entities.account.UserAccount;
 import com.example.demo.dto.LoginRequestDTO;
 import com.example.demo.dto.CreateUserRequestDTO;
-import com.example.demo.entities.UserAccount;
 
 public interface AuthenticationService {
 	public LoginResponseDTO userLogin(LoginRequestDTO body);

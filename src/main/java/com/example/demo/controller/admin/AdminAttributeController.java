@@ -1,4 +1,4 @@
-package com.example.demo.controller;
+package com.example.demo.controller.admin;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;

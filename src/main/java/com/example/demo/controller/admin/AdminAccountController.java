@@ -1,4 +1,4 @@
-package com.example.demo.controller;
+package com.example.demo.controller.admin;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -18,8 +18,8 @@ import com.example.demo.dto.AdminChangeUserInfoRequestDTO;
 import com.example.demo.dto.AdminCreateUserRequestDTO;
 import com.example.demo.dto.ApiResponseDTO;
 import com.example.demo.dto.PagedResponseDTO;
-import com.example.demo.entities.UserAccount;
-import com.example.demo.entities.bases.Account;
+import com.example.demo.entities.account.Account;
+import com.example.demo.entities.account.UserAccount;
 import com.example.demo.services.interfaces.UserAccountService;
 import com.example.demo.util.validation.BindingResultUtil;
 import com.example.demo.util.view.View;

@@ -18,7 +18,7 @@ import com.example.demo.dto.LoginRequestDTO;
 import com.example.demo.dto.CreateUserRequestDTO;
 import com.example.demo.entities.Email;
 import com.example.demo.entities.PhoneNumber;
-import com.example.demo.entities.UserAccount;
+import com.example.demo.entities.account.UserAccount;
 import com.example.demo.entities.enums.TokenType;
 import com.example.demo.services.interfaces.AuthenticationService;
 import com.example.demo.services.interfaces.JwtService;

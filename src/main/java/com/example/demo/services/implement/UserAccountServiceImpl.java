@@ -17,7 +17,7 @@ import com.example.demo.dto.AdminCreateUserRequestDTO;
 import com.example.demo.dto.ChangeUserInfoRequestDTO;
 import com.example.demo.entities.Email;
 import com.example.demo.entities.PhoneNumber;
-import com.example.demo.entities.UserAccount;
+import com.example.demo.entities.account.UserAccount;
 import com.example.demo.entities.enums.Gender;
 import com.example.demo.repository.UserAccountRepository;
 import com.example.demo.services.interfaces.AuthenticationService;

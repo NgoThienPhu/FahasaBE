@@ -1,9 +1,7 @@
-package com.example.demo.entities;
+package com.example.demo.entities.account;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
-
-import com.example.demo.entities.bases.Account;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;

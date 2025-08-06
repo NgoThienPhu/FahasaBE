@@ -1,7 +1,6 @@
 package com.example.demo.services.implement;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -31,8 +30,9 @@ import com.example.demo.entities.Category;
 import com.example.demo.entities.Product;
 import com.example.demo.entities.AttributeValue;
 import com.example.demo.entities.ProductImage;
-import com.example.demo.entities.PurchasePrice;
-import com.example.demo.entities.SellPrice;
+import com.example.demo.entities.price.PromoPrice;
+import com.example.demo.entities.price.PurchasePrice;
+import com.example.demo.entities.price.SellPrice;
 import com.example.demo.repository.ProductRepository;
 import com.example.demo.services.interfaces.AttributeService;
 import com.example.demo.services.interfaces.CategoryService;
@@ -125,10 +125,9 @@ public class ProductServiceImpl implements ProductService {
 					productDTO.purchasePrice() == null ? productDTO.sellPrice() : productDTO.purchasePrice());
 
 			productPriceService.save(purchasePrice);
+			productPriceService.save(sellPrice);
 			
-			sellPrice = (SellPrice) productPriceService.save(sellPrice);
-			
-			return convertProductToProductResponseDTO(product, sellPrice);
+			return convertProductToProductResponseDTO(product);
 
 		} catch (Exception e) {
 			cleanupUploadedFiles(uploadedImageUrls);
@@ -341,30 +340,18 @@ public class ProductServiceImpl implements ProductService {
 	
 	private ProductResponseDTO convertProductToProductResponseDTO(Product product) {
 		if(product == null) return null;
-		ProductResponseDTO productResponseDTO = new ProductResponseDTO(
-				product.getProductId(),
-				product.getName(),
-				product.getDescription(),
-				product.getCategory(),
-				null,
-				product.getQuantity(),
-				product.getSkuCode(),
-				product.getImages(),
-				product.getAttributeValues(),
-				product.getCreatedAt(),
-				product.getUpdatedAt()
-		);
-		return productResponseDTO;
-	}
-	
-	private ProductResponseDTO convertProductToProductResponseDTO(Product product, SellPrice sellPrice) {
-		if(product == null) return null;
+		
+		SellPrice sellPrice = (SellPrice) productPriceService.getProductCurrentSellPrice(product.getProductId());
+		
+		PromoPrice promoPrice = (PromoPrice) productPriceService.getProductCurrentPromoPrice(product.getProductId());
+		
 		ProductResponseDTO productResponseDTO = new ProductResponseDTO(
 				product.getProductId(),
 				product.getName(),
 				product.getDescription(),
 				product.getCategory(),
 				sellPrice,
+				promoPrice,
 				product.getQuantity(),
 				product.getSkuCode(),
 				product.getImages(),
@@ -372,7 +359,8 @@ public class ProductServiceImpl implements ProductService {
 				product.getCreatedAt(),
 				product.getUpdatedAt()
 		);
+		
 		return productResponseDTO;
 	}
-
+	
 }

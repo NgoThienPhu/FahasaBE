@@ -2,7 +2,7 @@ package com.example.demo.specification;
 
 import org.springframework.data.jpa.domain.Specification;
 
-import com.example.demo.entities.bases.Account;
+import com.example.demo.entities.account.Account;
 
 public class AccountSpecification {
 

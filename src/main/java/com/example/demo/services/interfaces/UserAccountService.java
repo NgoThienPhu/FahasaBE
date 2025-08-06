@@ -5,7 +5,7 @@ import org.springframework.data.domain.Page;
 import com.example.demo.dto.AdminChangeUserInfoRequestDTO;
 import com.example.demo.dto.AdminCreateUserRequestDTO;
 import com.example.demo.dto.ChangeUserInfoRequestDTO;
-import com.example.demo.entities.UserAccount;
+import com.example.demo.entities.account.UserAccount;
 
 public interface UserAccountService {
 

@@ -1,8 +1,8 @@
-package com.example.demo.entities;
+package com.example.demo.entities.price;
 
 import java.math.BigDecimal;
 
-import com.example.demo.entities.bases.ProductPrice;
+import com.example.demo.entities.Product;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;

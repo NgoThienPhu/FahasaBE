@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import com.example.demo.entities.bases.Account;
+import com.example.demo.entities.account.Account;
 import com.example.demo.repository.AccountRepository;
 import com.example.demo.services.interfaces.AccountService;
 import com.example.demo.specification.AccountSpecification;

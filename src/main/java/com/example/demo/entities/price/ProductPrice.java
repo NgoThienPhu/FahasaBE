@@ -1,4 +1,4 @@
-package com.example.demo.entities.bases;
+package com.example.demo.entities.price;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -27,7 +27,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @DiscriminatorColumn(name = "price_type")
 @Table(name = "product_price")
 public abstract class ProductPrice {
