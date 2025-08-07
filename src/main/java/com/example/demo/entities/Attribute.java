@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.example.demo.entities.common.BaseEntity;
-import com.example.demo.utils.view.View;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonView;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -28,7 +26,6 @@ import lombok.Setter;
 public class Attribute extends BaseEntity {
 
 	@Column(name = "name", nullable = false, unique = true)
-	@JsonView(View.Public.class)
 	private String name;
 	
 	@JsonIgnore

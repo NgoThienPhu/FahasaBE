@@ -20,8 +20,6 @@ import com.example.demo.dto.common.PagedResponseDTO;
 import com.example.demo.entities.Attribute;
 import com.example.demo.services.interfaces.AttributeService;
 import com.example.demo.utils.validation.BindingResultUtil;
-import com.example.demo.utils.view.View;
-import com.fasterxml.jackson.annotation.JsonView;
 
 import jakarta.validation.Valid;
 
@@ -37,7 +35,6 @@ public class AdminAttributeController {
 
 	@GetMapping
 //	@PreAuthorize("hasRole('ADMIN')")
-	@JsonView(View.Admin.class)
 	public ResponseEntity<?> getAttributes(@RequestParam(required = false) String attributeName,
 			@RequestParam(required = true, defaultValue = "name") String sortBy,
 			@RequestParam(required = true, defaultValue = "asc") String orderBy,
@@ -52,7 +49,6 @@ public class AdminAttributeController {
 
 	@GetMapping("/{attributeId}")
 //	@PreAuthorize("hasRole('ADMIN')")
-	@JsonView(View.Admin.class)
 	public ResponseEntity<?> findById(@PathVariable String attributeId) {
 		Attribute attribute = attributeService.findById(attributeId);
 		ApiResponseDTO<Attribute> response = new ApiResponseDTO<Attribute>("Tìm thuộc tính thành công", "success",
@@ -62,7 +58,6 @@ public class AdminAttributeController {
 
 	@PostMapping
 //	@PreAuthorize("hasRole('ADMIN')")
-	@JsonView(View.Admin.class)
 	public ResponseEntity<?> createAttribute(@Valid @RequestBody CreateAttributeRequestDTO body, BindingResult result) {
 
 		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result,
@@ -78,7 +73,6 @@ public class AdminAttributeController {
 
 	@DeleteMapping("/{attributeId}")
 //	@PreAuthorize("hasRole('ADMIN')")
-	@JsonView(View.Admin.class)
 	public ResponseEntity<?> deleteById(@PathVariable String attributeId) {
 		attributeService.deleteById(attributeId);
 		ApiResponseDTO<Attribute> response = new ApiResponseDTO<Attribute>("Xóa thuộc tính thành công", "success");
@@ -87,7 +81,6 @@ public class AdminAttributeController {
 
 	@PatchMapping("/{attributeId}")
 //	@PreAuthorize("hasRole('ADMIN')")
-	@JsonView(View.Admin.class)
 	public ResponseEntity<?> updateById(@Valid @RequestBody CreateAttributeRequestDTO body, BindingResult result,
 			@PathVariable String attributeId) {
 

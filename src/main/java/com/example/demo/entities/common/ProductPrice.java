@@ -5,9 +5,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.example.demo.entities.Product;
-import com.example.demo.utils.view.View;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonView;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
@@ -41,15 +39,14 @@ public abstract class ProductPrice {
 	protected Product product;
 	
 	@Column(name = "price", nullable = false)
-	@JsonView(View.Public.class)
 	protected BigDecimal price;
 	
+	@JsonIgnore
 	@Column(name = "start_date", nullable = false, updatable = false)
-	@JsonView(View.Employee.class)
 	protected LocalDateTime startDate;
 	
+	@JsonIgnore
 	@Column(name = "end_date", nullable = true)
-	@JsonView(View.Employee.class)
 	protected LocalDateTime endDate;
 	
 	@PrePersist

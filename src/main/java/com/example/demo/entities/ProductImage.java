@@ -1,8 +1,6 @@
 package com.example.demo.entities;
 
 import com.example.demo.entities.common.BaseEntity;
-import com.example.demo.utils.view.View;
-import com.fasterxml.jackson.annotation.JsonView;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,11 +19,9 @@ import lombok.Setter;
 public class ProductImage extends BaseEntity {
 
 	@Column(name = "url", nullable = false)
-	@JsonView(View.Public.class)
 	private String url;
 
 	@Column(name = "is_primary", nullable = false)
-	@JsonView(View.Public.class)
 	private Boolean isPrimary;
 
 	public static String extractFileNameFromUrl(String fileURL) {

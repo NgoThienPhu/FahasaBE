@@ -22,8 +22,6 @@ import com.example.demo.entities.account.UserAccount;
 import com.example.demo.entities.common.Account;
 import com.example.demo.services.interfaces.UserAccountService;
 import com.example.demo.utils.validation.BindingResultUtil;
-import com.example.demo.utils.view.View;
-import com.fasterxml.jackson.annotation.JsonView;
 
 import jakarta.validation.Valid;
 
@@ -39,7 +37,6 @@ public class AdminAccountController {
 
 	@GetMapping
 //	@PreAuthorize("hasRole('ADMIN')")
-	@JsonView(View.Admin.class)
 	public ResponseEntity<?> getUserAccounts(@RequestParam(required = true, defaultValue = "asc") String orderBy,
 			@RequestParam(required = true, defaultValue = "username") String sortBy,
 			@RequestParam(required = true, defaultValue = "0") int page,
@@ -53,7 +50,6 @@ public class AdminAccountController {
 
 	@GetMapping("/{id}")
 //	@PreAuthorize("hasRole('ADMIN')")
-	@JsonView(View.Admin.class)
 	public ResponseEntity<?> getUserAccountById(@PathVariable("id") String userAccountId) {
 		UserAccount account = userAccountService.findUserAccountById(userAccountId);
 		if (account == null)
@@ -66,7 +62,6 @@ public class AdminAccountController {
 	
 	@PostMapping
 //	@PreAuthorize("hasRole('ADMIN')")
-	@JsonView(View.Admin.class)
 	public ResponseEntity<?> createAccount(@Valid @RequestBody AdminCreateUserRequestDTO dto, BindingResult result) {
 		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Đăng kí thất bại!");
 		if (responseError != null)
@@ -78,7 +73,6 @@ public class AdminAccountController {
 	
 	@PatchMapping("/{id}")
 //	@PreAuthorize("hasRole('ADMIN')")
-	@JsonView(View.Admin.class)
 	public ResponseEntity<?> updateProfileUser(@PathVariable("id") String userAccountId, @Valid @RequestBody AdminChangeUserInfoRequestDTO dto, BindingResult result) {
 		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Cập nhật thông thất bại");
 		if (responseError != null)
@@ -90,7 +84,6 @@ public class AdminAccountController {
 
 	@PatchMapping("/{id}/lock")
 //	@PreAuthorize("hasRole('ADMIN')")
-	@JsonView(View.Admin.class)
 	public ResponseEntity<?> lockUserAccount(@PathVariable("id") String userAccountId) {
 		UserAccount account = userAccountService.lockUserAccount(userAccountId);
 		ApiResponseDTO<Account> response = new ApiResponseDTO<Account>("Đã khóa tài khoản thành công", "success",
@@ -100,7 +93,6 @@ public class AdminAccountController {
 	
 	@PatchMapping("/{id}/unlock")
 //	@PreAuthorize("hasRole('ADMIN')")
-	@JsonView(View.Admin.class)
 	public ResponseEntity<?> unlockUserAccount(@PathVariable("id") String userAccountId) {
 		UserAccount account = userAccountService.unlockUserAccount(userAccountId);
 		ApiResponseDTO<Account> response = new ApiResponseDTO<Account>("Đã mở khóa tài khoản thành công", "success",
@@ -110,7 +102,6 @@ public class AdminAccountController {
 	
 	@PostMapping("/{id}/reset-password")
 //	@PreAuthorize("hasRole('ADMIN')")
-	@JsonView(View.Admin.class)
 	public ResponseEntity<?> resetPassword(@PathVariable("id") String userAccountId) {
 		userAccountService.resetPassword(userAccountId);
 		ApiResponseDTO<Account> response = new ApiResponseDTO<Account>("Làm mới mật khẩu của tài khoản thành công", "success");

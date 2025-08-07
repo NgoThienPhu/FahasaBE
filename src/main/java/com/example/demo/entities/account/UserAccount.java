@@ -8,8 +8,6 @@ import com.example.demo.entities.Address;
 import com.example.demo.entities.PhoneNumber;
 import com.example.demo.entities.common.Account;
 import com.example.demo.entities.enums.Gender;
-import com.example.demo.utils.view.View;
-import com.fasterxml.jackson.annotation.JsonView;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -33,28 +31,23 @@ import lombok.Setter;
 public class UserAccount extends Account {
 	
 	@Column(name = "full_name", nullable = false)
-	@JsonView(View.Public.class)
 	private String fullName;
 	
 	@Column(name = "gender", nullable = false)
 	@Enumerated(EnumType.STRING)
-	@JsonView(View.Public.class)
 	private Gender gender;
 	
 	@Column(name = "date_of_birth", nullable = true)
-	@JsonView(View.Public.class)
 	private LocalDate dateOfBirth;
 	
 	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "phone_number")
-	@JsonView(View.Self.class)
 	private PhoneNumber phoneNumber;
 	
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Address> addresses = new ArrayList<>();
 	
 	@Column(name = "is_active", nullable = false)
-	@JsonView(View.Employee.class)
 	protected Boolean isActive;
 
 	public UserAccount(String username, String password, String fullName) {

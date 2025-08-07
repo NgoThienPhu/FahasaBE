@@ -19,8 +19,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.demo.dto.attribute.AttributeResponseDTO;
 import com.example.demo.dto.attribute.CreateAttributeRequestDTO;
 import com.example.demo.dto.attribute.CreateAttributeValueRequestDTO;
+import com.example.demo.dto.price.ProductPriceResponseDTO;
 import com.example.demo.dto.product.CreateProductRequestDTO;
 import com.example.demo.dto.product.ProductFilterDTO;
 import com.example.demo.dto.product.ProductResponseDTO;
@@ -248,12 +250,12 @@ public class ProductServiceImpl implements ProductService {
 					.filter(image -> image.getIsPrimary() == true).findFirst();
 
 			if (mainImage.isPresent() && imagesId.contains(mainImage.get().getId())) {
-				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(
-						"Không thể xóa ảnh chính của sản phẩm với Id là: %s", mainImage.get().getId()));
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+						String.format("Không thể xóa ảnh chính của sản phẩm với Id là: %s", mainImage.get().getId()));
 			}
 
-			product.getImages().stream().filter(image -> imagesId.contains(image.getId()))
-					.map(ProductImage::getUrl).map(ProductImage::extractFileNameFromUrl).forEach(s3Service::deleteFile);
+			product.getImages().stream().filter(image -> imagesId.contains(image.getId())).map(ProductImage::getUrl)
+					.map(ProductImage::extractFileNameFromUrl).forEach(s3Service::deleteFile);
 
 			product.getImages().removeIf(image -> imagesId.contains(image.getId()));
 
@@ -332,6 +334,7 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	private ProductResponseDTO convertProductToProductResponseDTO(Product product) {
+
 		if (product == null)
 			return null;
 
@@ -339,9 +342,16 @@ public class ProductServiceImpl implements ProductService {
 
 		PromoPrice promoPrice = (PromoPrice) productPriceService.getProductCurrentPromoPrice(product.getId());
 
+		ProductPriceResponseDTO productPrice = new ProductPriceResponseDTO(sellPrice, promoPrice);
+
+		List<AttributeResponseDTO> attributes = product.getAttributeValues().stream()
+				.map(attributeValue -> new AttributeResponseDTO(attributeValue.getAttribute().getName(),
+						attributeValue.getValue()))
+				.collect(Collectors.toList());
+
 		ProductResponseDTO productResponseDTO = new ProductResponseDTO(product.getId(), product.getName(),
-				product.getDescription(), product.getCategory(), sellPrice, promoPrice, product.getSkuCode(),
-				product.getImages(), product.getAttributeValues(), product.getCreatedAt(), product.getUpdatedAt());
+				product.getDescription(), product.getCategory().getName(), productPrice, product.getImages(),
+				attributes);
 
 		return productResponseDTO;
 	}

@@ -17,8 +17,6 @@ import com.example.demo.dto.product.ProductFilterDTO;
 import com.example.demo.dto.product.ProductResponseDTO;
 import com.example.demo.entities.Product;
 import com.example.demo.services.interfaces.ProductService;
-import com.example.demo.utils.view.View;
-import com.fasterxml.jackson.annotation.JsonView;
 
 @RestController
 @RequestMapping("/api/products")
@@ -31,7 +29,6 @@ public class ProductController {
 	}
 
 	@GetMapping
-	@JsonView(View.Public.class)
 	public ResponseEntity<?> getProducts(@RequestBody(required = false) ProductFilterDTO dto,
 			@RequestParam(required = true, defaultValue = "name") String sortBy,
 			@RequestParam(required = true, defaultValue = "asc") String orderBy,
@@ -45,7 +42,6 @@ public class ProductController {
 	}
 
 	@GetMapping("/{productId}")
-	@JsonView(View.Public.class)
 	public ResponseEntity<?> getProductById(@PathVariable String productId) {
 		ProductResponseDTO product = productService.findById(productId);
 		if (product == null)

@@ -22,7 +22,7 @@ public class ProductPriceSpecification {
 	}
 
 	public static Specification<ProductPrice> hasProductId(String productId) {
-		return (root, query, cb) -> cb.equal(root.get("product").get("productId"), productId);
+		return (root, query, cb) -> cb.equal(root.get("product").get("id"), productId);
 	}
 	
 	public static Specification<ProductPrice> hasType(Class<? extends ProductPrice> type) {

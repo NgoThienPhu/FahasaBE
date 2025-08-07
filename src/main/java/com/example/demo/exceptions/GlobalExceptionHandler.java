@@ -13,6 +13,7 @@ public class GlobalExceptionHandler {
 	
 	@ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleResponseStatusException(Exception ex) {
+		System.out.println(ex);
 		ApiResponseDTO<Void> response = new ApiResponseDTO<Void>(ex.getMessage(), "error");
         ResponseEntity<ApiResponseDTO<Void>> myResponse = new ResponseEntity<ApiResponseDTO<Void>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         return myResponse;

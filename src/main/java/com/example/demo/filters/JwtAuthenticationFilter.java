@@ -1,4 +1,4 @@
-package com.example.demo.filter;
+package com.example.demo.filters;
 
 import java.io.IOException;
 import java.time.LocalDateTime;

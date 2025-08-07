@@ -1,9 +1,7 @@
 package com.example.demo.entities.common;
 
 import com.example.demo.entities.Email;
-import com.example.demo.utils.view.View;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonView;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -28,7 +26,6 @@ import lombok.Setter;
 public abstract class Account extends BaseEntity {
 
 	@Column(name = "username", nullable = false, unique = true, updatable = false)
-	@JsonView(View.Self.class)
 	protected String username;
 
 	@Column(name = "password", nullable = false)
@@ -37,7 +34,6 @@ public abstract class Account extends BaseEntity {
 	
 	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "email")
-	@JsonView(View.Self.class)
 	protected Email email;
 
 	public Account(String username, String password) {

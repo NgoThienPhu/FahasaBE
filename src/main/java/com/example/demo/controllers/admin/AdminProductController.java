@@ -29,8 +29,6 @@ import com.example.demo.dto.product.UpdateProductRequestDTO;
 import com.example.demo.entities.Product;
 import com.example.demo.services.interfaces.ProductService;
 import com.example.demo.utils.validation.BindingResultUtil;
-import com.example.demo.utils.view.View;
-import com.fasterxml.jackson.annotation.JsonView;
 
 import jakarta.validation.Valid;
 
@@ -46,7 +44,6 @@ public class AdminProductController {
 
 	@GetMapping
 //	@PreAuthorize("hasRole('ADMIN')")
-	@JsonView(View.Admin.class)
 	public ResponseEntity<?> getProducts(@RequestBody(required = false) ProductFilterDTO dto,
 			@RequestParam(required = true, defaultValue = "name") String sortBy,
 			@RequestParam(required = true, defaultValue = "asc") String orderBy,
@@ -61,7 +58,6 @@ public class AdminProductController {
 
 	@GetMapping("/{productId}")
 //	@PreAuthorize("hasRole('ADMIN')")
-	@JsonView(View.Admin.class)
 	public ResponseEntity<?> getProductById(@PathVariable String productId) {
 		ProductResponseDTO product = productService.findById(productId);
 		if (product == null)
@@ -73,7 +69,6 @@ public class AdminProductController {
 
 	@PostMapping
 //	@PreAuthorize("hasRole('ADMIN')")
-	@JsonView(View.Admin.class)
 	public ResponseEntity<?> createProduct(@RequestPart(required = false) List<MultipartFile> images,
 			@RequestPart(required = false) MultipartFile image,
 			@RequestPart(required = true) @Valid CreateProductRequestDTO product, BindingResult result)
@@ -91,7 +86,6 @@ public class AdminProductController {
 
 	@DeleteMapping("/{productId}")
 //	@PreAuthorize("hasRole('ADMIN')")
-	@JsonView(View.Admin.class)
 	public ResponseEntity<?> deleteProductById(@PathVariable String productId) {
 		productService.deleteById(productId);
 		ApiResponseDTO<Void> response = new ApiResponseDTO<Void>("Xóa sản phẩm thành công", "success");
@@ -100,7 +94,6 @@ public class AdminProductController {
 
 	@PatchMapping("/{productId}")
 //	@PreAuthorize("hasRole('ADMIN')")
-	@JsonView(View.Admin.class)
 	public ResponseEntity<?> updateProductById(@PathVariable String productId,
 			@RequestBody UpdateProductRequestDTO dto) {
 		Product product = productService.updateProduct(productId, dto);
@@ -111,7 +104,6 @@ public class AdminProductController {
 
 	@PatchMapping("/{productId}/main-image")
 //	@PreAuthorize("hasRole('ADMIN')")
-	@JsonView(View.Admin.class)
 	public ResponseEntity<?> updateMainImage(@PathVariable String productId,
 			@RequestPart(required = true) MultipartFile image) throws Exception {
 		Product product = productService.updateNewMainImage(productId, image);
@@ -122,7 +114,6 @@ public class AdminProductController {
 
 	@PatchMapping("/{productId}/images")
 //	@PreAuthorize("hasRole('ADMIN')")
-	@JsonView(View.Admin.class)
 	public ResponseEntity<?> updateImages(@PathVariable String productId,
 			@RequestPart(required = true) List<MultipartFile> images) {
 		Product product = productService.updateImages(productId, images);
@@ -133,7 +124,6 @@ public class AdminProductController {
 
 	@DeleteMapping("/{productId}/images")
 //	@PreAuthorize("hasRole('ADMIN')")
-	@JsonView(View.Admin.class)
 	public ResponseEntity<?> deleteImages(@PathVariable String productId,
 			@RequestBody(required = true) List<String> imagesId) {
 		Product product = productService.deleteImages(productId, imagesId);

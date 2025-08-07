@@ -13,8 +13,6 @@ import com.example.demo.dto.common.ApiResponseDTO;
 import com.example.demo.dto.common.PagedResponseDTO;
 import com.example.demo.entities.Category;
 import com.example.demo.services.interfaces.CategoryService;
-import com.example.demo.utils.view.View;
-import com.fasterxml.jackson.annotation.JsonView;
 
 @RestController
 @RequestMapping("/api/categories")
@@ -27,7 +25,6 @@ public class CategoryController {
 	}
 
 	@GetMapping
-	@JsonView(View.Public.class)
 	public ResponseEntity<?> getCategories(@RequestParam(required = false) String categoryName,
 			@RequestParam(required = true, defaultValue = "asc") String orderBy,
 			@RequestParam(required = true, defaultValue = "name") String sortBy,
@@ -41,7 +38,6 @@ public class CategoryController {
 	}
 
 	@GetMapping("/{categoryId}")
-	@JsonView(View.Public.class)
 	public ResponseEntity<?> findCategoryById(@PathVariable String categoryId) {
 		Category category = categoryService.findById(categoryId);
 		ApiResponseDTO<Category> response = new ApiResponseDTO<Category>("Tìm loại sản phẩm thành công", "success",

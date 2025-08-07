@@ -18,8 +18,6 @@ import com.example.demo.dto.common.ApiResponseDTO;
 import com.example.demo.entities.account.UserAccount;
 import com.example.demo.entities.common.Account;
 import com.example.demo.services.interfaces.UserAccountService;
-import com.example.demo.utils.view.View;
-import com.fasterxml.jackson.annotation.JsonView;
 
 @RestController
 @RequestMapping("/api/accounts")
@@ -32,7 +30,6 @@ public class AccountController {
 	}
 
 	@GetMapping("/me")
-	@JsonView(View.Self.class)
 	public ResponseEntity<?> getInfo(@AuthenticationPrincipal UserDetails currentUser) {
 		UserAccount account = userAccountService.findUserAccountByUsername(currentUser.getUsername());
 		if (account == null)
@@ -44,7 +41,6 @@ public class AccountController {
 	}
 	
 	@PatchMapping("/me")
-	@JsonView(View.Self.class)
 	public ResponseEntity<?> changeInfo(@RequestBody ChangeUserInfoRequestDTO dto, @AuthenticationPrincipal UserDetails currentUser) {
 		UserAccount account = userAccountService.changeUserInfo(dto, currentUser.getUsername());
 		ApiResponseDTO<Account> response = new ApiResponseDTO<Account>("Cập nhật thông tin tài khoản thành công", "success",
@@ -53,13 +49,11 @@ public class AccountController {
 	}
 	
 	@PatchMapping("/me/change-email")
-	@JsonView(View.Self.class)
 	public ResponseEntity<?> changeEmail(@RequestBody ChangeEmailRequestDTO dto, @AuthenticationPrincipal UserDetails currentUser) {
 		return null;
 	}
 	
 	@PatchMapping("/me/change-phone")
-	@JsonView(View.Self.class)
 	public ResponseEntity<?> changeEmail(@RequestBody ChangePhoneNumberRequestDTO dto, @AuthenticationPrincipal UserDetails currentUser) {
 		return null;
 	}

@@ -13,8 +13,6 @@ import com.example.demo.dto.common.ApiResponseDTO;
 import com.example.demo.dto.common.PagedResponseDTO;
 import com.example.demo.entities.Attribute;
 import com.example.demo.services.interfaces.AttributeService;
-import com.example.demo.utils.view.View;
-import com.fasterxml.jackson.annotation.JsonView;
 
 @RestController
 @RequestMapping("/api/attributes")
@@ -27,7 +25,6 @@ public class AttributeController {
 	}
 
 	@GetMapping
-	@JsonView(View.Public.class)
 	public ResponseEntity<?> getAttributes(@RequestParam(required = false) String attributeName,
 			@RequestParam(required = true, defaultValue = "name") String sortBy,
 			@RequestParam(required = true, defaultValue = "asc") String orderBy,
@@ -41,7 +38,6 @@ public class AttributeController {
 	}
 
 	@GetMapping("/{attributeId}")
-	@JsonView(View.Public.class)
 	public ResponseEntity<?> findById(@PathVariable String attributeId) {
 		Attribute attribute = attributeService.findById(attributeId);
 		ApiResponseDTO<Attribute> response = new ApiResponseDTO<Attribute>("Tìm thuộc tính thành công", "success",

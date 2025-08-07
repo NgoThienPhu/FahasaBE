@@ -22,8 +22,6 @@ import com.example.demo.entities.common.Account;
 import com.example.demo.services.implement.AuthenticationServiceImpl;
 import com.example.demo.services.interfaces.AuthenticationService;
 import com.example.demo.utils.validation.BindingResultUtil;
-import com.example.demo.utils.view.View;
-import com.fasterxml.jackson.annotation.JsonView;
 
 import jakarta.validation.Valid;
 
@@ -38,7 +36,6 @@ public class AuthenticationController {
 	}
 
 	@GetMapping("/login")
-	@JsonView(View.Self.class)
 	public ResponseEntity<?> userLogin(@Valid @RequestBody LoginRequestDTO body, BindingResult result) {
 		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Đăng nhập thất bại!");
 		if (responseError != null)
@@ -51,7 +48,6 @@ public class AuthenticationController {
 	}
 
 	@PostMapping("/register")
-	@JsonView(View.Self.class)
 	public ResponseEntity<?> userRegister(@Valid @RequestBody CreateUserRequestDTO body,
 			BindingResult result) {
 
@@ -65,7 +61,6 @@ public class AuthenticationController {
 	}
 
 	@PatchMapping("/change-password")
-	@JsonView(View.Self.class)
 	public ResponseEntity<?> userChangePassword(@Valid @RequestBody ChangePasswordRequestDTO body, @AuthenticationPrincipal UserDetails currentUser, BindingResult result) {
 		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Đổi mật khẩu thất bại!");
 		if (responseError != null)

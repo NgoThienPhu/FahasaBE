@@ -8,8 +8,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.entities.Product;
 import com.example.demo.entities.common.ProductPrice;
-import com.example.demo.utils.view.View;
-import com.fasterxml.jackson.annotation.JsonView;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
@@ -23,7 +21,6 @@ import lombok.NoArgsConstructor;
 public class PromoPrice extends ProductPrice {
 	
 	@Column(name = "promo_name", nullable = false)
-	@JsonView(View.Employee.class)
 	private String promoName;
 
 	public PromoPrice(Product product, String promoName, BigDecimal price, LocalDateTime endDate) {
