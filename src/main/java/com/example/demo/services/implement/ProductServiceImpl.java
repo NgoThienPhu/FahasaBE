@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.context.annotation.Lazy;
@@ -66,9 +65,15 @@ public class ProductServiceImpl implements ProductService {
 		this.s3Service = s3Service;
 		this.productPriceService = productPriceService;
 	}
+	
+	@Transactional
+	@Override
+	public Product save(Product product) {
+		return productRepository.save(product);
+	}
 
 	@Override
-	public Page<Product> findAll(ProductFilterDTO dto, String orderBy, String sortBy, int page, int size) {
+	public Page<ProductResponseDTO> findAll(ProductFilterDTO dto, String orderBy, String sortBy, int page, int size) {
 		List<String> allowedFields = List.of("name", "price");
 		if (!allowedFields.contains(sortBy)) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -82,9 +87,9 @@ public class ProductServiceImpl implements ProductService {
 
 		if (dto != null) {
 			Specification<Product> spec = buildProductSpecification(dto);
-			return productRepository.findAll(spec, pageable);
+			return productRepository.findAll(spec, pageable).map(this::convertProductToProductResponseDTO);
 		} else {
-			return productRepository.findAll(pageable);
+			return productRepository.findAll(pageable).map(this::convertProductToProductResponseDTO);
 		}
 	}
 
@@ -170,101 +175,20 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public ProductResponseDTO findById(String productId) {
+	public ProductResponseDTO getProductResponseById(String productId) {
 		Product product = productRepository.findById(productId).orElse(null);
 		return convertProductToProductResponseDTO(product);
+	}
+	
+	@Override
+	public Product getProductEntityById(String productId) {
+		return productRepository.findById(productId).orElse(null);
 	}
 
 	@Override
 	public Boolean existsProductsByCategoryId(String categoryId) {
 		Specification<Product> spec = ProductSpecification.hasCategoryId(categoryId);
 		return productRepository.count(spec) > 0;
-	}
-
-	@Transactional
-	@Override
-	public Product updateNewMainImage(String productId, MultipartFile newMainImage) throws Exception {
-		String mainImage = null;
-		try {
-			Product product = productRepository.findById(productId).orElse(null);
-			if (product == null)
-				throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-						String.format("Không tìm thấy sản phẩm với Id là: %s", productId));
-
-			mainImage = s3Service.uploadFile(newMainImage);
-			ProductImage productImage = new ProductImage(mainImage, true);
-
-			product.getImages().stream().filter(img -> Boolean.TRUE.equals(img.getIsPrimary())).findFirst()
-					.ifPresent(img -> img.setIsPrimary(false));
-
-			product.getImages().add(productImage);
-
-			return productRepository.save(product);
-		} catch (ResponseStatusException e) {
-			throw e;
-		} catch (Exception e) {
-			if (mainImage != null)
-				s3Service.deleteFile(ProductImage.extractFileNameFromUrl(mainImage));
-			throw e;
-		}
-	}
-
-	@Transactional
-	@Override
-	public Product updateImages(String productId, List<MultipartFile> images) {
-		List<String> uploadedImageUrls = new ArrayList<>();
-		try {
-			Product product = productRepository.findById(productId).orElse(null);
-			if (product == null)
-				throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-						String.format("Không tìm thấy sản phẩm với Id là: %s", productId));
-
-			List<String> imageUrls = s3Service.uploadFiles(images);
-			uploadedImageUrls.addAll(imageUrls);
-
-			List<ProductImage> productImages = imageUrls.stream().map(imageUrl -> new ProductImage(imageUrl, false))
-					.collect(Collectors.toList());
-
-			product.getImages().addAll(productImages);
-
-			return productRepository.save(product);
-		} catch (ResponseStatusException e) {
-			throw e;
-		} catch (Exception e) {
-			cleanupUploadedFiles(uploadedImageUrls);
-			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-					"Đã có lỗi xảy ra trong quá trình cập nhật ảnh của sản phẩm, vui lòng thử lại sau");
-		}
-	}
-
-	@Transactional
-	@Override
-	public Product deleteImages(String productId, List<String> imagesId) {
-		try {
-			Product product = productRepository.findById(productId).orElse(null);
-			if (product == null)
-				throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-						String.format("Không tìm thấy sản phẩm với Id là: %s", productId));
-
-			Optional<ProductImage> mainImage = product.getImages().stream()
-					.filter(image -> image.getIsPrimary() == true).findFirst();
-
-			if (mainImage.isPresent() && imagesId.contains(mainImage.get().getId())) {
-				throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-						String.format("Không thể xóa ảnh chính của sản phẩm với Id là: %s", mainImage.get().getId()));
-			}
-
-			product.getImages().stream().filter(image -> imagesId.contains(image.getId())).map(ProductImage::getUrl)
-					.map(ProductImage::extractFileNameFromUrl).forEach(s3Service::deleteFile);
-
-			product.getImages().removeIf(image -> imagesId.contains(image.getId()));
-
-			return productRepository.save(product);
-		} catch (ResponseStatusException e) {
-			throw e;
-		} catch (Exception e) {
-			throw e;
-		}
 	}
 
 	private List<AttributeValue> handleAttributeValues(List<CreateAttributeValueRequestDTO> attributeDTOs) {

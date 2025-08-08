@@ -23,7 +23,7 @@ public class ProductImage extends BaseEntity {
 
 	@Column(name = "is_primary", nullable = false)
 	private Boolean isPrimary;
-
+	
 	public static String extractFileNameFromUrl(String fileURL) {
 		if (fileURL == null || !fileURL.contains("/"))
 			return null;

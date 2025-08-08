@@ -15,7 +15,6 @@ import com.example.demo.dto.common.ApiResponseDTO;
 import com.example.demo.dto.common.PagedResponseDTO;
 import com.example.demo.dto.product.ProductFilterDTO;
 import com.example.demo.dto.product.ProductResponseDTO;
-import com.example.demo.entities.Product;
 import com.example.demo.services.interfaces.ProductService;
 
 @RestController
@@ -34,20 +33,22 @@ public class ProductController {
 			@RequestParam(required = true, defaultValue = "asc") String orderBy,
 			@RequestParam(required = true, defaultValue = "0") int page,
 			@RequestParam(required = true, defaultValue = "20") int size) {
-		Page<Product> products = productService.findAll(dto, orderBy, sortBy, page, size);
-		PagedResponseDTO<Product> pagedResponseDTO = PagedResponseDTO.convertPageToPagedResponseDTO(products);
-		ApiResponseDTO<PagedResponseDTO<Product>> response = new ApiResponseDTO<PagedResponseDTO<Product>>(
+		Page<ProductResponseDTO> products = productService.findAll(dto, orderBy, sortBy, page, size);
+		PagedResponseDTO<ProductResponseDTO> pagedResponseDTO = PagedResponseDTO
+				.convertPageToPagedResponseDTO(products);
+		ApiResponseDTO<PagedResponseDTO<ProductResponseDTO>> response = new ApiResponseDTO<PagedResponseDTO<ProductResponseDTO>>(
 				"Tìm sản phẩm thành công", "success", pagedResponseDTO);
-		return new ResponseEntity<ApiResponseDTO<PagedResponseDTO<Product>>>(response, HttpStatus.OK);
+		return new ResponseEntity<ApiResponseDTO<PagedResponseDTO<ProductResponseDTO>>>(response, HttpStatus.OK);
 	}
 
 	@GetMapping("/{productId}")
 	public ResponseEntity<?> getProductById(@PathVariable String productId) {
-		ProductResponseDTO product = productService.findById(productId);
+		ProductResponseDTO product = productService.getProductResponseById(productId);
 		if (product == null)
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND,
 					String.format("Không tìm thấy sản phẩm với id là: %s", productId));
-		ApiResponseDTO<ProductResponseDTO> response = new ApiResponseDTO<>("Tìm sản phẩm thành công", "success", product);
+		ApiResponseDTO<ProductResponseDTO> response = new ApiResponseDTO<>("Tìm sản phẩm thành công", "success",
+				product);
 		return new ResponseEntity<ApiResponseDTO<ProductResponseDTO>>(response, HttpStatus.OK);
 	}
 

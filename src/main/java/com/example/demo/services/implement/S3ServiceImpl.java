@@ -64,6 +64,13 @@ public class S3ServiceImpl implements S3Service {
 
 		s3Client.deleteObject(deleteObjectRequest);
 	}
+	
+	@Override
+	public void cleanupUploadedFiles(List<String> uploadedImageUrls) {
+		for (String url : uploadedImageUrls) {
+			deleteFile(convertFileNameToFileURL(url));
+		}
+	}
 
 	private String convertFileNameToFileURL(String fileName) {
 		return String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, fileName);

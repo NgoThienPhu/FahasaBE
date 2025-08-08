@@ -13,10 +13,14 @@ import com.example.demo.dto.product.UpdateProductRequestDTO;
 import com.example.demo.entities.Product;
 
 public interface ProductService {
+	
+	Product save(Product product);
 
-	Page<Product> findAll(ProductFilterDTO productFilterDTO, String orderBy, String sortBy, int page, int size);
+	Page<ProductResponseDTO> findAll(ProductFilterDTO productFilterDTO, String orderBy, String sortBy, int page, int size);
 
-	ProductResponseDTO findById(String productId);
+	ProductResponseDTO getProductResponseById(String productId);
+
+	Product getProductEntityById(String productId);
 
 	ProductResponseDTO createProduct(CreateProductRequestDTO product, MultipartFile mainImage, List<MultipartFile> images)
 			throws IOException;
@@ -26,11 +30,5 @@ public interface ProductService {
 	void deleteById(String productId);
 
 	Boolean existsProductsByCategoryId(String categoryId);
-	
-	Product updateNewMainImage(String productId, MultipartFile newMainImage) throws Exception;
-	
-	Product updateImages(String productId, List<MultipartFile> images);
-	
-	Product deleteImages(String productId, List<String> imagesUrl);
 
 }

@@ -13,4 +13,6 @@ public interface S3Service {
 	
 	void deleteFile(String fileName);
 	
+	void cleanupUploadedFiles(List<String> uploadedImageUrls);
+	
 }

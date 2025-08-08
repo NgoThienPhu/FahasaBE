@@ -1,6 +1,7 @@
 package com.example.demo.controllers.admin;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -27,6 +28,9 @@ import com.example.demo.dto.product.ProductFilterDTO;
 import com.example.demo.dto.product.ProductResponseDTO;
 import com.example.demo.dto.product.UpdateProductRequestDTO;
 import com.example.demo.entities.Product;
+import com.example.demo.entities.price.SellPrice;
+import com.example.demo.services.interfaces.ProductImageService;
+import com.example.demo.services.interfaces.ProductPriceService;
 import com.example.demo.services.interfaces.ProductService;
 import com.example.demo.utils.validation.BindingResultUtil;
 
@@ -38,8 +42,15 @@ public class AdminProductController {
 
 	private ProductService productService;
 
-	public AdminProductController(ProductService productService) {
+	private ProductPriceService productPriceService;
+	
+	private ProductImageService productImageService;
+
+	public AdminProductController(ProductService productService, ProductPriceService productPriceService,
+			ProductImageService productImageService) {
 		this.productService = productService;
+		this.productPriceService = productPriceService;
+		this.productImageService = productImageService;
 	}
 
 	@GetMapping
@@ -49,21 +60,23 @@ public class AdminProductController {
 			@RequestParam(required = true, defaultValue = "asc") String orderBy,
 			@RequestParam(required = true, defaultValue = "0") int page,
 			@RequestParam(required = true, defaultValue = "20") int size) {
-		Page<Product> products = productService.findAll(dto, orderBy, sortBy, page, size);
-		PagedResponseDTO<Product> pagedResponseDTO = PagedResponseDTO.convertPageToPagedResponseDTO(products);
-		ApiResponseDTO<PagedResponseDTO<Product>> response = new ApiResponseDTO<PagedResponseDTO<Product>>(
+		Page<ProductResponseDTO> products = productService.findAll(dto, orderBy, sortBy, page, size);
+		PagedResponseDTO<ProductResponseDTO> pagedResponseDTO = PagedResponseDTO
+				.convertPageToPagedResponseDTO(products);
+		ApiResponseDTO<PagedResponseDTO<ProductResponseDTO>> response = new ApiResponseDTO<PagedResponseDTO<ProductResponseDTO>>(
 				"Tìm sản phẩm thành công", "success", pagedResponseDTO);
-		return new ResponseEntity<ApiResponseDTO<PagedResponseDTO<Product>>>(response, HttpStatus.OK);
+		return new ResponseEntity<ApiResponseDTO<PagedResponseDTO<ProductResponseDTO>>>(response, HttpStatus.OK);
 	}
 
 	@GetMapping("/{productId}")
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> getProductById(@PathVariable String productId) {
-		ProductResponseDTO product = productService.findById(productId);
+		ProductResponseDTO product = productService.getProductResponseById(productId);
 		if (product == null)
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND,
 					String.format("Không tìm thấy sản phẩm với id là: %s", productId));
-		ApiResponseDTO<ProductResponseDTO> response = new ApiResponseDTO<>("Tìm sản phẩm thành công", "success", product);
+		ApiResponseDTO<ProductResponseDTO> response = new ApiResponseDTO<>("Tìm sản phẩm thành công", "success",
+				product);
 		return new ResponseEntity<ApiResponseDTO<ProductResponseDTO>>(response, HttpStatus.OK);
 	}
 
@@ -80,7 +93,8 @@ public class AdminProductController {
 
 		ProductResponseDTO myProduct = productService.createProduct(product, image, images);
 
-		ApiResponseDTO<ProductResponseDTO> response = new ApiResponseDTO<>("Tạo sản phẩm thành công", "success", myProduct);
+		ApiResponseDTO<ProductResponseDTO> response = new ApiResponseDTO<>("Tạo sản phẩm thành công", "success",
+				myProduct);
 		return new ResponseEntity<ApiResponseDTO<ProductResponseDTO>>(response, HttpStatus.OK);
 	}
 
@@ -106,7 +120,8 @@ public class AdminProductController {
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> updateMainImage(@PathVariable String productId,
 			@RequestPart(required = true) MultipartFile image) throws Exception {
-		Product product = productService.updateNewMainImage(productId, image);
+		productImageService.updateProductMainImage(productId, image);
+		Product product = productService.getProductEntityById(productId);
 		ApiResponseDTO<Product> response = new ApiResponseDTO<Product>("Cập nhật ảnh chính của sản phẩm thành công",
 				"success", product);
 		return new ResponseEntity<ApiResponseDTO<Product>>(response, HttpStatus.OK);
@@ -116,7 +131,8 @@ public class AdminProductController {
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> updateImages(@PathVariable String productId,
 			@RequestPart(required = true) List<MultipartFile> images) {
-		Product product = productService.updateImages(productId, images);
+		productImageService.updateProductImages(productId, images);
+		Product product = productService.getProductEntityById(productId);
 		ApiResponseDTO<Product> response = new ApiResponseDTO<Product>("Cập nhật danh sách ảnh của sản phẩm thành công",
 				"success", product);
 		return new ResponseEntity<ApiResponseDTO<Product>>(response, HttpStatus.OK);
@@ -126,10 +142,19 @@ public class AdminProductController {
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> deleteImages(@PathVariable String productId,
 			@RequestBody(required = true) List<String> imagesId) {
-		Product product = productService.deleteImages(productId, imagesId);
+		productImageService.deleteProductImages(productId, imagesId);
+		Product product = productService.getProductEntityById(productId);
 		ApiResponseDTO<Product> response = new ApiResponseDTO<Product>("Xóa danh sách ảnh của sản phẩm thành công",
 				"success", product);
 		return new ResponseEntity<ApiResponseDTO<Product>>(response, HttpStatus.OK);
+	}
+
+	@PostMapping("/{productId}/sell-price")
+	public ResponseEntity<?> createSellPrice(@PathVariable String productId, @RequestParam BigDecimal newSellPrice) {
+		SellPrice sellPrice = productPriceService.updateProductSellPrice(productId, newSellPrice);
+		ApiResponseDTO<SellPrice> response = new ApiResponseDTO<>("Cập nhật giá bán của sản phẩm thành công", "success",
+				sellPrice);
+		return new ResponseEntity<ApiResponseDTO<SellPrice>>(response, HttpStatus.OK);
 	}
 
 }
