@@ -10,7 +10,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.entities.account.AdminAccount;
 import com.example.demo.entities.common.Account;
-import com.example.demo.entities.enums.AccountType;
 import com.example.demo.services.interfaces.AccountService;
 import com.example.demo.services.interfaces.CustomUserDetailService;
 
@@ -26,13 +25,13 @@ public class CustomUserDetailServiceImpl implements CustomUserDetailService {
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		
-		Account account = accountService.findByUsername(username).orElse(null);
+		Account account = accountService.findByUsername(username);
 		
 		if(account == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Tài khoản không tồn tại vui lòng thử lại sau");
 		
-		SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + AccountType.USER.name());	
+		SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + Account.AccountType.USER.name());	
 		
-		if(account instanceof AdminAccount) authority = new SimpleGrantedAuthority("ROLE_" + AccountType.ADMIN.name());
+		if(account instanceof AdminAccount) authority = new SimpleGrantedAuthority("ROLE_" + Account.AccountType.ADMIN.name());
 		
 		UserDetails userDetails = User.withUsername(account.getUsername()).password(account.getPassword())
 				.authorities(authority).build();

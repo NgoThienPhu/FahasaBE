@@ -40,5 +40,13 @@ public abstract class Account extends BaseEntity {
 		this.username = username;
 		this.password = password;
 	}
+	
+	public enum AccountType {
+		ADMIN, USER
+	}
+	
+	public enum TokenType {
+		REFRESH, ACCESS
+	}
 
 }

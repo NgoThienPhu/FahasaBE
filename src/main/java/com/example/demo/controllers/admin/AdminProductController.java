@@ -23,11 +23,15 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.dto.common.ApiResponseDTO;
 import com.example.demo.dto.common.PagedResponseDTO;
+import com.example.demo.dto.price.CreatePromoPriceRequestDTO;
+import com.example.demo.dto.price.PromoPriceResponseDTO;
 import com.example.demo.dto.product.CreateProductRequestDTO;
 import com.example.demo.dto.product.ProductFilterDTO;
 import com.example.demo.dto.product.ProductResponseDTO;
 import com.example.demo.dto.product.UpdateProductRequestDTO;
 import com.example.demo.entities.Product;
+import com.example.demo.entities.price.PromoPrice;
+import com.example.demo.entities.price.PurchasePrice;
 import com.example.demo.entities.price.SellPrice;
 import com.example.demo.services.interfaces.ProductImageService;
 import com.example.demo.services.interfaces.ProductPriceService;
@@ -43,7 +47,7 @@ public class AdminProductController {
 	private ProductService productService;
 
 	private ProductPriceService productPriceService;
-	
+
 	private ProductImageService productImageService;
 
 	public AdminProductController(ProductService productService, ProductPriceService productPriceService,
@@ -149,12 +153,82 @@ public class AdminProductController {
 		return new ResponseEntity<ApiResponseDTO<Product>>(response, HttpStatus.OK);
 	}
 
-	@PostMapping("/{productId}/sell-price")
-	public ResponseEntity<?> createSellPrice(@PathVariable String productId, @RequestParam BigDecimal newSellPrice) {
+	@GetMapping("/{productId}/sell-prices")
+//	@PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<?> getAllSellPrice(@PathVariable(required = false) String productId,
+			@RequestParam(required = true, defaultValue = "startDate") String sortBy,
+			@RequestParam(required = true, defaultValue = "asc") String orderBy,
+			@RequestParam(required = true, defaultValue = "0") int page,
+			@RequestParam(required = true, defaultValue = "20") int size) {
+		Page<SellPrice> sellPrices = productPriceService.getAllSellPriceByProduct(productId, sortBy, orderBy, page,
+				size);
+		PagedResponseDTO<SellPrice> pagedResponseDTO = PagedResponseDTO.convertPageToPagedResponseDTO(sellPrices);
+		ApiResponseDTO<PagedResponseDTO<SellPrice>> response = new ApiResponseDTO<PagedResponseDTO<SellPrice>>(
+				"Lấy danh sách giá bán của sản phẩm thành công", "success", pagedResponseDTO);
+		return new ResponseEntity<ApiResponseDTO<PagedResponseDTO<SellPrice>>>(response, HttpStatus.OK);
+	}
+
+	@PostMapping("/{productId}/sell-prices")
+//	@PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<?> createSellPrice(@PathVariable(required = true) String productId,
+			@RequestParam(required = true) BigDecimal newSellPrice) {
 		SellPrice sellPrice = productPriceService.updateProductSellPrice(productId, newSellPrice);
-		ApiResponseDTO<SellPrice> response = new ApiResponseDTO<>("Cập nhật giá bán của sản phẩm thành công", "success",
+		ApiResponseDTO<SellPrice> response = new ApiResponseDTO<>("Tạo giá bán của sản phẩm thành công", "success",
 				sellPrice);
 		return new ResponseEntity<ApiResponseDTO<SellPrice>>(response, HttpStatus.OK);
+	}
+
+	@GetMapping("/{productId}/purchase-prices")
+//	@PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<?> getAllPurchasePrice(@PathVariable(required = false) String productId,
+			@RequestParam(required = true, defaultValue = "startDate") String sortBy,
+			@RequestParam(required = true, defaultValue = "asc") String orderBy,
+			@RequestParam(required = true, defaultValue = "0") int page,
+			@RequestParam(required = true, defaultValue = "20") int size) {
+		Page<PurchasePrice> purchasePrices = productPriceService.getAllPurchasePriceByProduct(productId, sortBy,
+				orderBy, page, size);
+		PagedResponseDTO<PurchasePrice> pagedResponseDTO = PagedResponseDTO
+				.convertPageToPagedResponseDTO(purchasePrices);
+		ApiResponseDTO<PagedResponseDTO<PurchasePrice>> response = new ApiResponseDTO<PagedResponseDTO<PurchasePrice>>(
+				"Lấy danh sách giá nhập của sản phẩm thành công", "success", pagedResponseDTO);
+		return new ResponseEntity<ApiResponseDTO<PagedResponseDTO<PurchasePrice>>>(response, HttpStatus.OK);
+	}
+
+	@PostMapping("/{productId}/purchase-prices")
+//	@PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<?> createPurchasePrice(@PathVariable(required = true) String productId,
+			@RequestParam(required = true) BigDecimal newPurchasePrice) {
+		PurchasePrice purchasePrice = productPriceService.updateProductPurchasePrice(productId, newPurchasePrice);
+		ApiResponseDTO<PurchasePrice> response = new ApiResponseDTO<>("Tạo giá nhập của sản phẩm thành công", "success",
+				purchasePrice);
+		return new ResponseEntity<ApiResponseDTO<PurchasePrice>>(response, HttpStatus.OK);
+	}
+
+	@GetMapping("/{productId}/promo-prices")
+//	@PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<?> getAllPromoPrice(@PathVariable(required = false) String productId,
+			@RequestParam(required = true, defaultValue = "startDate") String sortBy,
+			@RequestParam(required = true, defaultValue = "asc") String orderBy,
+			@RequestParam(required = true, defaultValue = "0") int page,
+			@RequestParam(required = true, defaultValue = "20") int size) {
+		Page<PromoPrice> promoPrices = productPriceService.getAllPromoPriceByProduct(productId, sortBy, orderBy, page,
+				size);
+		Page<PromoPriceResponseDTO> promoPricesDTO = promoPrices.map(PromoPriceResponseDTO::fromEntity);
+		PagedResponseDTO<PromoPriceResponseDTO> pagedResponseDTO = PagedResponseDTO
+				.convertPageToPagedResponseDTO(promoPricesDTO);
+		ApiResponseDTO<PagedResponseDTO<PromoPriceResponseDTO>> response = new ApiResponseDTO<PagedResponseDTO<PromoPriceResponseDTO>>(
+				"Lấy danh sách giá khuyến mại của sản phẩm thành công", "success", pagedResponseDTO);
+		return new ResponseEntity<ApiResponseDTO<PagedResponseDTO<PromoPriceResponseDTO>>>(response, HttpStatus.OK);
+	}
+
+	@PostMapping("/{productId}/promo-prices")
+//	@PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<?> createPromoPrice(@PathVariable String productId,
+			@RequestBody CreatePromoPriceRequestDTO dto) {
+		PromoPrice promoPrice = productPriceService.createProductPromoPrice(productId, dto);
+		ApiResponseDTO<PromoPrice> response = new ApiResponseDTO<>("Tạo giá khuyến mại của sản phẩm thành công",
+				"success", promoPrice);
+		return new ResponseEntity<ApiResponseDTO<PromoPrice>>(response, HttpStatus.OK);
 	}
 
 }

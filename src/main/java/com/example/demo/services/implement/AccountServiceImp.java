@@ -1,7 +1,5 @@
 package com.example.demo.services.implement;
 
-import java.util.Optional;
-
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -20,9 +18,9 @@ public class AccountServiceImp implements AccountService {
 	}
 
 	@Override
-	public Optional<Account> findByUsername(String username) {
+	public Account findByUsername(String username) {
 		Specification<Account> spec = AccountSpecification.usernameEquals(username);
-		return accountRepository.findOne(spec);
+		return accountRepository.findOne(spec).orElse(null);
 	}
 
 	@Override

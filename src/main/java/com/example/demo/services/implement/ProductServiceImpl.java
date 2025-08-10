@@ -22,6 +22,7 @@ import com.example.demo.dto.attribute.AttributeResponseDTO;
 import com.example.demo.dto.attribute.CreateAttributeRequestDTO;
 import com.example.demo.dto.attribute.CreateAttributeValueRequestDTO;
 import com.example.demo.dto.price.ProductPriceResponseDTO;
+import com.example.demo.dto.price.PromoPriceResponseDTO;
 import com.example.demo.dto.product.CreateProductRequestDTO;
 import com.example.demo.dto.product.ProductFilterDTO;
 import com.example.demo.dto.product.ProductResponseDTO;
@@ -65,7 +66,7 @@ public class ProductServiceImpl implements ProductService {
 		this.s3Service = s3Service;
 		this.productPriceService = productPriceService;
 	}
-	
+
 	@Transactional
 	@Override
 	public Product save(Product product) {
@@ -179,7 +180,7 @@ public class ProductServiceImpl implements ProductService {
 		Product product = productRepository.findById(productId).orElse(null);
 		return convertProductToProductResponseDTO(product);
 	}
-	
+
 	@Override
 	public Product getProductEntityById(String productId) {
 		return productRepository.findById(productId).orElse(null);
@@ -262,11 +263,12 @@ public class ProductServiceImpl implements ProductService {
 		if (product == null)
 			return null;
 
-		SellPrice sellPrice = (SellPrice) productPriceService.getProductCurrentSellPrice(product.getId());
+		SellPrice sellPrice = productPriceService.getProductCurrentSellPrice(product.getId());
 
-		PromoPrice promoPrice = (PromoPrice) productPriceService.getProductCurrentPromoPrice(product.getId());
+		PromoPrice promoPrice = productPriceService.getProductCurrentPromoPrice(product.getId());
 
-		ProductPriceResponseDTO productPrice = new ProductPriceResponseDTO(sellPrice, promoPrice);
+		ProductPriceResponseDTO productPrice = new ProductPriceResponseDTO(sellPrice,
+				(promoPrice != null) ? PromoPriceResponseDTO.fromEntity(promoPrice) : null);
 
 		List<AttributeResponseDTO> attributes = product.getAttributeValues().stream()
 				.map(attributeValue -> new AttributeResponseDTO(attributeValue.getAttribute().getName(),

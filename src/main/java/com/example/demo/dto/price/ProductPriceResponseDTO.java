@@ -1,6 +1,5 @@
 package com.example.demo.dto.price;
 
-import com.example.demo.entities.price.PromoPrice;
 import com.example.demo.entities.price.SellPrice;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -10,6 +9,6 @@ public record ProductPriceResponseDTO(
 
 		SellPrice sellPrice,
 		
-		PromoPrice promoPrice
+		PromoPriceResponseDTO promoPrice
 		
 ) {}

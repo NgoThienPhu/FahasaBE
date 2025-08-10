@@ -2,11 +2,11 @@ package com.example.demo.services.interfaces;
 
 import java.util.Date;
 
-import com.example.demo.entities.enums.TokenType;
+import com.example.demo.entities.common.Account;
 
 public interface JwtService {
 	
-	public String createToken(String username, TokenType tokenType);
+	public String createToken(String username, Account.TokenType tokenType);
 	
 	public String extractUsername(String token);
 	

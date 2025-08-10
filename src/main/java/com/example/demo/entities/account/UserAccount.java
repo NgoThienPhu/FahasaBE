@@ -7,7 +7,6 @@ import java.util.List;
 import com.example.demo.entities.Address;
 import com.example.demo.entities.PhoneNumber;
 import com.example.demo.entities.common.Account;
-import com.example.demo.entities.enums.Gender;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -54,6 +53,10 @@ public class UserAccount extends Account {
 		super(username, password);
 		this.fullName = fullName;
 		this.isActive = true;
+	}
+	
+	public enum Gender {
+		MALE, FEMALE, OTHER, UNSPECIFIED
 	}
 	
 	@PrePersist

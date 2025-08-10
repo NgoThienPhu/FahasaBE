@@ -41,11 +41,9 @@ public abstract class ProductPrice {
 	@Column(name = "price", nullable = false)
 	protected BigDecimal price;
 	
-	@JsonIgnore
 	@Column(name = "start_date", nullable = false, updatable = false)
 	protected LocalDateTime startDate;
 	
-	@JsonIgnore
 	@Column(name = "end_date", nullable = true)
 	protected LocalDateTime endDate;
 	

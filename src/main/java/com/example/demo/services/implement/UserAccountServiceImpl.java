@@ -18,7 +18,6 @@ import com.example.demo.dto.ChangeUserInfoRequestDTO;
 import com.example.demo.entities.Email;
 import com.example.demo.entities.PhoneNumber;
 import com.example.demo.entities.account.UserAccount;
-import com.example.demo.entities.enums.Gender;
 import com.example.demo.repositories.UserAccountRepository;
 import com.example.demo.services.interfaces.AuthenticationService;
 import com.example.demo.services.interfaces.UserAccountService;
@@ -170,7 +169,7 @@ public class UserAccountServiceImpl implements UserAccountService {
 		if (dto.dateOfBirth() != null)
 			userAccount.setDateOfBirth(dto.dateOfBirth());
 		if (dto.gender() != null)
-			userAccount.setGender(Gender.valueOf(dto.gender()));
+			userAccount.setGender(UserAccount.Gender.valueOf(dto.gender()));
 
 		return userAccountRepository.save(userAccount);
 	}
@@ -198,7 +197,7 @@ public class UserAccountServiceImpl implements UserAccountService {
 		if (dto.dateOfBirth() != null)
 			userAccount.setDateOfBirth(dto.dateOfBirth());
 		if (dto.gender() != null)
-			userAccount.setGender(Gender.valueOf(dto.gender()));
+			userAccount.setGender(UserAccount.Gender.valueOf(dto.gender()));
 		if(dto.email() != null)
 			userAccount.setEmail(new Email(dto.email()));
 		if(dto.phoneNumber() != null)

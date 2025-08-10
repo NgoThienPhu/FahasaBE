@@ -19,7 +19,7 @@ import com.example.demo.dto.CreateUserRequestDTO;
 import com.example.demo.entities.Email;
 import com.example.demo.entities.PhoneNumber;
 import com.example.demo.entities.account.UserAccount;
-import com.example.demo.entities.enums.TokenType;
+import com.example.demo.entities.common.Account;
 import com.example.demo.services.interfaces.AuthenticationService;
 import com.example.demo.services.interfaces.JwtService;
 import com.example.demo.services.interfaces.UserAccountService;
@@ -59,7 +59,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 				throw new ResponseStatusException(HttpStatus.LOCKED,
 						"Tài khoản của bạn đã bị khóa vui lòng thử lại sau");
 
-			String accessToken = jwtService.createToken(account.getUsername(), TokenType.ACCESS);
+			String accessToken = jwtService.createToken(account.getUsername(), Account.TokenType.ACCESS);
 
 			return convertUserAccountToLoginResponseDTO(account, accessToken);
 
