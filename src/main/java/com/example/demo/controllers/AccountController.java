@@ -14,24 +14,27 @@ import org.springframework.web.server.ResponseStatusException;
 import com.example.demo.dto.ChangeEmailRequestDTO;
 import com.example.demo.dto.ChangePhoneNumberRequestDTO;
 import com.example.demo.dto.ChangeUserInfoRequestDTO;
-import com.example.demo.dto.common.ApiResponseDTO;
+import com.example.demo.dto.base.ApiResponseDTO;
 import com.example.demo.entities.account.UserAccount;
-import com.example.demo.entities.common.Account;
+import com.example.demo.entities.base.Account;
+import com.example.demo.services.interfaces.AccountService;
 import com.example.demo.services.interfaces.UserAccountService;
 
 @RestController
 @RequestMapping("/api/accounts")
 public class AccountController {
 
+	private AccountService accountService;
 	private UserAccountService userAccountService;
 
-	public AccountController(UserAccountService userAccountService) {
+	public AccountController(AccountService accountService, UserAccountService userAccountService) {
+		this.accountService = accountService;
 		this.userAccountService = userAccountService;
 	}
 
 	@GetMapping("/me")
 	public ResponseEntity<?> getInfo(@AuthenticationPrincipal UserDetails currentUser) {
-		UserAccount account = userAccountService.findUserAccountByUsername(currentUser.getUsername());
+		Account account = accountService.findAccountByUsername(currentUser.getUsername());
 		if (account == null)
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND,
 					String.format("Người dùng không tồn tại", currentUser.getUsername()));
@@ -42,7 +45,7 @@ public class AccountController {
 	
 	@PatchMapping("/me")
 	public ResponseEntity<?> changeInfo(@RequestBody ChangeUserInfoRequestDTO dto, @AuthenticationPrincipal UserDetails currentUser) {
-		UserAccount account = userAccountService.changeUserInfo(dto, currentUser.getUsername());
+		UserAccount account = userAccountService.changeUserAccountInfo(dto, currentUser.getUsername());
 		ApiResponseDTO<Account> response = new ApiResponseDTO<Account>("Cập nhật thông tin tài khoản thành công", "success",
 				account);
 		return new ResponseEntity<>(response, HttpStatus.OK);

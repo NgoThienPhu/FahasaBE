@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dto.attribute.CreateAttributeRequestDTO;
-import com.example.demo.dto.common.ApiResponseDTO;
-import com.example.demo.dto.common.PagedResponseDTO;
+import com.example.demo.dto.base.ApiResponseDTO;
+import com.example.demo.dto.base.PagedResponseDTO;
 import com.example.demo.entities.Attribute;
 import com.example.demo.services.interfaces.AttributeService;
 import com.example.demo.utils.validation.BindingResultUtil;

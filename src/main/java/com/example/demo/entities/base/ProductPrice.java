@@ -1,4 +1,4 @@
-package com.example.demo.entities.common;
+package com.example.demo.entities.base;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

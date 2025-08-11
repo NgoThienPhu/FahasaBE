@@ -1,6 +1,6 @@
 package com.example.demo.entities.account;
 
-import com.example.demo.entities.common.Account;
+import com.example.demo.entities.base.Account;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;

@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import org.springframework.data.domain.Page;
 
 import com.example.demo.dto.price.CreatePromoPriceRequestDTO;
-import com.example.demo.entities.common.ProductPrice;
+import com.example.demo.entities.base.ProductPrice;
 import com.example.demo.entities.price.PromoPrice;
 import com.example.demo.entities.price.PurchasePrice;
 import com.example.demo.entities.price.SellPrice;

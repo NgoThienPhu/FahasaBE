@@ -14,11 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dto.ChangePasswordRequestDTO;
 import com.example.demo.dto.LoginResponseDTO;
-import com.example.demo.dto.common.ApiResponseDTO;
+import com.example.demo.dto.base.ApiResponseDTO;
 import com.example.demo.dto.LoginRequestDTO;
 import com.example.demo.dto.CreateUserRequestDTO;
 import com.example.demo.entities.account.UserAccount;
-import com.example.demo.entities.common.Account;
+import com.example.demo.entities.base.Account;
 import com.example.demo.services.implement.AuthenticationServiceImpl;
 import com.example.demo.services.interfaces.AuthenticationService;
 import com.example.demo.utils.validation.BindingResultUtil;
@@ -41,7 +41,7 @@ public class AuthenticationController {
 		if (responseError != null)
 			return responseError;
 
-		LoginResponseDTO account = authenticationService.userLogin(body);
+		LoginResponseDTO account = authenticationService.login(body);
 		ApiResponseDTO<LoginResponseDTO> response = new ApiResponseDTO<LoginResponseDTO>("Đăng nhập thành công!",
 				"success", account);
 		return new ResponseEntity<ApiResponseDTO<LoginResponseDTO>>(response, HttpStatus.OK);
@@ -65,7 +65,7 @@ public class AuthenticationController {
 		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Đổi mật khẩu thất bại!");
 		if (responseError != null)
 			return responseError;
-		authenticationService.userChangePassword(body, currentUser);
+		authenticationService.changePassword(body, currentUser);
 		ApiResponseDTO<Void> response = new ApiResponseDTO<Void>("Đổi mật khẩu thành công", "success");
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}

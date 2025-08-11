@@ -9,25 +9,15 @@ import com.example.demo.entities.account.UserAccount;
 
 public interface UserAccountService {
 
-	UserAccount createUserAccount(UserAccount userAccount);
-	
 	UserAccount adminCreateUserAccount(AdminCreateUserRequestDTO dto);
 
-	UserAccount changeUserInfo(ChangeUserInfoRequestDTO newUserInfo, String userAccountId);
+	UserAccount changeUserAccountInfo(ChangeUserInfoRequestDTO newUserInfo, String userAccountId);
 	
-	UserAccount adminChangeUserInfo(AdminChangeUserInfoRequestDTO newUserInfo, String userAccountId);
+	UserAccount adminChangeUserAccountInfo(AdminChangeUserInfoRequestDTO newUserInfo, String userAccountId);
 	
-	Boolean existsByUsername(String username);
-
-	Boolean existsByEmail(String email);
-
 	Boolean existsByPhoneNumber(String phoneNumber);
 
 	Page<UserAccount> findUserAccounts(String orderBy, String sortBy, int page, int size);
-
-	UserAccount findUserAccountById(String userAccountId);
-
-	UserAccount findUserAccountByUsername(String username);
 
 	Page<UserAccount> findUserAccountByUsernameOrEmailOrPhoneNumber(String keyWord, String orderBy, String sortBy,
 			int page, int size);
@@ -35,9 +25,5 @@ public interface UserAccountService {
 	UserAccount lockUserAccount(String userAccountId);
 
 	UserAccount unlockUserAccount(String userAccountId);
-	
-	void resetPassword(String userAccountId);
-	
-	UserAccount save(UserAccount userAccount);
-	
+		
 }

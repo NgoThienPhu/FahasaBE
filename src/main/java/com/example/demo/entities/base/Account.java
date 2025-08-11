@@ -1,4 +1,4 @@
-package com.example.demo.entities.common;
+package com.example.demo.entities.base;
 
 import com.example.demo.entities.Email;
 import com.fasterxml.jackson.annotation.JsonIgnore;

@@ -9,7 +9,7 @@ import java.util.function.Function;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.example.demo.entities.common.Account;
+import com.example.demo.entities.base.Account;
 import com.example.demo.services.interfaces.JwtService;
 
 import io.jsonwebtoken.Claims;

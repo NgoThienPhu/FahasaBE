@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.example.demo.dto.common.ApiResponseDTO;
-import com.example.demo.dto.common.PagedResponseDTO;
+import com.example.demo.dto.base.ApiResponseDTO;
+import com.example.demo.dto.base.PagedResponseDTO;
 import com.example.demo.dto.product.ProductFilterDTO;
 import com.example.demo.dto.product.ProductResponseDTO;
 import com.example.demo.services.interfaces.ProductService;

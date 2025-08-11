@@ -16,10 +16,9 @@ import com.example.demo.dto.ChangePasswordRequestDTO;
 import com.example.demo.dto.LoginResponseDTO;
 import com.example.demo.dto.LoginRequestDTO;
 import com.example.demo.dto.CreateUserRequestDTO;
-import com.example.demo.entities.Email;
-import com.example.demo.entities.PhoneNumber;
 import com.example.demo.entities.account.UserAccount;
-import com.example.demo.entities.common.Account;
+import com.example.demo.entities.base.Account;
+import com.example.demo.services.interfaces.AccountService;
 import com.example.demo.services.interfaces.AuthenticationService;
 import com.example.demo.services.interfaces.JwtService;
 import com.example.demo.services.interfaces.UserAccountService;
@@ -30,20 +29,25 @@ import jakarta.transaction.Transactional;
 public class AuthenticationServiceImpl implements AuthenticationService {
 
 	private AuthenticationManager authenticationManager;
+	private AccountService accountService;
 	private UserAccountService userAccountService;
 	private JwtService jwtService;
 	private PasswordEncoder passwordEncoder;
 
-	public AuthenticationServiceImpl(AuthenticationManager authenticationManager, UserAccountService userAccountService,
-			JwtService jwtService, PasswordEncoder passwordEncoder) {
+	
+
+	public AuthenticationServiceImpl(AuthenticationManager authenticationManager,
+			AccountService accountService, UserAccountService userAccountService, JwtService jwtService,
+			PasswordEncoder passwordEncoder) {
 		this.authenticationManager = authenticationManager;
+		this.accountService = accountService;
 		this.userAccountService = userAccountService;
 		this.jwtService = jwtService;
 		this.passwordEncoder = passwordEncoder;
 	}
 
 	@Override
-	public LoginResponseDTO userLogin(LoginRequestDTO body) {
+	public LoginResponseDTO login(LoginRequestDTO body) {
 		try {
 			Authentication authentication = authenticationManager
 					.authenticate(new UsernamePasswordAuthenticationToken(body.username(), body.password()));
@@ -53,15 +57,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 						"Tài khoản hoặc mật khẩu không chính xác, vui lòng đăng nhập lại");
 			}
 
-			UserAccount account = userAccountService.findUserAccountByUsername(body.username());
-
-			if (account.getIsActive() == false)
-				throw new ResponseStatusException(HttpStatus.LOCKED,
-						"Tài khoản của bạn đã bị khóa vui lòng thử lại sau");
+			Account account = accountService.findAccountByUsername(body.username());
 
 			String accessToken = jwtService.createToken(account.getUsername(), Account.TokenType.ACCESS);
 
-			return convertUserAccountToLoginResponseDTO(account, accessToken);
+			return new LoginResponseDTO(accessToken);
 
 		} catch (BadCredentialsException e) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
@@ -79,8 +79,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	@Transactional
 	@Override
 	public UserAccount userRegister(CreateUserRequestDTO body) {
-		Boolean checkExistsUsername = userAccountService.existsByUsername(body.username());
-		Boolean checkExistsEmail = userAccountService.existsByEmail(body.email());
+		Boolean checkExistsUsername = accountService.existsAccountByUsername(body.username());
+		Boolean checkExistsEmail = accountService.exitstAccountByEmail(body.email());
 		Boolean checkExistsPhoneNumber = userAccountService.existsByPhoneNumber(body.phoneNumber());
 
 		if (checkExistsUsername)
@@ -92,12 +92,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 					"Số điện thoại đã tồn tại, vui lòng thử số điện thoại khác");
 
-		UserAccount account = userAccountService.createUserAccount(convertUserAccountValidatorToUserAccount(body));
-		return account;
+		return (UserAccount) accountService.save(CreateUserRequestDTO.toUserAccount(body, passwordEncoder));
 	}
 
 	@Override
-	public void userLogout() {
+	public void logout() {
 		try {
 			SecurityContextHolder.clearContext();
 		} catch (Exception e) {
@@ -112,19 +111,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	}
 
 	@Override
-	public void userChangePassword(ChangePasswordRequestDTO body, UserDetails currentUser) {
+	public void changePassword(ChangePasswordRequestDTO body, UserDetails currentUser) {
 		try {
-			UserAccount user = userAccountService.findUserAccountByUsername(currentUser.getUsername());
+			Account account = accountService.findAccountByUsername(currentUser.getUsername());
 
-			if (user == null || !passwordEncoder.matches(body.oldPassword(), user.getPassword()))
+			if (account == null || !passwordEncoder.matches(body.oldPassword(), account.getPassword()))
 				throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
 						"Tài khoản không tồn tại hoặc mật khẩu cũ không chính xác, vui lòng thử lại sau");
 
 			String newPassword = passwordEncoder.encode(body.newPassword());
-
-			user.setPassword(newPassword);
-
-			userAccountService.save(user);
+			account.setPassword(newPassword);
+			accountService.save(account);
 
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
@@ -135,22 +132,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	public void tokenRefresh() {
 		// TODO Auto-generated method stub
 
-	}
-
-	private UserAccount convertUserAccountValidatorToUserAccount(CreateUserRequestDTO dto) {
-		UserAccount userAccount = new UserAccount();
-		userAccount.setUsername(dto.username());
-		userAccount.setPassword(passwordEncoder.encode(dto.password()));
-		userAccount.setFullName(dto.fullName());
-		userAccount.setEmail(new Email(dto.email()));
-		userAccount.setPhoneNumber(new PhoneNumber(dto.phoneNumber()));
-		return userAccount;
-	}
-
-	private LoginResponseDTO convertUserAccountToLoginResponseDTO(UserAccount account, String accessToken) {
-		LoginResponseDTO loginResponseDTO = new LoginResponseDTO(account.getId(), account.getUsername(),
-				account.getFullName(), account.getEmail(), account.getPhoneNumber(), accessToken);
-		return loginResponseDTO;
 	}
 
 }

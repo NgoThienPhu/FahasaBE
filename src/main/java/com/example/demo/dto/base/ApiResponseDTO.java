@@ -1,4 +1,4 @@
-package com.example.demo.dto.common;
+package com.example.demo.dto.base;
 
 import java.time.LocalDateTime;
 import java.util.Map;

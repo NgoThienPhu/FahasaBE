@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.entities.Product;
-import com.example.demo.entities.common.ProductPrice;
+import com.example.demo.entities.base.ProductPrice;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;

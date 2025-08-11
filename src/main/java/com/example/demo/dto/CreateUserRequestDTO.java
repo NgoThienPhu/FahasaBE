@@ -1,5 +1,10 @@
 package com.example.demo.dto;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import com.example.demo.entities.PhoneNumber;
+import com.example.demo.entities.account.UserAccount;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -23,4 +28,16 @@ public record CreateUserRequestDTO(
 		@Pattern(regexp = "^(0|\\+84)(3[2-9]|5[6|8|9]|7[0|6-9]|8[1-5]|9[0-9])\\d{7}$", message = "Số điện thoại không hợp lệ")
 		String phoneNumber
 
-) {}
+) {
+	
+	public static UserAccount toUserAccount(CreateUserRequestDTO dto, PasswordEncoder passwordEncoder) {
+		UserAccount userAccount = new UserAccount();
+		userAccount.setUsername(dto.username());
+		userAccount.setPassword(passwordEncoder.encode(dto.password()));
+		userAccount.setFullName(dto.fullName());
+		userAccount.setEmail(new com.example.demo.entities.Email(dto.email()));
+		userAccount.setPhoneNumber(new PhoneNumber(dto.phoneNumber()));
+		return userAccount;
+	}
+	
+}

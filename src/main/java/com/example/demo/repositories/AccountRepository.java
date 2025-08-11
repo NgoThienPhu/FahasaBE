@@ -4,7 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
-import com.example.demo.entities.common.Account;
+import com.example.demo.entities.base.Account;
 
 @Repository
 public interface AccountRepository extends JpaRepository<Account, String>, JpaSpecificationExecutor<Account> {

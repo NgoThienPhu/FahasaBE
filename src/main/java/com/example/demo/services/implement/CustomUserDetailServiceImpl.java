@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.entities.account.AdminAccount;
-import com.example.demo.entities.common.Account;
+import com.example.demo.entities.base.Account;
 import com.example.demo.services.interfaces.AccountService;
 import com.example.demo.services.interfaces.CustomUserDetailService;
 
@@ -25,7 +25,7 @@ public class CustomUserDetailServiceImpl implements CustomUserDetailService {
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		
-		Account account = accountService.findByUsername(username);
+		Account account = accountService.findAccountByUsername(username);
 		
 		if(account == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Tài khoản không tồn tại vui lòng thử lại sau");
 		

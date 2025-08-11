@@ -3,7 +3,7 @@ package com.example.demo.entities;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.demo.entities.common.BaseEntity;
+import com.example.demo.entities.base.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;

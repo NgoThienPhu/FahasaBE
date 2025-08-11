@@ -2,7 +2,7 @@ package com.example.demo.services.interfaces;
 
 import java.util.Date;
 
-import com.example.demo.entities.common.Account;
+import com.example.demo.entities.base.Account;
 
 public interface JwtService {
 	

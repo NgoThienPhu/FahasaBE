@@ -1,11 +1,19 @@
 package com.example.demo.services.interfaces;
 
-import com.example.demo.entities.common.Account;
+import com.example.demo.entities.base.Account;
 
 public interface AccountService {
+	
+	Account save(Account account);
 
-	Account findByUsername(String username);
-	
-	Boolean existsByUsername(String username);
-	
+	Account findAccountByUsername(String username);
+
+	Account findAccountById(String accountId);
+
+	Boolean existsAccountByUsername(String username);
+
+	Boolean exitstAccountByEmail(String email);
+
+	void resetPassword(String accountId);
+
 }

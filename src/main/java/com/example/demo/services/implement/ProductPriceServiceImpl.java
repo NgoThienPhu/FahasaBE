@@ -17,7 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.dto.price.CreatePromoPriceRequestDTO;
 import com.example.demo.entities.Product;
-import com.example.demo.entities.common.ProductPrice;
+import com.example.demo.entities.base.ProductPrice;
 import com.example.demo.entities.price.PromoPrice;
 import com.example.demo.entities.price.PurchasePrice;
 import com.example.demo.entities.price.SellPrice;

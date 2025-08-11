@@ -1,6 +1,6 @@
 package com.example.demo.entities;
 
-import com.example.demo.entities.common.BaseEntity;
+import com.example.demo.entities.base.BaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

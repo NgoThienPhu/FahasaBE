@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.dto.base.ApiResponseDTO;
+import com.example.demo.dto.base.PagedResponseDTO;
 import com.example.demo.dto.category.CreateCategoryRequestDTO;
 import com.example.demo.dto.category.UpdateCategoryNameRequestDTO;
-import com.example.demo.dto.common.ApiResponseDTO;
-import com.example.demo.dto.common.PagedResponseDTO;
 import com.example.demo.entities.Category;
 import com.example.demo.services.interfaces.CategoryService;
 import com.example.demo.utils.validation.BindingResultUtil;

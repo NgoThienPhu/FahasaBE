@@ -1,4 +1,4 @@
-package com.example.demo.entities.common;
+package com.example.demo.entities.base;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

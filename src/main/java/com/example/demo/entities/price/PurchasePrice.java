@@ -3,7 +3,7 @@ package com.example.demo.entities.price;
 import java.math.BigDecimal;
 
 import com.example.demo.entities.Product;
-import com.example.demo.entities.common.ProductPrice;
+import com.example.demo.entities.base.ProductPrice;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;

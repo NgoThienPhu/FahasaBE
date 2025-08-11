@@ -21,8 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.example.demo.dto.common.ApiResponseDTO;
-import com.example.demo.dto.common.PagedResponseDTO;
+import com.example.demo.dto.base.ApiResponseDTO;
+import com.example.demo.dto.base.PagedResponseDTO;
 import com.example.demo.dto.price.CreatePromoPriceRequestDTO;
 import com.example.demo.dto.price.PromoPriceResponseDTO;
 import com.example.demo.dto.product.CreateProductRequestDTO;

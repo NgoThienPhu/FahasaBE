@@ -11,15 +11,16 @@ import com.example.demo.dto.LoginRequestDTO;
 import com.example.demo.dto.CreateUserRequestDTO;
 
 public interface AuthenticationService {
-	public LoginResponseDTO userLogin(LoginRequestDTO body);
+	
+	public LoginResponseDTO login(LoginRequestDTO body);
 
 	public UserAccount userRegister(CreateUserRequestDTO body);
 	
-	public void userLogout();
+	public void logout();
 
 	public UserAccount userForgotPassword();
 
-	public void userChangePassword(ChangePasswordRequestDTO body, UserDetails currentUser);
+	public void changePassword(ChangePasswordRequestDTO body, UserDetails currentUser);
 
 	public void tokenRefresh();
 	

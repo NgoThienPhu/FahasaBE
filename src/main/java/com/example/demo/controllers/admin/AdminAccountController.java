@@ -16,10 +16,11 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.dto.AdminChangeUserInfoRequestDTO;
 import com.example.demo.dto.AdminCreateUserRequestDTO;
-import com.example.demo.dto.common.ApiResponseDTO;
-import com.example.demo.dto.common.PagedResponseDTO;
+import com.example.demo.dto.base.ApiResponseDTO;
+import com.example.demo.dto.base.PagedResponseDTO;
 import com.example.demo.entities.account.UserAccount;
-import com.example.demo.entities.common.Account;
+import com.example.demo.entities.base.Account;
+import com.example.demo.services.interfaces.AccountService;
 import com.example.demo.services.interfaces.UserAccountService;
 import com.example.demo.utils.validation.BindingResultUtil;
 
@@ -31,8 +32,11 @@ public class AdminAccountController {
 
 	private UserAccountService userAccountService;
 	
-	public AdminAccountController(UserAccountService userAccountService) {
+	private AccountService accountService;
+	
+	public AdminAccountController(UserAccountService userAccountService, AccountService accountService) {
 		this.userAccountService = userAccountService;
+		this.accountService = accountService;
 	}
 
 	@GetMapping
@@ -50,12 +54,12 @@ public class AdminAccountController {
 
 	@GetMapping("/{id}")
 //	@PreAuthorize("hasRole('ADMIN')")
-	public ResponseEntity<?> getUserAccountById(@PathVariable("id") String userAccountId) {
-		UserAccount account = userAccountService.findUserAccountById(userAccountId);
+	public ResponseEntity<?> getAccountById(@PathVariable("id") String accountId) {
+		Account account = accountService.findAccountById(accountId);
 		if (account == null)
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-					String.format("Không tìm thấy tài khoản với id = %s", userAccountId));
-		ApiResponseDTO<Account> response = new ApiResponseDTO<Account>("Lấy thông tin tài khoản thành công", "success",
+					String.format("Không tìm thấy tài khoản với id = %s", accountId));
+		ApiResponseDTO<? extends Account> response = new ApiResponseDTO<>("Lấy thông tin tài khoản thành công", "success",
 				account);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
@@ -66,7 +70,7 @@ public class AdminAccountController {
 		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Đăng kí thất bại!");
 		if (responseError != null)
 			return responseError;
-		UserAccount account = userAccountService.adminCreateUserAccount(dto);
+		Account account = userAccountService.adminCreateUserAccount(dto);
 		ApiResponseDTO<Account> response = new ApiResponseDTO<Account>("Đăng kí thành công", "success", account);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
@@ -77,7 +81,7 @@ public class AdminAccountController {
 		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Cập nhật thông thất bại");
 		if (responseError != null)
 			return responseError;
-		UserAccount account = userAccountService.adminChangeUserInfo(dto, userAccountId);
+		UserAccount account = userAccountService.adminChangeUserAccountInfo(dto, userAccountId);
 		ApiResponseDTO<Account> response = new ApiResponseDTO<Account>("Cập nhật thông tin thành công", "success", account);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
@@ -103,7 +107,7 @@ public class AdminAccountController {
 	@PostMapping("/{id}/reset-password")
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> resetPassword(@PathVariable("id") String userAccountId) {
-		userAccountService.resetPassword(userAccountId);
+		accountService.resetPassword(userAccountId);
 		ApiResponseDTO<Account> response = new ApiResponseDTO<Account>("Làm mới mật khẩu của tài khoản thành công", "success");
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}

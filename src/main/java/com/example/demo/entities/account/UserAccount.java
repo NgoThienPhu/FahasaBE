@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.example.demo.entities.Address;
 import com.example.demo.entities.PhoneNumber;
-import com.example.demo.entities.common.Account;
+import com.example.demo.entities.base.Account;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
