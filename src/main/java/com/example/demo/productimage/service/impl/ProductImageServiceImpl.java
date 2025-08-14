@@ -20,7 +20,9 @@ public class ProductImageServiceImpl implements ProductImageService {
 
 	@Override
 	public ProductImage findById(String productImageId) {
-		return productImageRepository.findById(productImageId).orElse(null);
+		return productImageRepository.findById(productImageId)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+						String.format("Không tìm thấy hình ảnh với Id là: %s", productImageId)));
 	}
 
 	@Transactional
@@ -31,12 +33,7 @@ public class ProductImageServiceImpl implements ProductImageService {
 
 	@Override
 	public void deleteById(String productImageId) {
-
 		ProductImage productImage = findById(productImageId);
-
-		if (productImage == null)
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Hình ảnh không tồn tại vui lòng thử lại sau");
-
 		productImageRepository.delete(productImage);
 	}
 

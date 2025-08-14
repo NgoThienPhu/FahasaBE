@@ -1,4 +1,4 @@
-package com.example.demo.common.base.dto;
+package com.example.demo.account.dto;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;

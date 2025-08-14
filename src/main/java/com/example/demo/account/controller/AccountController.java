@@ -11,14 +11,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.demo.account.dto.ChangeEmailRequestDTO;
+import com.example.demo.account.dto.ChangePhoneNumberRequestDTO;
 import com.example.demo.account.dto.ChangeUserInfoRequestDTO;
 import com.example.demo.account.entity.UserAccount;
 import com.example.demo.account.entity.base.Account;
 import com.example.demo.account.service.AccountService;
 import com.example.demo.account.service.UserAccountService;
 import com.example.demo.common.base.dto.ApiResponseDTO;
-import com.example.demo.common.base.dto.ChangeEmailRequestDTO;
-import com.example.demo.common.base.dto.ChangePhoneNumberRequestDTO;
 
 @RestController
 @RequestMapping("/api/accounts")

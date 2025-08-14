@@ -9,13 +9,13 @@ import org.springframework.web.server.ResponseStatusException;
 import com.example.demo.account.entity.base.Account;
 import com.example.demo.account.repository.AccountRepository;
 import com.example.demo.account.specification.AccountSpecification;
-import com.example.demo.common.service.AuthenticationService;
+import com.example.demo.auth.service.AuthenticationService;
 
 public abstract class AbstractAccountService<T extends Account> implements AccountService {
-	
+
 	private AccountRepository accountRepository;
 	private PasswordEncoder passwordEncoder;
-	
+
 	public AbstractAccountService(AccountRepository accountRepository, PasswordEncoder passwordEncoder) {
 		this.accountRepository = accountRepository;
 		this.passwordEncoder = passwordEncoder;
@@ -28,7 +28,9 @@ public abstract class AbstractAccountService<T extends Account> implements Accou
 
 	@Override
 	public Account findAccountById(String accountId) {
-		return accountRepository.findById(accountId).orElse(null);
+		return accountRepository.findById(accountId)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+				String.format("Không tìm thấy tài khoản với Id là: %s", accountId)));
 	}
 
 	@Override
@@ -36,13 +38,13 @@ public abstract class AbstractAccountService<T extends Account> implements Accou
 		Specification<Account> spec = AccountSpecification.hasUsername(username);
 		return accountRepository.findOne(spec).orElse(null);
 	}
-	
+
 	@Override
 	public Boolean existsAccountByUsername(String username) {
 		Specification<Account> spec = AccountSpecification.hasUsername(username);
 		return accountRepository.count(spec) > 0;
 	}
-	
+
 	@Override
 	public Boolean exitstAccountByEmail(String email) {
 		Specification<Account> spec = Specification.where(AccountSpecification.hasEmail(email));
@@ -60,5 +62,5 @@ public abstract class AbstractAccountService<T extends Account> implements Accou
 		accountRepository.save(account);
 		System.out.println(String.format("Mật khẩu mới của bạn là: %s", password));
 	}
-	
+
 }

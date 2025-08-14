@@ -1,4 +1,4 @@
-package com.example.demo.common.controller;
+package com.example.demo.auth.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,12 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.account.dto.CreateUserRequestDTO;
 import com.example.demo.account.entity.UserAccount;
 import com.example.demo.account.entity.base.Account;
+import com.example.demo.auth.dto.ChangePasswordRequestDTO;
+import com.example.demo.auth.dto.LoginRequestDTO;
+import com.example.demo.auth.dto.LoginResponseDTO;
+import com.example.demo.auth.service.AuthenticationService;
+import com.example.demo.auth.service.impl.AuthenticationServiceImpl;
 import com.example.demo.common.base.dto.ApiResponseDTO;
-import com.example.demo.common.base.dto.ChangePasswordRequestDTO;
-import com.example.demo.common.base.dto.LoginRequestDTO;
-import com.example.demo.common.base.dto.LoginResponseDTO;
-import com.example.demo.common.service.AuthenticationService;
-import com.example.demo.common.service.impl.AuthenticationServiceImpl;
 import com.example.demo.common.validation.BindingResultUtil;
 
 import jakarta.validation.Valid;

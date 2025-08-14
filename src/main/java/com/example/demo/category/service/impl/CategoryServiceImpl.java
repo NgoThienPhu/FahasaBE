@@ -31,13 +31,15 @@ public class CategoryServiceImpl implements CategoryService {
 
 	@Override
 	public Category findById(String categoryId) {
-		return categoryRepository.findById(categoryId).orElse(null);
+		return categoryRepository.findById(categoryId)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+						String.format("Không tìm thấy loại sản phẩm với Id là: %s", categoryId)));
 	}
 
 	@Override
 	public Page<Category> findAll(String categoryName, String orderBy, String sortBy, int page, int size) {
 		List<String> allowedFields = List.of("name");
-		
+
 		if (!allowedFields.contains(sortBy)) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 					"Thuộc tính cần sắp xếp không hợp lệ vui lòng thử lại");
@@ -69,9 +71,10 @@ public class CategoryServiceImpl implements CategoryService {
 		if (dto.parentCategoryId() != null) {
 
 			Category parentCategory = findById(dto.parentCategoryId());
-			
-			if(parentCategory == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-					String.format("Không tìm thấy loại sản phẩm có Id là: %s", dto.parentCategoryId()));
+
+			if (parentCategory == null)
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+						String.format("Không tìm thấy loại sản phẩm có Id là: %s", dto.parentCategoryId()));
 
 			Category category = new Category(dto.categoryName());
 			parentCategory.getChildren().add(category);
@@ -88,13 +91,13 @@ public class CategoryServiceImpl implements CategoryService {
 	@Override
 	public Category update(UpdateCategoryNameRequestDTO body, String categoryId) {
 		Category category = findById(categoryId);
-		
+
 		if (category == null)
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 					String.format("Không tìm thấy loại sản phẩm với Id là: %s", categoryId));
-		
+
 		category.setName(body.categoryName());
-		
+
 		return categoryRepository.save(category);
 	}
 
@@ -102,13 +105,13 @@ public class CategoryServiceImpl implements CategoryService {
 	@Override
 	public void deleteById(String categoryId) {
 		Category category = findById(categoryId);
-		
+
 		if (category == null)
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 					String.format("Không tìm thấy loại sản phẩm có Id là: %s", categoryId));
 
 		boolean hasChild = hasChildren(categoryId);
-		
+
 		if (hasChild) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 					"Vui lòng xóa tất cả loại sản phẩm con trước khi xóa loại sản phẩm này");

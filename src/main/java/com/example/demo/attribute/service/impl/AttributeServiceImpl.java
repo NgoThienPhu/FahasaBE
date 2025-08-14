@@ -55,7 +55,7 @@ public class AttributeServiceImpl implements AttributeService {
 		Attribute attriubte = attributeRepository.findById(attributeId).orElse(null);
 		if (attriubte == null)
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-					String.format("Không tìm thấy attribute với id là: %s", attributeId));
+					String.format("Không tìm thấy attribute với Id là: %s", attributeId));
 		return attriubte;
 	}
 

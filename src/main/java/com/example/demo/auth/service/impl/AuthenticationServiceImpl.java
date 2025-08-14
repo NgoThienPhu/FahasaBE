@@ -1,4 +1,4 @@
-package com.example.demo.common.service.impl;
+package com.example.demo.auth.service.impl;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,10 +17,10 @@ import com.example.demo.account.entity.UserAccount;
 import com.example.demo.account.entity.base.Account;
 import com.example.demo.account.service.AccountService;
 import com.example.demo.account.service.UserAccountService;
-import com.example.demo.common.base.dto.ChangePasswordRequestDTO;
-import com.example.demo.common.base.dto.LoginRequestDTO;
-import com.example.demo.common.base.dto.LoginResponseDTO;
-import com.example.demo.common.service.AuthenticationService;
+import com.example.demo.auth.dto.ChangePasswordRequestDTO;
+import com.example.demo.auth.dto.LoginRequestDTO;
+import com.example.demo.auth.dto.LoginResponseDTO;
+import com.example.demo.auth.service.AuthenticationService;
 import com.example.demo.common.service.JwtService;
 
 import jakarta.transaction.Transactional;
@@ -29,12 +29,14 @@ import jakarta.transaction.Transactional;
 public class AuthenticationServiceImpl implements AuthenticationService {
 
 	private AuthenticationManager authenticationManager;
-	private AccountService accountService;
-	private UserAccountService userAccountService;
-	private JwtService jwtService;
-	private PasswordEncoder passwordEncoder;
-
 	
+	private AccountService accountService;
+	
+	private UserAccountService userAccountService;
+	
+	private JwtService jwtService;
+	
+	private PasswordEncoder passwordEncoder;
 
 	public AuthenticationServiceImpl(AuthenticationManager authenticationManager,
 			AccountService accountService, UserAccountService userAccountService, JwtService jwtService,

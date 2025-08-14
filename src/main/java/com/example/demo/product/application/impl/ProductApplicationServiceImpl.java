@@ -1,6 +1,7 @@
 package com.example.demo.product.application.impl;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -17,11 +18,14 @@ import com.example.demo.attributevalue.service.AttributeValueService;
 import com.example.demo.category.entity.Category;
 import com.example.demo.category.service.CategoryService;
 import com.example.demo.common.service.S3Service;
+import com.example.demo.price.dto.CreatePromoPriceRequestDTO;
 import com.example.demo.price.dto.ProductPriceResponseDTO;
 import com.example.demo.price.dto.PromoPriceResponseDTO;
 import com.example.demo.price.entity.PromoPrice;
+import com.example.demo.price.entity.PurchasePrice;
 import com.example.demo.price.entity.SellPrice;
 import com.example.demo.price.service.PromoPriceService;
+import com.example.demo.price.service.PurchasePriceService;
 import com.example.demo.price.service.SellPriceService;
 import com.example.demo.product.application.ProductApplicationService;
 import com.example.demo.product.dto.CreateProductRequestDTO;
@@ -40,6 +44,8 @@ public class ProductApplicationServiceImpl implements ProductApplicationService 
 
 	private PromoPriceService promoPriceService;
 
+	private PurchasePriceService purchasePriceService;
+
 	private CategoryService categoryService;
 
 	private AttributeValueService attributeValueService;
@@ -47,22 +53,25 @@ public class ProductApplicationServiceImpl implements ProductApplicationService 
 	private S3Service s3Service;
 
 	public ProductApplicationServiceImpl(ProductService productService, SellPriceService sellPriceService,
-			PromoPriceService promoPriceService, CategoryService categoryService,
-			AttributeValueService attributeValueService, S3Service s3Service) {
+			PromoPriceService promoPriceService, PurchasePriceService purchasePriceService,
+			CategoryService categoryService, AttributeValueService attributeValueService, S3Service s3Service) {
 		this.productService = productService;
 		this.sellPriceService = sellPriceService;
 		this.promoPriceService = promoPriceService;
+		this.purchasePriceService = purchasePriceService;
 		this.categoryService = categoryService;
 		this.attributeValueService = attributeValueService;
 		this.s3Service = s3Service;
 	}
 
 	@Override
+	public Product findById(String productId) {
+		return productService.findById(productId);
+	}
+
+	@Override
 	public ProductResponseDTO getProductResponseDTOById(String productId) {
 		Product product = productService.findById(productId);
-		if (product == null)
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-					String.format("Không tìm thấy sản phẩm với Id là: %s", productId));
 		return convertProductToProductResponseDTO(product);
 	}
 
@@ -129,10 +138,6 @@ public class ProductApplicationServiceImpl implements ProductApplicationService 
 		Category category = null;
 		if (dto.categoryId() != null)
 			category = categoryService.findById(dto.categoryId());
-		if (category == null)
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-					String.format("Không tìm thấy loại sản phẩm với Id là: %s", dto.categoryId()));
-
 		Product product = productService.update(productId, dto.productName(), dto.description(), category);
 
 		return convertProductToProductResponseDTO(product);
@@ -143,11 +148,6 @@ public class ProductApplicationServiceImpl implements ProductApplicationService 
 		String newPrimaryImageUrl = null;
 		try {
 			Product product = productService.findById(productId);
-			if (product == null) {
-				throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-						String.format("Không tìm thấy sản phẩm với id: %s", productId));
-			}
-
 			Iterator<ProductImage> iterator = product.getImages().iterator();
 			while (iterator.hasNext()) {
 				ProductImage img = iterator.next();
@@ -178,10 +178,6 @@ public class ProductApplicationServiceImpl implements ProductApplicationService 
 		List<String> imageUrls = new ArrayList<>();
 		try {
 			Product product = productService.findById(productId);
-			if (product == null) {
-				throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-						String.format("Không tìm thấy sản phẩm với id: %s", productId));
-			}
 
 			List<String> secondImageUrls = new ArrayList<String>();
 			for (MultipartFile file : secondImages) {
@@ -208,11 +204,6 @@ public class ProductApplicationServiceImpl implements ProductApplicationService 
 
 	public ProductResponseDTO deleteSecondImage(String productId, List<String> secondImageIds) {
 		Product product = productService.findById(productId);
-		if (product == null) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-					String.format("Không tìm thấy sản phẩm với id: %s", productId));
-		}
-
 		List<ProductImage> secondImages = product.getImages().stream().filter(img -> !img.getIsPrimary())
 				.filter(img -> secondImageIds.contains(img.getId())).toList();
 
@@ -230,10 +221,41 @@ public class ProductApplicationServiceImpl implements ProductApplicationService 
 			}
 		}
 		product.getImages().removeAll(secondImages);
-		
+
 		productService.save(product);
 
 		return convertProductToProductResponseDTO(product);
+	}
+
+	@Override
+	public Page<SellPrice> findAllSellPrice(String productId, String orderBy, String sortBy, int page, int size) {
+		return sellPriceService.findAll(productId, sortBy, orderBy, page, size);
+	}
+
+	@Override
+	public SellPrice createSellPrice(String productId, BigDecimal newSellPrice) {
+		return sellPriceService.updateProductSellPrice(productId, newSellPrice);
+	}
+
+	@Override
+	public Page<PurchasePrice> findAllPurchasePrice(String productId, String orderBy, String sortBy, int page,
+			int size) {
+		return purchasePriceService.findAll(productId, sortBy, orderBy, page, size);
+	}
+
+	@Override
+	public PurchasePrice createPurchasePrice(String productId, BigDecimal newPurchasePrice) {
+		return purchasePriceService.updatePurchasePrice(productId, newPurchasePrice);
+	}
+
+	@Override
+	public Page<PromoPrice> findAllPromoPrice(String productId, String orderBy, String sortBy, int page, int size) {
+		return promoPriceService.findAll(productId, sortBy, orderBy, page, size);
+	}
+	
+	@Override
+	public PromoPrice createPromoPrice(Product product, CreatePromoPriceRequestDTO dto) {
+		return promoPriceService.create(product, dto);
 	}
 
 	private ProductResponseDTO convertProductToProductResponseDTO(Product product) {

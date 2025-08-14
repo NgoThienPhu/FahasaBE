@@ -61,22 +61,27 @@ public class ProductServiceImpl implements ProductService {
 
 	@Override
 	public Product findById(String productId) {
-		return productRepository.findById(productId).orElse(null);
+		return productRepository.findById(productId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+				String.format("Không tìm thấy sản phẩm với Id là: %s", productId)));
 	}
 
 	@Override
 	public Product update(String productId, String productName, String description, Category category) {
-		
+
 		Product product = productRepository.findById(productId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
 						String.format("Không tìm thấy sản phẩm với Id là: %s", productId)));
-		
-		if(category == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Không tìm thấy loại sản phẩm, vui lòng thử lại sau");
-		
+
+		if (category == null)
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+					"Không tìm thấy loại sản phẩm, vui lòng thử lại sau");
+
 		product.setCategory(category);
-		if(productName != null) product.setName(productName);
-		if(description != null) product.setDescription(description);
-		
+		if (productName != null)
+			product.setName(productName);
+		if (description != null)
+			product.setDescription(description);
+
 		return save(product);
 	}
 

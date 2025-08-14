@@ -1,4 +1,4 @@
-package com.example.demo.common.base.dto;
+package com.example.demo.auth.dto;
 
 public record LoginResponseDTO(
 		String accessToken

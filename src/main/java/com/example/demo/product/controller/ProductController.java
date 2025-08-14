@@ -5,7 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,8 +12,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.common.base.dto.ApiResponseDTO;
 import com.example.demo.common.base.dto.PagedResponseDTO;
-import com.example.demo.product.dto.ProductFilterDTO;
-import com.example.demo.product.dto.ProductResponseDTO;
 import com.example.demo.product.entity.Product;
 import com.example.demo.product.service.ProductService;
 
