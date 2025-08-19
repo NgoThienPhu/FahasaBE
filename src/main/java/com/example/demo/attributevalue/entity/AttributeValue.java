@@ -2,6 +2,7 @@ package com.example.demo.attributevalue.entity;
 
 import com.example.demo.attribute.entity.Attribute;
 import com.example.demo.common.base.entity.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,10 +22,11 @@ import lombok.Setter;
 @Table(name = "attribute_value")
 public class AttributeValue extends BaseEntity {
 
+	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name = "attribute_id", nullable = false)
 	private Attribute attribute;
-
+	
 	@Column(name = "value", nullable = false)
 	private String value;
 

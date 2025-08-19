@@ -1,4 +1,4 @@
-package com.example.demo.account.service;
+package com.example.demo.account.service.impl;
 
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -8,15 +8,16 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.account.entity.base.Account;
 import com.example.demo.account.repository.AccountRepository;
+import com.example.demo.account.service.AccountService;
 import com.example.demo.account.specification.AccountSpecification;
 import com.example.demo.auth.service.AuthenticationService;
 
-public abstract class AbstractAccountService<T extends Account> implements AccountService {
+public abstract class AccountServiceImpl implements AccountService {
 
-	private AccountRepository accountRepository;
-	private PasswordEncoder passwordEncoder;
+	protected AccountRepository accountRepository;
+	protected PasswordEncoder passwordEncoder;
 
-	public AbstractAccountService(AccountRepository accountRepository, PasswordEncoder passwordEncoder) {
+	public AccountServiceImpl(AccountRepository accountRepository, PasswordEncoder passwordEncoder) {
 		this.accountRepository = accountRepository;
 		this.passwordEncoder = passwordEncoder;
 	}

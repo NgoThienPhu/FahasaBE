@@ -7,7 +7,7 @@ import com.example.demo.account.dto.AdminCreateUserRequestDTO;
 import com.example.demo.account.dto.ChangeUserInfoRequestDTO;
 import com.example.demo.account.entity.UserAccount;
 
-public interface UserAccountService {
+public interface UserAccountService extends AccountService {
 
 	UserAccount adminCreateUserAccount(AdminCreateUserRequestDTO dto);
 

@@ -73,12 +73,12 @@ public class AttributeServiceImpl implements AttributeService {
 	
 	@Transactional
 	@Override
-	public Attribute update(CreateAttributeRequestDTO body, String attributeId) {
+	public Attribute update(String attributeId, String attributeName) {
 		Attribute attribute = findById(attributeId);
 		if (attribute == null)
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND,
 					String.format("Không tìm thấy thuộc tính với id là: %s", attributeId));
-		attribute.setName(body.attributeName());
+		attribute.setName(attributeName);
 		return attributeRepository.save(attribute);
 	}
 

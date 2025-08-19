@@ -15,7 +15,7 @@ public interface AttributeService {
 	
 	void deleteById(String attributeId);
 	
-	Attribute update(CreateAttributeRequestDTO body, String attributeId);
+	Attribute update(String attributeId, String attributeName);
 	
 	boolean existsName(String attributeName);
 	

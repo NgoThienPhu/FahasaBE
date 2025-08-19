@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.price.entity.PurchasePrice;
@@ -17,6 +18,7 @@ import com.example.demo.price.repository.PurchasePriceRepository;
 import com.example.demo.price.service.PurchasePriceService;
 import com.example.demo.price.specification.PurchasePriceSpecification;
 
+@Service
 public class PurchasePriceServiceImpl implements PurchasePriceService {
 
 	private PurchasePriceRepository purchasePriceRepository;

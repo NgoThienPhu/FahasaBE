@@ -103,7 +103,7 @@ public class ProductApplicationServiceImpl implements ProductApplicationService 
 
 			product.getImages().add(new ProductImage(primaryImageUrl, true));
 
-			if (!secondImages.isEmpty()) {
+			if (secondImages != null) {
 				List<String> secondImageUrls = new ArrayList<String>();
 				for (MultipartFile file : secondImages) {
 					secondImageUrls.add(s3Service.uploadFile(file));
@@ -114,12 +114,21 @@ public class ProductApplicationServiceImpl implements ProductApplicationService 
 						.addAll(secondImageUrls.stream().map(image -> new ProductImage(image, false)).toList());
 			}
 
-			List<AttributeValue> attributeValues = dto.attributeValues().stream().map(attributeValueService::findById)
-					.toList();
+			if (dto.attributeValues() != null) {
+				List<AttributeValue> attributeValues = dto.attributeValues().stream()
+						.map(attributeValueService::findById).toList();
 
-			product.setAttributeValues(attributeValues);
+				product.setAttributeValues(attributeValues);
+			}
 
 			Product createProduct = productService.save(product);
+
+			SellPrice sellPrice = new SellPrice(createProduct, dto.sellPrice());
+			sellPriceService.save(sellPrice);
+
+			PurchasePrice purchasePrice = new PurchasePrice(createProduct,
+					(dto.purchasePrice() == null) ? dto.sellPrice() : dto.purchasePrice());
+			purchasePriceService.save(purchasePrice);
 
 			return convertProductToProductResponseDTO(createProduct);
 		} catch (IOException e) {
@@ -130,6 +139,23 @@ public class ProductApplicationServiceImpl implements ProductApplicationService 
 				}
 			}
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Lỗi khi upload ảnh sản phẩm", e);
+		} catch (ResponseStatusException e) {
+			if (imageUrls != null) {
+				for (String imageUrl : imageUrls) {
+					String fileName = S3Service.convertFileURlToFileName(imageUrl);
+					s3Service.deleteFile(fileName);
+				}
+			}
+			throw e;
+		} catch (Exception e) {
+			if (imageUrls != null) {
+				for (String imageUrl : imageUrls) {
+					String fileName = S3Service.convertFileURlToFileName(imageUrl);
+					s3Service.deleteFile(fileName);
+				}
+			}
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+					"Lỗi khi tạo sản phẩm, vui lòng thử lại sau", e);
 		}
 	}
 
@@ -252,7 +278,7 @@ public class ProductApplicationServiceImpl implements ProductApplicationService 
 	public Page<PromoPrice> findAllPromoPrice(String productId, String orderBy, String sortBy, int page, int size) {
 		return promoPriceService.findAll(productId, sortBy, orderBy, page, size);
 	}
-	
+
 	@Override
 	public PromoPrice createPromoPrice(Product product, CreatePromoPriceRequestDTO dto) {
 		return promoPriceService.create(product, dto);

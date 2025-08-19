@@ -14,7 +14,7 @@ public class AccountSpecification {
 	
 	public static Specification<Account> hasEmail(String email) {
 		return (root, query, cb) -> {
-			return cb.equal(root.get("email"), email);
+			return cb.equal(root.get("email").get("email"), email);
 		};
 	}
 	

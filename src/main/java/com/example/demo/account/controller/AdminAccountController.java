@@ -17,7 +17,6 @@ import com.example.demo.account.dto.AdminChangeUserInfoRequestDTO;
 import com.example.demo.account.dto.AdminCreateUserRequestDTO;
 import com.example.demo.account.entity.UserAccount;
 import com.example.demo.account.entity.base.Account;
-import com.example.demo.account.service.AccountService;
 import com.example.demo.account.service.UserAccountService;
 import com.example.demo.common.base.dto.ApiResponseDTO;
 import com.example.demo.common.base.dto.PagedResponseDTO;
@@ -31,11 +30,8 @@ public class AdminAccountController {
 
 	private UserAccountService userAccountService;
 
-	private AccountService accountService;
-
-	public AdminAccountController(UserAccountService userAccountService, AccountService accountService) {
+	public AdminAccountController(UserAccountService userAccountService) {
 		this.userAccountService = userAccountService;
-		this.accountService = accountService;
 	}
 
 	@GetMapping
@@ -54,7 +50,7 @@ public class AdminAccountController {
 	@GetMapping("/{id}")
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> getAccountById(@PathVariable("id") String accountId) {
-		Account account = accountService.findAccountById(accountId);
+		Account account = userAccountService.findAccountById(accountId);
 		ApiResponseDTO<? extends Account> response = new ApiResponseDTO<>("Lấy thông tin tài khoản thành công",
 				"success", account);
 		return new ResponseEntity<>(response, HttpStatus.OK);
@@ -105,7 +101,7 @@ public class AdminAccountController {
 	@PostMapping("/{id}/reset-password")
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> resetPassword(@PathVariable("id") String userAccountId) {
-		accountService.resetPassword(userAccountId);
+		userAccountService.resetPassword(userAccountId);
 		ApiResponseDTO<Account> response = new ApiResponseDTO<Account>("Làm mới mật khẩu của tài khoản thành công",
 				"success");
 		return new ResponseEntity<>(response, HttpStatus.OK);

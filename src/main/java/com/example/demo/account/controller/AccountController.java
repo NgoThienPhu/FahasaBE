@@ -16,7 +16,6 @@ import com.example.demo.account.dto.ChangePhoneNumberRequestDTO;
 import com.example.demo.account.dto.ChangeUserInfoRequestDTO;
 import com.example.demo.account.entity.UserAccount;
 import com.example.demo.account.entity.base.Account;
-import com.example.demo.account.service.AccountService;
 import com.example.demo.account.service.UserAccountService;
 import com.example.demo.common.base.dto.ApiResponseDTO;
 
@@ -24,17 +23,15 @@ import com.example.demo.common.base.dto.ApiResponseDTO;
 @RequestMapping("/api/accounts")
 public class AccountController {
 
-	private AccountService accountService;
 	private UserAccountService userAccountService;
 
-	public AccountController(AccountService accountService, UserAccountService userAccountService) {
-		this.accountService = accountService;
+	public AccountController(UserAccountService userAccountService) {
 		this.userAccountService = userAccountService;
 	}
 
 	@GetMapping("/me")
 	public ResponseEntity<?> getInfo(@AuthenticationPrincipal UserDetails currentUser) {
-		Account account = accountService.findAccountByUsername(currentUser.getUsername());
+		Account account = userAccountService.findAccountByUsername(currentUser.getUsername());
 		if (account == null)
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND,
 					String.format("Người dùng không tồn tại", currentUser.getUsername()));

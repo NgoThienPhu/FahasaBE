@@ -15,7 +15,6 @@ import org.springframework.web.server.ResponseStatusException;
 import com.example.demo.account.dto.CreateUserRequestDTO;
 import com.example.demo.account.entity.UserAccount;
 import com.example.demo.account.entity.base.Account;
-import com.example.demo.account.service.AccountService;
 import com.example.demo.account.service.UserAccountService;
 import com.example.demo.auth.dto.ChangePasswordRequestDTO;
 import com.example.demo.auth.dto.LoginRequestDTO;
@@ -29,20 +28,16 @@ import jakarta.transaction.Transactional;
 public class AuthenticationServiceImpl implements AuthenticationService {
 
 	private AuthenticationManager authenticationManager;
-	
-	private AccountService accountService;
-	
+
 	private UserAccountService userAccountService;
-	
+
 	private JwtService jwtService;
-	
+
 	private PasswordEncoder passwordEncoder;
 
-	public AuthenticationServiceImpl(AuthenticationManager authenticationManager,
-			AccountService accountService, UserAccountService userAccountService, JwtService jwtService,
-			PasswordEncoder passwordEncoder) {
+	public AuthenticationServiceImpl(AuthenticationManager authenticationManager, UserAccountService userAccountService,
+			JwtService jwtService, PasswordEncoder passwordEncoder) {
 		this.authenticationManager = authenticationManager;
-		this.accountService = accountService;
 		this.userAccountService = userAccountService;
 		this.jwtService = jwtService;
 		this.passwordEncoder = passwordEncoder;
@@ -59,7 +54,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 						"Tài khoản hoặc mật khẩu không chính xác, vui lòng đăng nhập lại");
 			}
 
-			Account account = accountService.findAccountByUsername(body.username());
+			Account account = userAccountService.findAccountByUsername(body.username());
 
 			String accessToken = jwtService.createToken(account.getUsername(), Account.TokenType.ACCESS);
 
@@ -81,8 +76,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	@Transactional
 	@Override
 	public UserAccount userRegister(CreateUserRequestDTO body) {
-		Boolean checkExistsUsername = accountService.existsAccountByUsername(body.username());
-		Boolean checkExistsEmail = accountService.exitstAccountByEmail(body.email());
+		Boolean checkExistsUsername = userAccountService.existsAccountByUsername(body.username());
+		Boolean checkExistsEmail = userAccountService.exitstAccountByEmail(body.email());
 		Boolean checkExistsPhoneNumber = userAccountService.existsByPhoneNumber(body.phoneNumber());
 
 		if (checkExistsUsername)
@@ -94,7 +89,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 					"Số điện thoại đã tồn tại, vui lòng thử số điện thoại khác");
 
-		return (UserAccount) accountService.save(CreateUserRequestDTO.toUserAccount(body, passwordEncoder));
+		return (UserAccount) userAccountService.save(CreateUserRequestDTO.toUserAccount(body, passwordEncoder));
 	}
 
 	@Override
@@ -115,7 +110,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	@Override
 	public void changePassword(ChangePasswordRequestDTO body, UserDetails currentUser) {
 		try {
-			Account account = accountService.findAccountByUsername(currentUser.getUsername());
+			Account account = userAccountService.findAccountByUsername(currentUser.getUsername());
 
 			if (account == null || !passwordEncoder.matches(body.oldPassword(), account.getPassword()))
 				throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
@@ -123,7 +118,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 			String newPassword = passwordEncoder.encode(body.newPassword());
 			account.setPassword(newPassword);
-			accountService.save(account);
+			userAccountService.save(account);
 
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());

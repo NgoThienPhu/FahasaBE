@@ -18,7 +18,6 @@ import com.example.demo.account.dto.ChangeUserInfoRequestDTO;
 import com.example.demo.account.entity.UserAccount;
 import com.example.demo.account.repository.AccountRepository;
 import com.example.demo.account.repository.UserAccountRepository;
-import com.example.demo.account.service.AbstractAccountService;
 import com.example.demo.account.service.UserAccountService;
 import com.example.demo.account.specification.UserAccountSpecification;
 import com.example.demo.auth.service.AuthenticationService;
@@ -28,11 +27,9 @@ import com.example.demo.common.base.entity.PhoneNumber;
 import jakarta.transaction.Transactional;
 
 @Service
-public class UserAccountServiceImpl extends AbstractAccountService<UserAccount> implements UserAccountService {
+public class UserAccountServiceImpl extends AccountServiceImpl implements UserAccountService {
 
-	private AccountRepository accountRepository;
 	private UserAccountRepository userAccountRepository;
-	private PasswordEncoder passwordEncoder;
 
 	public UserAccountServiceImpl(AccountRepository accountRepository, PasswordEncoder passwordEncoder, UserAccountRepository userAccountRepository) {
 		super(accountRepository, passwordEncoder);
