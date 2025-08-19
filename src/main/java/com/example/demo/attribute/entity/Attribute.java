@@ -7,10 +7,8 @@ import com.example.demo.category.entity.Category;
 import com.example.demo.common.base.entity.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -30,8 +28,7 @@ public class Attribute extends BaseEntity {
 	private String name;
 	
 	@JsonIgnore
-	@ManyToMany(fetch = FetchType.LAZY ,mappedBy = "attributes", cascade = { CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST,
-			CascadeType.REFRESH })
+	@ManyToMany(mappedBy = "attributes")
 	private List<Category> categories = new ArrayList<>();
-
+	
 }

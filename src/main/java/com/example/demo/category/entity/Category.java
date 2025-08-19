@@ -36,14 +36,18 @@ public class Category extends BaseEntity {
 	@JoinColumn(name = "parent_id")
 	private Category parent;
 	
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Category> children = new ArrayList<Category>();
-
 	@JsonIgnore
-	@ManyToMany(cascade = { CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
-	@JoinTable(name = "category_attribute", joinColumns = @JoinColumn(name = "category_id"), inverseJoinColumns = @JoinColumn(name = "attribute_id"))
-	private List<Attribute> attributes = new ArrayList<Attribute>();
-
+	@OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Category> children = new ArrayList<>();
+	
+	@JsonIgnore
+	@ManyToMany
+	@JoinTable(
+			name = "category_attribute",
+			joinColumns = @JoinColumn(name = "category_id"),
+			inverseJoinColumns = @JoinColumn(name = "attribute_id")
+	)
+	private List<Attribute> attributes = new ArrayList<>();
 
 	public Category(String name) {
 		this.name = name;

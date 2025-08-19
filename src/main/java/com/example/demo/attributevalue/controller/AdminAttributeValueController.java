@@ -32,9 +32,9 @@ public class AdminAttributeValueController {
 		return new ResponseEntity<ApiResponseDTO<AttributeValue>>(response, HttpStatus.OK);
 	}
 
-	@DeleteMapping
+	@DeleteMapping("{attributeValueId}")
 //	@PreAuthorize("hasRole('ADMIN')")
-	public ResponseEntity<?> delete(@PathVariable String attributeId, @RequestParam String attributeValueId) {
+	public ResponseEntity<?> delete(@PathVariable String attributeId, @PathVariable String attributeValueId) {
 		attributeApplicationService.deleteAttributeValueById(attributeId, attributeValueId);
 		ApiResponseDTO<AttributeValue> response = new ApiResponseDTO<AttributeValue>(
 				"Xóa giá trị thuộc tính thành công", "success");

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.example.demo.account.entity.base.Account;
-import com.example.demo.common.base.entity.Address;
+import com.example.demo.address.entity.Address;
 import com.example.demo.common.base.entity.PhoneNumber;
 
 import jakarta.persistence.CascadeType;
@@ -43,7 +43,7 @@ public class UserAccount extends Account {
 	@JoinColumn(name = "phone_number")
 	private PhoneNumber phoneNumber;
 	
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "userAccount", orphanRemoval = true)
 	private List<Address> addresses = new ArrayList<>();
 	
 	@Column(name = "is_active", nullable = false)

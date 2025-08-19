@@ -20,7 +20,7 @@ import com.example.demo.account.service.UserAccountService;
 import com.example.demo.common.base.dto.ApiResponseDTO;
 
 @RestController
-@RequestMapping("/api/accounts")
+@RequestMapping("/api/accounts/me")
 public class AccountController {
 
 	private UserAccountService userAccountService;
@@ -29,7 +29,7 @@ public class AccountController {
 		this.userAccountService = userAccountService;
 	}
 
-	@GetMapping("/me")
+	@GetMapping
 	public ResponseEntity<?> getInfo(@AuthenticationPrincipal UserDetails currentUser) {
 		Account account = userAccountService.findAccountByUsername(currentUser.getUsername());
 		if (account == null)
@@ -40,7 +40,7 @@ public class AccountController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	
-	@PatchMapping("/me")
+	@PatchMapping
 	public ResponseEntity<?> changeInfo(@RequestBody ChangeUserInfoRequestDTO dto, @AuthenticationPrincipal UserDetails currentUser) {
 		UserAccount account = userAccountService.changeUserAccountInfo(dto, currentUser.getUsername());
 		ApiResponseDTO<Account> response = new ApiResponseDTO<Account>("Cập nhật thông tin tài khoản thành công", "success",
@@ -48,12 +48,12 @@ public class AccountController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	
-	@PatchMapping("/me/change-email")
+	@PatchMapping("/change-email")
 	public ResponseEntity<?> changeEmail(@RequestBody ChangeEmailRequestDTO dto, @AuthenticationPrincipal UserDetails currentUser) {
 		return null;
 	}
 	
-	@PatchMapping("/me/change-phone")
+	@PatchMapping("/change-phone")
 	public ResponseEntity<?> changeEmail(@RequestBody ChangePhoneNumberRequestDTO dto, @AuthenticationPrincipal UserDetails currentUser) {
 		return null;
 	}

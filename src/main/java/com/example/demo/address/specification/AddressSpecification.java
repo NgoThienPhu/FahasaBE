@@ -1,0 +1,17 @@
+package com.example.demo.address.specification;
+
+import org.springframework.data.jpa.domain.Specification;
+
+import com.example.demo.address.entity.Address;
+
+public class AddressSpecification {
+	
+	public static Specification<Address> hasId(String addressId) {
+		return (root, query, cb) -> cb.equal(root.get("id"), addressId);
+	}
+
+	public static Specification<Address> hasUsername(String username) {
+		return (root, query, cb) -> cb.equal(root.get("userAccount").get("username"), username);
+	}
+	
+}

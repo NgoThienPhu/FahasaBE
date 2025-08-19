@@ -1,7 +1,12 @@
-package com.example.demo.common.base.entity;
+package com.example.demo.address.entity;
+
+import com.example.demo.account.entity.UserAccount;
+import com.example.demo.common.base.entity.BaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,5 +29,9 @@ public class Address extends BaseEntity {
 	
 	@Column(name = "address")
 	private String address;
+	
+	@ManyToOne
+	@JoinColumn(name = "account_id")
+	private UserAccount userAccount;
 	
 }
