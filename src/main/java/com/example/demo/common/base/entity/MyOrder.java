@@ -8,6 +8,8 @@ import com.example.demo.address.entity.Address;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -32,7 +34,12 @@ public class MyOrder extends BaseEntity {
 	@JoinColumn(name = "address_id", nullable = false)
 	private Address address;
 	
-	@Column(name = "payment_method", nullable = false)
-	private String paymentMethod;
+	@Enumerated(EnumType.STRING)
+    @Column(name = "payment_method", nullable = false)
+    private PaymentMethod paymentMethod;
+
+    public enum PaymentMethod {
+        CASH, BANK
+    }
 	
 }

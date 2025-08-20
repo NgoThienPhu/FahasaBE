@@ -132,28 +132,13 @@ public class ProductApplicationServiceImpl implements ProductApplicationService 
 
 			return convertProductToProductResponseDTO(createProduct);
 		} catch (IOException e) {
-			if (imageUrls != null) {
-				for (String imageUrl : imageUrls) {
-					String fileName = S3Service.convertFileURlToFileName(imageUrl);
-					s3Service.deleteFile(fileName);
-				}
-			}
+			rollbackImages(imageUrls);
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Lỗi khi upload ảnh sản phẩm", e);
 		} catch (ResponseStatusException e) {
-			if (imageUrls != null) {
-				for (String imageUrl : imageUrls) {
-					String fileName = S3Service.convertFileURlToFileName(imageUrl);
-					s3Service.deleteFile(fileName);
-				}
-			}
+			rollbackImages(imageUrls);
 			throw e;
 		} catch (Exception e) {
-			if (imageUrls != null) {
-				for (String imageUrl : imageUrls) {
-					String fileName = S3Service.convertFileURlToFileName(imageUrl);
-					s3Service.deleteFile(fileName);
-				}
-			}
+			rollbackImages(imageUrls);
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
 					"Lỗi khi tạo sản phẩm, vui lòng thử lại sau", e);
 		}
@@ -228,6 +213,7 @@ public class ProductApplicationServiceImpl implements ProductApplicationService 
 		}
 	}
 
+	@Override
 	public ProductResponseDTO deleteSecondImage(String productId, List<String> secondImageIds) {
 		Product product = productService.findById(productId);
 		List<ProductImage> secondImages = product.getImages().stream().filter(img -> !img.getIsPrimary())
@@ -300,6 +286,15 @@ public class ProductApplicationServiceImpl implements ProductApplicationService 
 		return new ProductResponseDTO(product.getId(), product.getName(), product.getDescription(),
 				product.getCategory().getName(), productPriceResponseDTO, product.getImages(), attributeResponseDTOs);
 
+	}
+
+	private void rollbackImages(List<String> imageUrls) {
+		if (imageUrls != null) {
+			for (String imageUrl : imageUrls) {
+				String fileName = S3Service.convertFileURlToFileName(imageUrl);
+				s3Service.deleteFile(fileName);
+			}
+		}
 	}
 
 }
