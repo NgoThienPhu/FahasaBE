@@ -30,14 +30,14 @@ public class CategoryServiceImpl implements CategoryService {
 	}
 
 	@Override
-	public Category findById(String categoryId) {
+	public Category get(String categoryId) {
 		return categoryRepository.findById(categoryId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
 						String.format("Không tìm thấy loại sản phẩm với Id là: %s", categoryId)));
 	}
 
 	@Override
-	public Page<Category> findAll(String categoryName, String orderBy, String sortBy, int page, int size) {
+	public Page<Category> getAll(String orderBy, String sortBy, int page, int size) {
 		List<String> allowedFields = List.of("name");
 
 		if (!allowedFields.contains(sortBy)) {
@@ -50,12 +50,41 @@ public class CategoryServiceImpl implements CategoryService {
 
 		Pageable pageable = PageRequest.of(page, size, sort);
 
-		if ((categoryName == null || categoryName.isEmpty())) {
-			return categoryRepository.findAll(pageable);
-		} else {
-			Specification<Category> spec = CategorySpecification.hasName(categoryName);
-			return categoryRepository.findAll(spec, pageable);
+		return categoryRepository.findAll(pageable);
+	}
+
+	@Override
+	public Page<Category> getAllByParentId(String parentId, String orderBy, String sortBy, int page, int size) {
+
+		List<String> allowedFields = List.of("name");
+
+		if (!allowedFields.contains(sortBy)) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+					"Thuộc tính cần sắp xếp không hợp lệ vui lòng thử lại");
 		}
+
+		Sort sort = orderBy.equalsIgnoreCase("asc") ? Sort.by(Sort.Direction.ASC, sortBy)
+				: Sort.by(Sort.Direction.DESC, sortBy);
+
+		Pageable pageable = PageRequest.of(page, size, sort);
+		Specification<Category> spec = CategorySpecification.hasParent(parentId);
+
+		get(parentId);
+
+		return categoryRepository.findAll(spec, pageable);
+	}
+
+	@Override
+	public List<Category> getLeafCategories() {
+		return categoryRepository.findAll(CategorySpecification.hasNoChildren());
+	}
+
+	@Override
+	public Category getTree() {
+		return categoryRepository.findOne(CategorySpecification.hasNoParent()).orElseGet(() -> {
+			Category category = new Category("Danh sách thể loại");
+			return categoryRepository.save(category);
+		});
 	}
 
 	@Transactional
@@ -68,29 +97,22 @@ public class CategoryServiceImpl implements CategoryService {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 					"Tên loại sản phẩm đã tồn tại vui lòng chọn tên khác");
 
-		if (dto.parentCategoryId() != null) {
+		Category parentCategory = get(dto.parentCategoryId());
 
-			Category parentCategory = findById(dto.parentCategoryId());
+		if (parentCategory == null)
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+					String.format("Không tìm thấy loại sản phẩm có Id là: %s", dto.parentCategoryId()));
 
-			if (parentCategory == null)
-				throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-						String.format("Không tìm thấy loại sản phẩm có Id là: %s", dto.parentCategoryId()));
-
-			Category category = new Category(dto.categoryName());
-			parentCategory.getChildren().add(category);
-
-			return categoryRepository.save(parentCategory);
-		}
-
-		Category category = new Category(dto.categoryName());
+		Category category = new Category(dto.categoryName(), parentCategory);
 
 		return categoryRepository.save(category);
+
 	}
 
 	@Transactional
 	@Override
 	public Category update(UpdateCategoryNameRequestDTO body, String categoryId) {
-		Category category = findById(categoryId);
+		Category category = get(categoryId);
 
 		if (category == null)
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -103,8 +125,8 @@ public class CategoryServiceImpl implements CategoryService {
 
 	@Transactional
 	@Override
-	public void deleteById(String categoryId) {
-		Category category = findById(categoryId);
+	public void delete(String categoryId) {
+		Category category = get(categoryId);
 
 		if (category == null)
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -128,7 +150,8 @@ public class CategoryServiceImpl implements CategoryService {
 
 	@Override
 	public boolean hasChildren(String categoryId) {
-		Specification<Category> spec = CategorySpecification.hasChildren(categoryId);
+		Specification<Category> spec = Specification.where(CategorySpecification.hasId(categoryId))
+				.and(CategorySpecification.hasChildren());
 		return categoryRepository.count(spec) > 0;
 	}
 

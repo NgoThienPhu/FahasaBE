@@ -50,8 +50,8 @@ public class AdminProductController {
 				size);
 		PagedResponseDTO<ProductResponseDTO> pagedResponseDTO = PagedResponseDTO
 				.convertPageToPagedResponseDTO(products);
-		ApiResponseDTO<PagedResponseDTO<ProductResponseDTO>> response = new ApiResponseDTO<PagedResponseDTO<ProductResponseDTO>>(
-				"Tìm sản phẩm thành công", "success", pagedResponseDTO);
+		var response = new ApiResponseDTO<PagedResponseDTO<ProductResponseDTO>>("Tìm sản phẩm thành công", "success",
+				pagedResponseDTO);
 		return new ResponseEntity<ApiResponseDTO<PagedResponseDTO<ProductResponseDTO>>>(response, HttpStatus.OK);
 	}
 
@@ -62,8 +62,7 @@ public class AdminProductController {
 		if (product == null)
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND,
 					String.format("Không tìm thấy sản phẩm với id là: %s", productId));
-		ApiResponseDTO<ProductResponseDTO> response = new ApiResponseDTO<>("Tìm sản phẩm thành công", "success",
-				product);
+		var response = new ApiResponseDTO<>("Tìm sản phẩm thành công", "success", product);
 		return new ResponseEntity<ApiResponseDTO<ProductResponseDTO>>(response, HttpStatus.OK);
 	}
 
@@ -80,8 +79,7 @@ public class AdminProductController {
 
 		ProductResponseDTO myProduct = productApplicationService.create(product, image, images);
 
-		ApiResponseDTO<ProductResponseDTO> response = new ApiResponseDTO<>("Tạo sản phẩm thành công", "success",
-				myProduct);
+		var response = new ApiResponseDTO<>("Tạo sản phẩm thành công", "success", myProduct);
 		return new ResponseEntity<ApiResponseDTO<ProductResponseDTO>>(response, HttpStatus.OK);
 	}
 
@@ -89,7 +87,7 @@ public class AdminProductController {
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> deleteProductById(@PathVariable String productId) {
 		productApplicationService.deleteById(productId);
-		ApiResponseDTO<Void> response = new ApiResponseDTO<Void>("Xóa sản phẩm thành công", "success");
+		var response = new ApiResponseDTO<Void>("Xóa sản phẩm thành công", "success");
 		return new ResponseEntity<ApiResponseDTO<Void>>(response, HttpStatus.OK);
 	}
 
@@ -98,8 +96,7 @@ public class AdminProductController {
 	public ResponseEntity<?> updateProductById(@PathVariable String productId,
 			@RequestBody UpdateProductRequestDTO dto) {
 		ProductResponseDTO product = productApplicationService.update(productId, dto);
-		ApiResponseDTO<ProductResponseDTO> response = new ApiResponseDTO<>("Cập nhật sản phẩm thành công", "success",
-				product);
+		var response = new ApiResponseDTO<ProductResponseDTO>("Cập nhật sản phẩm thành công", "success", product);
 		return new ResponseEntity<ApiResponseDTO<ProductResponseDTO>>(response, HttpStatus.OK);
 	}
 

@@ -20,9 +20,9 @@ import com.example.demo.product.application.ProductApplicationService;
 @RestController
 @RequestMapping("/api/admin/products/{productId}/purchase-prices")
 public class AdminPurchasePriceController {
-	
+
 	private ProductApplicationService productApplicationService;
-	
+
 	public AdminPurchasePriceController(ProductApplicationService productApplicationService) {
 		this.productApplicationService = productApplicationService;
 	}
@@ -38,7 +38,7 @@ public class AdminPurchasePriceController {
 				page, size);
 		PagedResponseDTO<PurchasePrice> pagedResponseDTO = PagedResponseDTO
 				.convertPageToPagedResponseDTO(purchasePrices);
-		ApiResponseDTO<PagedResponseDTO<PurchasePrice>> response = new ApiResponseDTO<PagedResponseDTO<PurchasePrice>>(
+		var response = new ApiResponseDTO<PagedResponseDTO<PurchasePrice>>(
 				"Lấy danh sách giá nhập của sản phẩm thành công", "success", pagedResponseDTO);
 		return new ResponseEntity<ApiResponseDTO<PagedResponseDTO<PurchasePrice>>>(response, HttpStatus.OK);
 	}
@@ -48,9 +48,8 @@ public class AdminPurchasePriceController {
 	public ResponseEntity<?> createPurchasePrice(@PathVariable(required = true) String productId,
 			@RequestParam(required = true) BigDecimal newPurchasePrice) {
 		PurchasePrice purchasePrice = productApplicationService.createPurchasePrice(productId, newPurchasePrice);
-		ApiResponseDTO<PurchasePrice> response = new ApiResponseDTO<>("Tạo giá nhập của sản phẩm thành công", "success",
-				purchasePrice);
+		var response = new ApiResponseDTO<>("Tạo giá nhập của sản phẩm thành công", "success", purchasePrice);
 		return new ResponseEntity<ApiResponseDTO<PurchasePrice>>(response, HttpStatus.OK);
 	}
-	
+
 }

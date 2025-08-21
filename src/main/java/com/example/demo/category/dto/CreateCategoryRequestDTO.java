@@ -4,9 +4,10 @@ import jakarta.validation.constraints.NotBlank;
 
 public record CreateCategoryRequestDTO (
 
-		@NotBlank(message = "Tên loại sản phẩm không được để trống") 
+		@NotBlank(message = "Tên loại sản phẩm con không được để trống") 
 		String categoryName,
 		
+		@NotBlank(message = "Mã loại sản phẩm cha không được để trống")
 		String parentCategoryId
 		
 ) {}

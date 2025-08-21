@@ -91,7 +91,7 @@ public class ProductApplicationServiceImpl implements ProductApplicationService 
 			List<MultipartFile> secondImages) {
 		List<String> imageUrls = new ArrayList<String>();
 		try {
-			Category category = categoryService.findById(dto.categoryId());
+			Category category = categoryService.get(dto.categoryId());
 
 			Product product = new Product();
 			product.setName(dto.name());
@@ -111,7 +111,9 @@ public class ProductApplicationServiceImpl implements ProductApplicationService 
 				imageUrls.addAll(secondImageUrls);
 
 				product.getImages()
-						.addAll(secondImageUrls.stream().map(image -> new ProductImage(image, false)).toList());
+						.addAll(secondImageUrls.stream()
+								.map(image -> new ProductImage(image, false))
+								.toList());
 			}
 
 			if (dto.attributeValues() != null) {
@@ -148,7 +150,7 @@ public class ProductApplicationServiceImpl implements ProductApplicationService 
 	public ProductResponseDTO update(String productId, UpdateProductRequestDTO dto) {
 		Category category = null;
 		if (dto.categoryId() != null)
-			category = categoryService.findById(dto.categoryId());
+			category = categoryService.get(dto.categoryId());
 		Product product = productService.update(productId, dto.productName(), dto.description(), category);
 
 		return convertProductToProductResponseDTO(product);
@@ -194,8 +196,12 @@ public class ProductApplicationServiceImpl implements ProductApplicationService 
 			for (MultipartFile file : secondImages) {
 				secondImageUrls.add(s3Service.uploadFile(file));
 			}
+			
 			imageUrls.addAll(secondImageUrls);
-			product.getImages().addAll(secondImageUrls.stream().map(image -> new ProductImage(image, false)).toList());
+			
+			product.getImages().addAll(secondImageUrls.stream()
+					.map(image -> new ProductImage(image, false))
+					.toList());
 
 			Product savedProduct = productService.save(product);
 
@@ -290,10 +296,9 @@ public class ProductApplicationServiceImpl implements ProductApplicationService 
 
 	private void rollbackImages(List<String> imageUrls) {
 		if (imageUrls != null) {
-			for (String imageUrl : imageUrls) {
-				String fileName = S3Service.convertFileURlToFileName(imageUrl);
-				s3Service.deleteFile(fileName);
-			}
+			imageUrls.stream()
+				.map(S3Service::convertFileURlToFileName)
+				.forEach(s3Service::deleteFile);
 		}
 	}
 

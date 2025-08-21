@@ -17,7 +17,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.PrePersist;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -34,7 +33,7 @@ public class UserAccount extends Account {
 	
 	@Column(name = "gender", nullable = false)
 	@Enumerated(EnumType.STRING)
-	private Gender gender;
+	private Gender gender = Gender.UNSPECIFIED;
 	
 	@Column(name = "date_of_birth", nullable = true)
 	private LocalDate dateOfBirth;
@@ -47,7 +46,7 @@ public class UserAccount extends Account {
 	private List<Address> addresses = new ArrayList<>();
 	
 	@Column(name = "is_active", nullable = false)
-	protected Boolean isActive;
+	protected Boolean isActive = true;
 
 	public UserAccount(String username, String password, String fullName) {
 		super(username, password);
@@ -58,12 +57,5 @@ public class UserAccount extends Account {
 	public enum Gender {
 		MALE, FEMALE, OTHER, UNSPECIFIED
 	}
-	
-	@PrePersist
-	public void onCreate() {
-		super.onCreate();
-		this.isActive = true;
-		this.gender = Gender.UNSPECIFIED;
-    }
 
 }

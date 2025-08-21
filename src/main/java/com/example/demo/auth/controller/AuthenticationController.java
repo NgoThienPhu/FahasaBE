@@ -42,32 +42,31 @@ public class AuthenticationController {
 			return responseError;
 
 		LoginResponseDTO account = authenticationService.login(body);
-		ApiResponseDTO<LoginResponseDTO> response = new ApiResponseDTO<LoginResponseDTO>("Đăng nhập thành công!",
-				"success", account);
+		var response = new ApiResponseDTO<LoginResponseDTO>("Đăng nhập thành công!", "success", account);
 		return new ResponseEntity<ApiResponseDTO<LoginResponseDTO>>(response, HttpStatus.OK);
 	}
 
 	@PostMapping("/register")
-	public ResponseEntity<?> userRegister(@Valid @RequestBody CreateUserRequestDTO body,
-			BindingResult result) {
+	public ResponseEntity<?> userRegister(@Valid @RequestBody CreateUserRequestDTO body, BindingResult result) {
 
 		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Đăng kí thất bại!");
 		if (responseError != null)
 			return responseError;
 
 		UserAccount account = authenticationService.userRegister(body);
-		ApiResponseDTO<Account> response = new ApiResponseDTO<Account>("Đăng kí thành công", "success", account);
-		return new ResponseEntity<>(response, HttpStatus.OK);
+		var response = new ApiResponseDTO<Account>("Đăng kí thành công", "success", account);
+		return new ResponseEntity<ApiResponseDTO<Account>>(response, HttpStatus.OK);
 	}
 
 	@PatchMapping("/change-password")
-	public ResponseEntity<?> userChangePassword(@Valid @RequestBody ChangePasswordRequestDTO body, @AuthenticationPrincipal UserDetails currentUser, BindingResult result) {
+	public ResponseEntity<?> userChangePassword(@Valid @RequestBody ChangePasswordRequestDTO body,
+			@AuthenticationPrincipal UserDetails currentUser, BindingResult result) {
 		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Đổi mật khẩu thất bại!");
 		if (responseError != null)
 			return responseError;
 		authenticationService.changePassword(body, currentUser);
-		ApiResponseDTO<Void> response = new ApiResponseDTO<Void>("Đổi mật khẩu thành công", "success");
-		return new ResponseEntity<>(response, HttpStatus.OK);
+		var response = new ApiResponseDTO<Void>("Đổi mật khẩu thành công", "success");
+		return new ResponseEntity<ApiResponseDTO<Void>>(response, HttpStatus.OK);
 	}
 
 }

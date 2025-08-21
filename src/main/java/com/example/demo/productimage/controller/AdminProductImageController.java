@@ -20,7 +20,7 @@ import com.example.demo.product.dto.ProductResponseDTO;
 @RestController
 @RequestMapping("/api/admin/products/{productId}/images")
 public class AdminProductImageController {
-	
+
 	private ProductApplicationService productApplicationService;
 
 	public AdminProductImageController(ProductApplicationService productApplicationService) {
@@ -32,8 +32,8 @@ public class AdminProductImageController {
 	public ResponseEntity<?> updatePrimaryImage(@PathVariable String productId,
 			@RequestPart(required = true) MultipartFile image) throws Exception {
 		ProductResponseDTO product = productApplicationService.updatePrimaryImage(productId, image);
-		ApiResponseDTO<ProductResponseDTO> response = new ApiResponseDTO<>("Cập nhật ảnh chính của sản phẩm thành công",
-				"success", product);
+		var response = new ApiResponseDTO<ProductResponseDTO>("Cập nhật ảnh chính của sản phẩm thành công", "success",
+				product);
 		return new ResponseEntity<ApiResponseDTO<ProductResponseDTO>>(response, HttpStatus.OK);
 	}
 
@@ -42,8 +42,8 @@ public class AdminProductImageController {
 	public ResponseEntity<?> updateImages(@PathVariable String productId,
 			@RequestPart(required = true) List<MultipartFile> images) {
 		ProductResponseDTO product = productApplicationService.updateSecondImage(productId, images);
-		ApiResponseDTO<ProductResponseDTO> response = new ApiResponseDTO<>(
-				"Cập nhật danh sách ảnh của sản phẩm thành công", "success", product);
+		var response = new ApiResponseDTO<ProductResponseDTO>("Cập nhật danh sách ảnh của sản phẩm thành công",
+				"success", product);
 		return new ResponseEntity<ApiResponseDTO<ProductResponseDTO>>(response, HttpStatus.OK);
 	}
 
@@ -52,9 +52,9 @@ public class AdminProductImageController {
 	public ResponseEntity<?> deleteImages(@PathVariable String productId,
 			@RequestBody(required = true) List<String> imagesId) {
 		ProductResponseDTO product = productApplicationService.deleteSecondImage(productId, imagesId);
-		ApiResponseDTO<ProductResponseDTO> response = new ApiResponseDTO<>("Xóa danh sách ảnh của sản phẩm thành công",
-				"success", product);
+		var response = new ApiResponseDTO<ProductResponseDTO>("Xóa danh sách ảnh của sản phẩm thành công", "success",
+				product);
 		return new ResponseEntity<ApiResponseDTO<ProductResponseDTO>>(response, HttpStatus.OK);
 	}
-	
+
 }

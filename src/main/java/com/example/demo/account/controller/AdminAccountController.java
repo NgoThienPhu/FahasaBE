@@ -42,18 +42,17 @@ public class AdminAccountController {
 			@RequestParam(required = true, defaultValue = "20") int size) {
 		Page<UserAccount> accounts = userAccountService.findUserAccounts(orderBy, sortBy, page, size);
 		PagedResponseDTO<UserAccount> pagedResponseDTO = PagedResponseDTO.convertPageToPagedResponseDTO(accounts);
-		ApiResponseDTO<PagedResponseDTO<UserAccount>> response = new ApiResponseDTO<PagedResponseDTO<UserAccount>>(
-				"Lấy danh sách tài khoản thành công", "success", pagedResponseDTO);
-		return new ResponseEntity<>(response, HttpStatus.OK);
+		var response = new ApiResponseDTO<PagedResponseDTO<UserAccount>>("Lấy danh sách tài khoản thành công",
+				"success", pagedResponseDTO);
+		return new ResponseEntity<ApiResponseDTO<PagedResponseDTO<UserAccount>>>(response, HttpStatus.OK);
 	}
 
 	@GetMapping("/{id}")
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> getAccountById(@PathVariable("id") String accountId) {
 		Account account = userAccountService.findAccountById(accountId);
-		ApiResponseDTO<? extends Account> response = new ApiResponseDTO<>("Lấy thông tin tài khoản thành công",
-				"success", account);
-		return new ResponseEntity<>(response, HttpStatus.OK);
+		var response = new ApiResponseDTO<Account>("Lấy thông tin tài khoản thành công", "success", account);
+		return new ResponseEntity<ApiResponseDTO<Account>>(response, HttpStatus.OK);
 	}
 
 	@PostMapping
@@ -62,9 +61,9 @@ public class AdminAccountController {
 		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Đăng kí thất bại!");
 		if (responseError != null)
 			return responseError;
-		Account account = userAccountService.adminCreateUserAccount(dto);
-		ApiResponseDTO<Account> response = new ApiResponseDTO<Account>("Đăng kí thành công", "success", account);
-		return new ResponseEntity<>(response, HttpStatus.OK);
+		UserAccount account = userAccountService.adminCreateUserAccount(dto);
+		var response = new ApiResponseDTO<UserAccount>("Đăng kí thành công", "success", account);
+		return new ResponseEntity<ApiResponseDTO<UserAccount>>(response, HttpStatus.OK);
 	}
 
 	@PatchMapping("/{id}")
@@ -75,36 +74,32 @@ public class AdminAccountController {
 		if (responseError != null)
 			return responseError;
 		UserAccount account = userAccountService.adminChangeUserAccountInfo(dto, userAccountId);
-		ApiResponseDTO<Account> response = new ApiResponseDTO<Account>("Cập nhật thông tin thành công", "success",
-				account);
-		return new ResponseEntity<>(response, HttpStatus.OK);
+		var response = new ApiResponseDTO<UserAccount>("Cập nhật thông tin thành công", "success", account);
+		return new ResponseEntity<ApiResponseDTO<UserAccount>>(response, HttpStatus.OK);
 	}
 
 	@PatchMapping("/{id}/lock")
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> lockUserAccount(@PathVariable("id") String userAccountId) {
 		UserAccount account = userAccountService.lockUserAccount(userAccountId);
-		ApiResponseDTO<Account> response = new ApiResponseDTO<Account>("Đã khóa tài khoản thành công", "success",
-				account);
-		return new ResponseEntity<>(response, HttpStatus.OK);
+		var response = new ApiResponseDTO<UserAccount>("Đã khóa tài khoản thành công", "success", account);
+		return new ResponseEntity<ApiResponseDTO<UserAccount>>(response, HttpStatus.OK);
 	}
 
 	@PatchMapping("/{id}/unlock")
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> unlockUserAccount(@PathVariable("id") String userAccountId) {
-		UserAccount account = userAccountService.unlockUserAccount(userAccountId);
-		ApiResponseDTO<Account> response = new ApiResponseDTO<Account>("Đã mở khóa tài khoản thành công", "success",
-				account);
-		return new ResponseEntity<>(response, HttpStatus.OK);
+		var account = userAccountService.unlockUserAccount(userAccountId);
+		var response = new ApiResponseDTO<Account>("Đã mở khóa tài khoản thành công", "success", account);
+		return new ResponseEntity<ApiResponseDTO<Account>>(response, HttpStatus.OK);
 	}
 
 	@PostMapping("/{id}/reset-password")
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> resetPassword(@PathVariable("id") String userAccountId) {
 		userAccountService.resetPassword(userAccountId);
-		ApiResponseDTO<Account> response = new ApiResponseDTO<Account>("Làm mới mật khẩu của tài khoản thành công",
-				"success");
-		return new ResponseEntity<>(response, HttpStatus.OK);
+		var response = new ApiResponseDTO<Account>("Làm mới mật khẩu của tài khoản thành công", "success");
+		return new ResponseEntity<ApiResponseDTO<Account>>(response, HttpStatus.OK);
 	}
 
 }

@@ -14,7 +14,6 @@ import org.springframework.web.server.ResponseStatusException;
 import com.example.demo.account.dto.ChangeEmailRequestDTO;
 import com.example.demo.account.dto.ChangePhoneNumberRequestDTO;
 import com.example.demo.account.dto.ChangeUserInfoRequestDTO;
-import com.example.demo.account.entity.UserAccount;
 import com.example.demo.account.entity.base.Account;
 import com.example.demo.account.service.UserAccountService;
 import com.example.demo.common.base.dto.ApiResponseDTO;
@@ -35,26 +34,27 @@ public class AccountController {
 		if (account == null)
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND,
 					String.format("Người dùng không tồn tại", currentUser.getUsername()));
-		ApiResponseDTO<Account> response = new ApiResponseDTO<Account>("Lấy thông tin tài khoản thành công", "success",
-				account);
-		return new ResponseEntity<>(response, HttpStatus.OK);
+		var response = new ApiResponseDTO<Account>("Lấy thông tin tài khoản thành công", "success", account);
+		return new ResponseEntity<ApiResponseDTO<Account>>(response, HttpStatus.OK);
 	}
-	
+
 	@PatchMapping
-	public ResponseEntity<?> changeInfo(@RequestBody ChangeUserInfoRequestDTO dto, @AuthenticationPrincipal UserDetails currentUser) {
-		UserAccount account = userAccountService.changeUserAccountInfo(dto, currentUser.getUsername());
-		ApiResponseDTO<Account> response = new ApiResponseDTO<Account>("Cập nhật thông tin tài khoản thành công", "success",
-				account);
-		return new ResponseEntity<>(response, HttpStatus.OK);
+	public ResponseEntity<?> changeInfo(@RequestBody ChangeUserInfoRequestDTO dto,
+			@AuthenticationPrincipal UserDetails currentUser) {
+		Account account = userAccountService.changeUserAccountInfo(dto, currentUser.getUsername());
+		var response = new ApiResponseDTO<Account>("Cập nhật thông tin tài khoản thành công", "success", account);
+		return new ResponseEntity<ApiResponseDTO<Account>>(response, HttpStatus.OK);
 	}
-	
+
 	@PatchMapping("/change-email")
-	public ResponseEntity<?> changeEmail(@RequestBody ChangeEmailRequestDTO dto, @AuthenticationPrincipal UserDetails currentUser) {
+	public ResponseEntity<?> changeEmail(@RequestBody ChangeEmailRequestDTO dto,
+			@AuthenticationPrincipal UserDetails currentUser) {
 		return null;
 	}
-	
+
 	@PatchMapping("/change-phone")
-	public ResponseEntity<?> changeEmail(@RequestBody ChangePhoneNumberRequestDTO dto, @AuthenticationPrincipal UserDetails currentUser) {
+	public ResponseEntity<?> changeEmail(@RequestBody ChangePhoneNumberRequestDTO dto,
+			@AuthenticationPrincipal UserDetails currentUser) {
 		return null;
 	}
 

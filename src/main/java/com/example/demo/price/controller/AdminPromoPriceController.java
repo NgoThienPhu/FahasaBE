@@ -22,9 +22,9 @@ import com.example.demo.product.entity.Product;
 @RestController
 @RequestMapping("/api/admin/products/{productId}/promo-prices")
 public class AdminPromoPriceController {
-	
+
 	private ProductApplicationService productApplicationService;
-	
+
 	public AdminPromoPriceController(ProductApplicationService productApplicationService) {
 		this.productApplicationService = productApplicationService;
 	}
@@ -41,7 +41,7 @@ public class AdminPromoPriceController {
 		Page<PromoPriceResponseDTO> promoPricesDTO = promoPrices.map(PromoPriceResponseDTO::fromEntity);
 		PagedResponseDTO<PromoPriceResponseDTO> pagedResponseDTO = PagedResponseDTO
 				.convertPageToPagedResponseDTO(promoPricesDTO);
-		ApiResponseDTO<PagedResponseDTO<PromoPriceResponseDTO>> response = new ApiResponseDTO<PagedResponseDTO<PromoPriceResponseDTO>>(
+		var response = new ApiResponseDTO<PagedResponseDTO<PromoPriceResponseDTO>>(
 				"Lấy danh sách giá khuyến mại của sản phẩm thành công", "success", pagedResponseDTO);
 		return new ResponseEntity<ApiResponseDTO<PagedResponseDTO<PromoPriceResponseDTO>>>(response, HttpStatus.OK);
 	}
@@ -52,9 +52,9 @@ public class AdminPromoPriceController {
 			@RequestBody CreatePromoPriceRequestDTO dto) {
 		Product product = productApplicationService.findById(productId);
 		PromoPrice promoPrice = productApplicationService.createPromoPrice(product, dto);
-		ApiResponseDTO<PromoPrice> response = new ApiResponseDTO<>("Tạo giá khuyến mại của sản phẩm thành công",
-				"success", promoPrice);
+		var response = new ApiResponseDTO<PromoPrice>("Tạo giá khuyến mại của sản phẩm thành công", "success",
+				promoPrice);
 		return new ResponseEntity<ApiResponseDTO<PromoPrice>>(response, HttpStatus.OK);
 	}
-	
+
 }

@@ -1,5 +1,6 @@
 package com.example.demo.address.controller;
 
+
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -30,24 +31,22 @@ public class AddressController {
 	public ResponseEntity<?> findByIdAndUsername(@PathVariable String addressId,
 			@AuthenticationPrincipal UserDetails currentUser) {
 		Address address = addressService.findByIdAndUsername(addressId, currentUser.getUsername());
-		ApiResponseDTO<Address> response = new ApiResponseDTO<>("Lấy chi tiết địa chỉ người dùng thành công", "success",
-				address);
-		return new ResponseEntity<>(response, HttpStatus.OK);
+		var response = new ApiResponseDTO<Address>("Lấy chi tiết địa chỉ người dùng thành công", "success", address);
+		return new ResponseEntity<ApiResponseDTO<Address>>(response, HttpStatus.OK);
 	}
 
 	@GetMapping
 	public ResponseEntity<?> findAllByUsername(@AuthenticationPrincipal UserDetails currentUser) {
 		List<Address> addresses = addressService.findAllByUsername(currentUser.getUsername());
-		ApiResponseDTO<List<Address>> response = new ApiResponseDTO<List<Address>>(
-				"Lấy danh sách địa chỉ người dùng thành công", "success", addresses);
-		return new ResponseEntity<>(response, HttpStatus.OK);
+		var response = new ApiResponseDTO<List<Address>>("Lấy danh sách địa chỉ người dùng thành công", "success", addresses);
+		return new ResponseEntity<ApiResponseDTO<List<Address>>>(response, HttpStatus.OK);
 	}
 
 	@DeleteMapping("/{addressId}")
 	public ResponseEntity<?> deleteByIdAndUsername(@PathVariable String addressId,
 			@AuthenticationPrincipal UserDetails currentUser) {
 		addressService.deleteByIdAndUsername(addressId, addressId);
-		ApiResponseDTO<Void> response = new ApiResponseDTO<>("Xóa địa chỉ người dùng thành công", "success");
-		return new ResponseEntity<>(response, HttpStatus.OK);
+		var response = new ApiResponseDTO<Void>("Xóa địa chỉ người dùng thành công", "success");
+		return new ResponseEntity<ApiResponseDTO<Void>>(response, HttpStatus.OK);
 	}
 }

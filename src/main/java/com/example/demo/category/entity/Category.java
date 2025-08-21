@@ -29,7 +29,7 @@ import lombok.Setter;
 @Table(name = "category")
 public class Category extends BaseEntity {
 
-	@Column(name = "name", nullable = false, unique = true)
+	@Column(name = "name", nullable = false)
 	private String name;
 	
 	@ManyToOne
@@ -48,9 +48,22 @@ public class Category extends BaseEntity {
 			inverseJoinColumns = @JoinColumn(name = "attribute_id")
 	)
 	private List<Attribute> attributes = new ArrayList<>();
+	
+	@Column(name = "sort_order")
+	private Integer sortOrder = 1;
+	
+	@Column(name = "visible", nullable = false)
+	private Boolean visible = true;
 
 	public Category(String name) {
 		this.name = name;
 	}
+
+	public Category(String name, Category parent) {
+		this(name);
+		this.parent = parent;
+	}
+	
+	
 
 }
