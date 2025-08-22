@@ -111,14 +111,16 @@ public class CategoryServiceImpl implements CategoryService {
 
 	@Transactional
 	@Override
-	public Category update(UpdateCategoryNameRequestDTO body, String categoryId) {
+	public Category update(UpdateCategoryNameRequestDTO dto, String categoryId) {
 		Category category = get(categoryId);
 
 		if (category == null)
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 					String.format("Không tìm thấy loại sản phẩm với Id là: %s", categoryId));
 
-		category.setName(body.categoryName());
+		if(dto.categoryName() != null) category.setName(dto.categoryName());
+		if(dto.sortOrder() != null) category.setSortOrder(dto.sortOrder());
+		if(dto.visible() != null) category.setVisible(dto.visible());
 
 		return categoryRepository.save(category);
 	}

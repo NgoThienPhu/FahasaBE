@@ -34,7 +34,6 @@ public class AdminCategoryController {
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> createCategoryRequestDTO(@Valid @RequestBody CreateCategoryRequestDTO body,
 			BindingResult result) {
-
 		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result,
 				"Tạo mới loại sản phẩm thất bại!");
 		if (responseError != null)
