@@ -15,13 +15,19 @@ import org.springframework.web.server.ResponseStatusException;
 import com.example.demo.account.dto.CreateUserRequestDTO;
 import com.example.demo.account.entity.UserAccount;
 import com.example.demo.account.entity.base.Account;
+import com.example.demo.account.entity.base.Account.TokenType;
 import com.example.demo.account.service.UserAccountService;
 import com.example.demo.auth.dto.ChangePasswordRequestDTO;
 import com.example.demo.auth.dto.LoginRequestDTO;
 import com.example.demo.auth.dto.LoginResponseDTO;
+import com.example.demo.auth.dto.RefreshAccessTokenResponseDTO;
 import com.example.demo.auth.service.AuthenticationService;
+import com.example.demo.common.cookie.CookieUtil;
 import com.example.demo.common.service.JwtService;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -44,7 +50,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	}
 
 	@Override
-	public LoginResponseDTO login(LoginRequestDTO body) {
+	public LoginResponseDTO login(LoginRequestDTO body, HttpServletResponse response) {
 		try {
 			Authentication authentication = authenticationManager
 					.authenticate(new UsernamePasswordAuthenticationToken(body.username(), body.password()));
@@ -57,6 +63,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			Account account = userAccountService.findAccountByUsername(body.username());
 
 			String accessToken = jwtService.createToken(account.getUsername(), Account.TokenType.ACCESS);
+
+			String refreshToken = jwtService.createToken(account.getUsername(), Account.TokenType.REFRESH);
+
+			CookieUtil.setCookie(response, "refresh-token", refreshToken, 1 * 24 * 60 * 60, "/api/auth/refresh");
 
 			return new LoginResponseDTO(accessToken);
 
@@ -93,8 +103,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	}
 
 	@Override
-	public void logout() {
+	public void logout(HttpServletResponse response) {
 		try {
+			CookieUtil.deleteCookie(response, "refresh-token", "/api/auth/refresh");
 			SecurityContextHolder.clearContext();
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Đăng xuất thất bại vui lòng thử lại sau!");
@@ -126,9 +137,30 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	}
 
 	@Override
-	public void tokenRefresh() {
-		// TODO Auto-generated method stub
+	public RefreshAccessTokenResponseDTO refreshTokenAccess(HttpServletRequest request, HttpServletResponse response) {
+		String refreshToken = getRefreshToken(request);
+		if (refreshToken == null)
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+					"Refresh token không tồn tại hoặc đã hết hạn, vui lòng thử lại sau");
+		if (jwtService.isTokenExpired(refreshToken)) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+					"Refresh token không hợp lệ hoặc đã hết hạn, vui lòng thử lại sau");
+		}else {
+			String username = jwtService.extractUsername(refreshToken);
+			String newAccessToken = jwtService.createToken(username, TokenType.ACCESS);
+			return new RefreshAccessTokenResponseDTO(newAccessToken);
+		}
+	}
 
+	private String getRefreshToken(HttpServletRequest request) {
+		if (request.getCookies() != null) {
+			for (Cookie cookie : request.getCookies()) {
+				if ("refresh-token".equals(cookie.getName())) {
+					return cookie.getValue();
+				}
+			}
+		}
+		return null;
 	}
 
 }

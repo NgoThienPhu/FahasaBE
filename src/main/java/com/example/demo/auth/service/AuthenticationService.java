@@ -9,20 +9,24 @@ import com.example.demo.account.entity.UserAccount;
 import com.example.demo.auth.dto.ChangePasswordRequestDTO;
 import com.example.demo.auth.dto.LoginRequestDTO;
 import com.example.demo.auth.dto.LoginResponseDTO;
+import com.example.demo.auth.dto.RefreshAccessTokenResponseDTO;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 public interface AuthenticationService {
 
-	LoginResponseDTO login(LoginRequestDTO body);
+	LoginResponseDTO login(LoginRequestDTO body, HttpServletResponse response);
 
 	UserAccount userRegister(CreateUserRequestDTO body);
 
-	void logout();
+	void logout(HttpServletResponse response);
 
 	UserAccount userForgotPassword();
 
 	void changePassword(ChangePasswordRequestDTO body, UserDetails currentUser);
 
-	void tokenRefresh();
+	RefreshAccessTokenResponseDTO refreshTokenAccess(HttpServletRequest request, HttpServletResponse response);
 
 	static String generate6DigitCode() {
 		Random random = new Random();

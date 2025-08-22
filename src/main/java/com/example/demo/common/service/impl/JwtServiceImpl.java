@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.account.entity.base.Account;
+import com.example.demo.account.entity.base.Account.TokenType;
 import com.example.demo.common.service.JwtService;
 
 import io.jsonwebtoken.Claims;
@@ -29,7 +30,7 @@ public class JwtServiceImpl implements JwtService {
 	public String createToken(String username, Account.TokenType tokenType) {
 		Map<String, String> claims = new HashMap<String, String>();
 		claims.put("tokenType", tokenType.toString());
-		return generateToken(claims, username);
+		return generateToken(claims, username, tokenType);
 	}
 
 	@Override
@@ -62,14 +63,19 @@ public class JwtServiceImpl implements JwtService {
 		return claimsResolver.apply(claims);
 	}
 	
-	private String generateToken(Map<String, String> claims, String username) {
-		return Jwts.builder()
-				.setClaims(claims)
-				.setSubject(username)
-				.setIssuedAt(new Date(System.currentTimeMillis()))
-				.setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))
-				.signWith(getSigningKey(), SignatureAlgorithm.HS512)
-				.compact();
+	private String generateToken(Map<String, String> claims, String username, TokenType tokenType) {
+	    long expiration = (tokenType == TokenType.ACCESS) 
+	            ? ACCESS_TOKEN_EXPIRATION 
+	            : REFRESH_TOKEN_EXPIRATION;
+
+	    return Jwts.builder()
+	            .setClaims(claims)
+	            .setSubject(username)
+	            .setIssuedAt(new Date(System.currentTimeMillis()))
+	            .setExpiration(new Date(System.currentTimeMillis() + expiration))
+	            .signWith(getSigningKey(), SignatureAlgorithm.HS512)
+	            .compact();
 	}
+
 
 }

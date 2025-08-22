@@ -5,4 +5,8 @@ public class EndPoint {
 			"/api/auth/login",
 			"/api/auth/register",
 	};
+	
+	public static String[] PUBLIC_ENDPOINT_POST = {
+			"/api/auth/refresh",
+	};
 }

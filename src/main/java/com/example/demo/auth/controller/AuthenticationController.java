@@ -18,11 +18,14 @@ import com.example.demo.account.entity.base.Account;
 import com.example.demo.auth.dto.ChangePasswordRequestDTO;
 import com.example.demo.auth.dto.LoginRequestDTO;
 import com.example.demo.auth.dto.LoginResponseDTO;
+import com.example.demo.auth.dto.RefreshAccessTokenResponseDTO;
 import com.example.demo.auth.service.AuthenticationService;
 import com.example.demo.auth.service.impl.AuthenticationServiceImpl;
 import com.example.demo.common.base.dto.ApiResponseDTO;
 import com.example.demo.common.validation.BindingResultUtil;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
 @RestController
@@ -36,14 +39,21 @@ public class AuthenticationController {
 	}
 
 	@GetMapping("/login")
-	public ResponseEntity<?> userLogin(@Valid @RequestBody LoginRequestDTO body, BindingResult result) {
+	public ResponseEntity<?> userLogin(@Valid @RequestBody LoginRequestDTO body, BindingResult result, HttpServletResponse response) {
 		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Đăng nhập thất bại!");
 		if (responseError != null)
 			return responseError;
 
-		LoginResponseDTO account = authenticationService.login(body);
-		var response = new ApiResponseDTO<LoginResponseDTO>("Đăng nhập thành công!", "success", account);
-		return new ResponseEntity<ApiResponseDTO<LoginResponseDTO>>(response, HttpStatus.OK);
+		LoginResponseDTO account = authenticationService.login(body, response);
+		var myResponse = new ApiResponseDTO<LoginResponseDTO>("Đăng nhập thành công!", "success", account);
+		return new ResponseEntity<ApiResponseDTO<LoginResponseDTO>>(myResponse, HttpStatus.OK);
+	}
+	
+	@PostMapping("/logout")
+	public ResponseEntity<?> userLogout(HttpServletResponse response) {
+		authenticationService.logout(response);
+		var myResponse = new ApiResponseDTO<Void>("Đăng xuất thành công!", "success");
+		return new ResponseEntity<ApiResponseDTO<Void>>(myResponse, HttpStatus.OK);
 	}
 
 	@PostMapping("/register")
@@ -67,6 +77,13 @@ public class AuthenticationController {
 		authenticationService.changePassword(body, currentUser);
 		var response = new ApiResponseDTO<Void>("Đổi mật khẩu thành công", "success");
 		return new ResponseEntity<ApiResponseDTO<Void>>(response, HttpStatus.OK);
+	}
+	
+	@PostMapping("/refresh")
+	public ResponseEntity<?> refreshAccessToken(HttpServletRequest request, HttpServletResponse response) {
+		RefreshAccessTokenResponseDTO newAccessToken = authenticationService.refreshTokenAccess(request, response);
+		var myResponse = new ApiResponseDTO<RefreshAccessTokenResponseDTO>("Làm mới Access token thành công", "success", newAccessToken);
+		return new ResponseEntity<ApiResponseDTO<RefreshAccessTokenResponseDTO>>(myResponse, HttpStatus.OK);
 	}
 
 }

@@ -75,6 +75,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			if (antPathMatcher.match(endpoint, requestURI))
 				return true;
 		}
+		
+		for (String endpoint : EndPoint.PUBLIC_ENDPOINT_POST) {
+			if (antPathMatcher.match(endpoint, requestURI))
+				return true;
+		}
 
 		return false;
 	}
@@ -107,7 +112,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			filterChain.doFilter(request, response);
 		} else {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-					"Mã JWT không hợp lệ hoặc đã hết hạn, vui lòng thử lại sau");
+					"Access token không hợp lệ hoặc đã hết hạn, vui lòng thử lại sau");
 		}
 
 	}
