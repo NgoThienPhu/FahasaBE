@@ -39,7 +39,7 @@ public class AdminAttributeController {
 			return responseError;
 
 		Attribute attribute = attributeApplicationService.create(body);
-		var response = new ApiResponseDTO<Attribute>("Tạo thuộc tính thành công", "success", attribute);
+		var response = new ApiResponseDTO<Attribute>("Tạo thuộc tính thành công", true, attribute);
 		return new ResponseEntity<ApiResponseDTO<Attribute>>(response, HttpStatus.CREATED);
 	}
 
@@ -47,7 +47,7 @@ public class AdminAttributeController {
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> deleteById(@PathVariable String attributeId) {
 		attributeApplicationService.deleteById(attributeId);
-		var response = new ApiResponseDTO<Void>("Xóa thuộc tính thành công", "success");
+		var response = new ApiResponseDTO<Void>("Xóa thuộc tính thành công", true);
 		return new ResponseEntity<ApiResponseDTO<Void>>(response, HttpStatus.OK);
 	}
 
@@ -62,7 +62,7 @@ public class AdminAttributeController {
 			return responseError;
 
 		Attribute attribute = attributeApplicationService.updateById(attributeId, body.attributeName());
-		var response = new ApiResponseDTO<Attribute>("Cập nhật thuộc tính thành công", "success", attribute);
+		var response = new ApiResponseDTO<Attribute>("Cập nhật thuộc tính thành công", true, attribute);
 		return new ResponseEntity<ApiResponseDTO<Attribute>>(response, HttpStatus.OK);
 	}
 }

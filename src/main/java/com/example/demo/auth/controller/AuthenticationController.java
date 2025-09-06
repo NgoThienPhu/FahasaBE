@@ -5,7 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,21 +37,21 @@ public class AuthenticationController {
 		this.authenticationService = authenticationService;
 	}
 
-	@GetMapping("/login")
+	@PostMapping("/login")
 	public ResponseEntity<?> userLogin(@Valid @RequestBody LoginRequestDTO body, BindingResult result, HttpServletResponse response) {
 		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Đăng nhập thất bại!");
 		if (responseError != null)
 			return responseError;
 
 		LoginResponseDTO account = authenticationService.login(body, response);
-		var myResponse = new ApiResponseDTO<LoginResponseDTO>("Đăng nhập thành công!", "success", account);
+		var myResponse = new ApiResponseDTO<LoginResponseDTO>("Đăng nhập thành công!", true, account);
 		return new ResponseEntity<ApiResponseDTO<LoginResponseDTO>>(myResponse, HttpStatus.OK);
 	}
 	
 	@PostMapping("/logout")
 	public ResponseEntity<?> userLogout(HttpServletResponse response) {
 		authenticationService.logout(response);
-		var myResponse = new ApiResponseDTO<Void>("Đăng xuất thành công!", "success");
+		var myResponse = new ApiResponseDTO<Void>("Đăng xuất thành công!", true);
 		return new ResponseEntity<ApiResponseDTO<Void>>(myResponse, HttpStatus.OK);
 	}
 
@@ -64,7 +63,7 @@ public class AuthenticationController {
 			return responseError;
 
 		UserAccount account = authenticationService.userRegister(body);
-		var response = new ApiResponseDTO<Account>("Đăng kí thành công", "success", account);
+		var response = new ApiResponseDTO<Account>("Đăng kí thành công", true, account);
 		return new ResponseEntity<ApiResponseDTO<Account>>(response, HttpStatus.OK);
 	}
 
@@ -75,14 +74,14 @@ public class AuthenticationController {
 		if (responseError != null)
 			return responseError;
 		authenticationService.changePassword(body, currentUser);
-		var response = new ApiResponseDTO<Void>("Đổi mật khẩu thành công", "success");
+		var response = new ApiResponseDTO<Void>("Đổi mật khẩu thành công", true);
 		return new ResponseEntity<ApiResponseDTO<Void>>(response, HttpStatus.OK);
 	}
 	
 	@PostMapping("/refresh")
 	public ResponseEntity<?> refreshAccessToken(HttpServletRequest request, HttpServletResponse response) {
 		RefreshAccessTokenResponseDTO newAccessToken = authenticationService.refreshTokenAccess(request, response);
-		var myResponse = new ApiResponseDTO<RefreshAccessTokenResponseDTO>("Làm mới Access token thành công", "success", newAccessToken);
+		var myResponse = new ApiResponseDTO<RefreshAccessTokenResponseDTO>("Làm mới Access token thành công", true, newAccessToken);
 		return new ResponseEntity<ApiResponseDTO<RefreshAccessTokenResponseDTO>>(myResponse, HttpStatus.OK);
 	}
 

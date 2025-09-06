@@ -17,7 +17,7 @@ public class BindingResultUtil {
             result.getFieldErrors().forEach(error -> {
                 errors.put(error.getField(), error.getDefaultMessage());
             });
-            ApiResponseDTO<Map<String, String>> response = new ApiResponseDTO<>(message, "error", errors);
+            ApiResponseDTO<Map<String, String>> response = new ApiResponseDTO<>(message, false, errors);
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
         return null;

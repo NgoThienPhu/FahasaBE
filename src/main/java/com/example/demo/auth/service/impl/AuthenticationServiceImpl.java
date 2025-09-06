@@ -66,7 +66,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 			String refreshToken = jwtService.createToken(account.getUsername(), Account.TokenType.REFRESH);
 
-			CookieUtil.setCookie(response, "refresh-token", refreshToken, 1 * 24 * 60 * 60, "/api/auth/refresh");
+			CookieUtil.setCookie(response, "refreshToken", refreshToken, 7 * 24 * 60 * 60, "/api/auth");
 
 			return new LoginResponseDTO(accessToken);
 

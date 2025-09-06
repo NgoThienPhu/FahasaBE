@@ -153,9 +153,9 @@ public class UserAccountServiceImpl extends AccountServiceImpl implements UserAc
 	public UserAccount lockUserAccount(String userAccountId) {
 		UserAccount user = userAccountRepository.findById(userAccountId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Người dùng không tồn tại"));
-		if (user.getIsActive() == false)
+		if (user.getIsActived() == false)
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tài khoản này đã bị khóa, vui lòng thử lại sau");
-		user.setIsActive(false);
+		user.deactivate();
 		return userAccountRepository.save(user);
 	}
 
@@ -164,9 +164,9 @@ public class UserAccountServiceImpl extends AccountServiceImpl implements UserAc
 	public UserAccount unlockUserAccount(String userAccountId) {
 		UserAccount user = userAccountRepository.findById(userAccountId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Người dùng không tồn tại"));
-		if (user.getIsActive() == true)
+		if (user.getIsActived() == true)
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tài khoản này đã được mở khóa, vui lòng thử lại sau");
-		user.setIsActive(true);
+		user.activate();
 		return userAccountRepository.save(user);
 	}
 	

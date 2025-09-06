@@ -44,14 +44,10 @@ public class UserAccount extends Account {
 	
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "userAccount", orphanRemoval = true)
 	private List<Address> addresses = new ArrayList<>();
-	
-	@Column(name = "is_active", nullable = false)
-	protected Boolean isActive = true;
 
 	public UserAccount(String username, String password, String fullName) {
 		super(username, password);
 		this.fullName = fullName;
-		this.isActive = true;
 	}
 	
 	public enum Gender {

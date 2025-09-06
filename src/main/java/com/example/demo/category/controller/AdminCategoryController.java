@@ -40,7 +40,7 @@ public class AdminCategoryController {
 			return responseError;
 
 		Category myCategory = categoryService.create(body);
-		var response = new ApiResponseDTO<Category>("Tạo loại sản phẩm thành công", "success", myCategory);
+		var response = new ApiResponseDTO<Category>("Tạo loại sản phẩm thành công", true, myCategory);
 		return new ResponseEntity<ApiResponseDTO<Category>>(response, HttpStatus.OK);
 	}
 
@@ -53,7 +53,7 @@ public class AdminCategoryController {
 		if (responseError != null)
 			return responseError;
 		Category category = categoryService.update(updateCategoryNameRequestDTO, categoryId);
-		var response = new ApiResponseDTO<Category>("Cập nhật loại sản phẩm thành công", "success", category);
+		var response = new ApiResponseDTO<Category>("Cập nhật loại sản phẩm thành công", true, category);
 		return new ResponseEntity<ApiResponseDTO<Category>>(response, HttpStatus.OK);
 	}
 
@@ -62,7 +62,7 @@ public class AdminCategoryController {
 	public ResponseEntity<?> deleteCategory(@PathVariable String categoryId) {
 		categoryService.delete(categoryId);
 		var response = new ApiResponseDTO<Void>(String.format("Đã xóa loại sản phẩm với id là: %s", categoryId),
-				"success");
+				true);
 		return new ResponseEntity<ApiResponseDTO<Void>>(response, HttpStatus.OK);
 	}
 

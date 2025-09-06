@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ApiResponseDTO<T>(
 	
-	String status,
+	Boolean success,
 	
     String message,
     
@@ -19,15 +19,15 @@ public record ApiResponseDTO<T>(
     
     LocalDateTime timestamp
 ) {
-	public ApiResponseDTO(String message, String status, T data) {
-        this(status, message, data, null, LocalDateTime.now());
+	public ApiResponseDTO(String message, Boolean success, T data) {
+        this(success, message, data, null, LocalDateTime.now());
     }
 	
-	public ApiResponseDTO(String message, String status, Map<String, String> errors) {
-        this(status, message, null, errors, LocalDateTime.now());
+	public ApiResponseDTO(String message, Boolean success, Map<String, String> errors) {
+        this(success, message, null, errors, LocalDateTime.now());
     }
 
-    public ApiResponseDTO(String message, String status) {
-        this(status, message, null, null, LocalDateTime.now());
+    public ApiResponseDTO(String message, Boolean success) {
+        this(success, message, null, null, LocalDateTime.now());
     }
 }

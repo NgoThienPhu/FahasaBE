@@ -32,7 +32,7 @@ public class AdminProductImageController {
 	public ResponseEntity<?> updatePrimaryImage(@PathVariable String productId,
 			@RequestPart(required = true) MultipartFile image) throws Exception {
 		ProductResponseDTO product = productApplicationService.updatePrimaryImage(productId, image);
-		var response = new ApiResponseDTO<ProductResponseDTO>("Cập nhật ảnh chính của sản phẩm thành công", "success",
+		var response = new ApiResponseDTO<ProductResponseDTO>("Cập nhật ảnh chính của sản phẩm thành công", true,
 				product);
 		return new ResponseEntity<ApiResponseDTO<ProductResponseDTO>>(response, HttpStatus.OK);
 	}
@@ -43,7 +43,7 @@ public class AdminProductImageController {
 			@RequestPart(required = true) List<MultipartFile> images) {
 		ProductResponseDTO product = productApplicationService.updateSecondImage(productId, images);
 		var response = new ApiResponseDTO<ProductResponseDTO>("Cập nhật danh sách ảnh của sản phẩm thành công",
-				"success", product);
+				true, product);
 		return new ResponseEntity<ApiResponseDTO<ProductResponseDTO>>(response, HttpStatus.OK);
 	}
 
@@ -52,7 +52,7 @@ public class AdminProductImageController {
 	public ResponseEntity<?> deleteImages(@PathVariable String productId,
 			@RequestBody(required = true) List<String> imagesId) {
 		ProductResponseDTO product = productApplicationService.deleteSecondImage(productId, imagesId);
-		var response = new ApiResponseDTO<ProductResponseDTO>("Xóa danh sách ảnh của sản phẩm thành công", "success",
+		var response = new ApiResponseDTO<ProductResponseDTO>("Xóa danh sách ảnh của sản phẩm thành công", true,
 				product);
 		return new ResponseEntity<ApiResponseDTO<ProductResponseDTO>>(response, HttpStatus.OK);
 	}

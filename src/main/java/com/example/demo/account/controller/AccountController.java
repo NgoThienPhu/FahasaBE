@@ -34,7 +34,7 @@ public class AccountController {
 		if (account == null)
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND,
 					String.format("Người dùng không tồn tại", currentUser.getUsername()));
-		var response = new ApiResponseDTO<Account>("Lấy thông tin tài khoản thành công", "success", account);
+		var response = new ApiResponseDTO<Account>("Lấy thông tin tài khoản thành công", true, account);
 		return new ResponseEntity<ApiResponseDTO<Account>>(response, HttpStatus.OK);
 	}
 
@@ -42,7 +42,7 @@ public class AccountController {
 	public ResponseEntity<?> changeInfo(@RequestBody ChangeUserInfoRequestDTO dto,
 			@AuthenticationPrincipal UserDetails currentUser) {
 		Account account = userAccountService.changeUserAccountInfo(dto, currentUser.getUsername());
-		var response = new ApiResponseDTO<Account>("Cập nhật thông tin tài khoản thành công", "success", account);
+		var response = new ApiResponseDTO<Account>("Cập nhật thông tin tài khoản thành công", true, account);
 		return new ResponseEntity<ApiResponseDTO<Account>>(response, HttpStatus.OK);
 	}
 

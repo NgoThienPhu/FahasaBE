@@ -30,14 +30,14 @@ public class AttributeController {
 			@RequestParam(required = true, defaultValue = "20") int size) {
 		var attributes = attributeApplicationService.findAll(attributeName, sortBy, orderBy, page, size);
 		var pagedResponseDTO = PagedResponseDTO.convertPageToPagedResponseDTO(attributes);
-		var response = new ApiResponseDTO<>("Tìm thuộc tính thành công", "success", pagedResponseDTO);
+		var response = new ApiResponseDTO<>("Tìm thuộc tính thành công", true, pagedResponseDTO);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
 	@GetMapping("/{attributeId}")
 	public ResponseEntity<?> findById(@PathVariable String attributeId) {
 		var attribute = attributeApplicationService.findById(attributeId);
-		var response = new ApiResponseDTO<>("Tìm thuộc tính thành công", "success", attribute);
+		var response = new ApiResponseDTO<>("Tìm thuộc tính thành công", true, attribute);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 

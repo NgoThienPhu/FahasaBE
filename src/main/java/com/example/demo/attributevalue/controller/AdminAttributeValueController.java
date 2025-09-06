@@ -27,7 +27,7 @@ public class AdminAttributeValueController {
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> create(@PathVariable String attributeId, @RequestParam String attributeValue) {
 		AttributeValue attributev = attributeApplicationService.createAttributeValue(attributeId, attributeValue);
-		var response = new ApiResponseDTO<AttributeValue>("Thêm giá trị thuộc tính thành công", "success", attributev);
+		var response = new ApiResponseDTO<AttributeValue>("Thêm giá trị thuộc tính thành công", true, attributev);
 		return new ResponseEntity<ApiResponseDTO<AttributeValue>>(response, HttpStatus.OK);
 	}
 
@@ -35,7 +35,7 @@ public class AdminAttributeValueController {
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> delete(@PathVariable String attributeId, @PathVariable String attributeValueId) {
 		attributeApplicationService.deleteAttributeValueById(attributeId, attributeValueId);
-		var response = new ApiResponseDTO<AttributeValue>("Xóa giá trị thuộc tính thành công", "success");
+		var response = new ApiResponseDTO<AttributeValue>("Xóa giá trị thuộc tính thành công", true);
 		return new ResponseEntity<ApiResponseDTO<AttributeValue>>(response, HttpStatus.OK);
 	}
 

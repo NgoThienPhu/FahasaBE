@@ -29,7 +29,7 @@ public class AttributeValueController {
 			@RequestParam(defaultValue = "asc") String orderBy) {
 		List<AttributeValue> attributeValues = attributeApplicationService.findAllAttributeValue(attributeId, orderBy);
 		var response = new ApiResponseDTO<List<AttributeValue>>("Lấy danh sách giá trị thuộc tính thành công",
-				"success", attributeValues);
+				true, attributeValues);
 		return new ResponseEntity<ApiResponseDTO<List<AttributeValue>>>(response, HttpStatus.OK);
 	}
 
@@ -37,7 +37,7 @@ public class AttributeValueController {
 	public ResponseEntity<?> findById(@PathVariable String attributeId, @PathVariable String attributeValueId) {
 		AttributeValue attributeValue = attributeApplicationService.findAttributeValueByAttributeById(attributeId,
 				attributeValueId);
-		var response = new ApiResponseDTO<AttributeValue>("Lấy giá trị thuộc tính thành công", "success",
+		var response = new ApiResponseDTO<AttributeValue>("Lấy giá trị thuộc tính thành công", true,
 				attributeValue);
 		return new ResponseEntity<ApiResponseDTO<AttributeValue>>(response, HttpStatus.OK);
 	}

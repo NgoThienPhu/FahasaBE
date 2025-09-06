@@ -39,7 +39,7 @@ public class AdminPurchasePriceController {
 		PagedResponseDTO<PurchasePrice> pagedResponseDTO = PagedResponseDTO
 				.convertPageToPagedResponseDTO(purchasePrices);
 		var response = new ApiResponseDTO<PagedResponseDTO<PurchasePrice>>(
-				"Lấy danh sách giá nhập của sản phẩm thành công", "success", pagedResponseDTO);
+				"Lấy danh sách giá nhập của sản phẩm thành công", true, pagedResponseDTO);
 		return new ResponseEntity<ApiResponseDTO<PagedResponseDTO<PurchasePrice>>>(response, HttpStatus.OK);
 	}
 
@@ -48,7 +48,7 @@ public class AdminPurchasePriceController {
 	public ResponseEntity<?> createPurchasePrice(@PathVariable(required = true) String productId,
 			@RequestParam(required = true) BigDecimal newPurchasePrice) {
 		PurchasePrice purchasePrice = productApplicationService.createPurchasePrice(productId, newPurchasePrice);
-		var response = new ApiResponseDTO<>("Tạo giá nhập của sản phẩm thành công", "success", purchasePrice);
+		var response = new ApiResponseDTO<>("Tạo giá nhập của sản phẩm thành công", true, purchasePrice);
 		return new ResponseEntity<ApiResponseDTO<PurchasePrice>>(response, HttpStatus.OK);
 	}
 

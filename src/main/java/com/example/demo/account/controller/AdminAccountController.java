@@ -43,7 +43,7 @@ public class AdminAccountController {
 		Page<UserAccount> accounts = userAccountService.findUserAccounts(orderBy, sortBy, page, size);
 		PagedResponseDTO<UserAccount> pagedResponseDTO = PagedResponseDTO.convertPageToPagedResponseDTO(accounts);
 		var response = new ApiResponseDTO<PagedResponseDTO<UserAccount>>("Lấy danh sách tài khoản thành công",
-				"success", pagedResponseDTO);
+				true, pagedResponseDTO);
 		return new ResponseEntity<ApiResponseDTO<PagedResponseDTO<UserAccount>>>(response, HttpStatus.OK);
 	}
 
@@ -51,7 +51,7 @@ public class AdminAccountController {
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> getAccountById(@PathVariable("id") String accountId) {
 		Account account = userAccountService.findAccountById(accountId);
-		var response = new ApiResponseDTO<Account>("Lấy thông tin tài khoản thành công", "success", account);
+		var response = new ApiResponseDTO<Account>("Lấy thông tin tài khoản thành công", true, account);
 		return new ResponseEntity<ApiResponseDTO<Account>>(response, HttpStatus.OK);
 	}
 
@@ -62,7 +62,7 @@ public class AdminAccountController {
 		if (responseError != null)
 			return responseError;
 		UserAccount account = userAccountService.adminCreateUserAccount(dto);
-		var response = new ApiResponseDTO<UserAccount>("Đăng kí thành công", "success", account);
+		var response = new ApiResponseDTO<UserAccount>("Đăng kí thành công", true, account);
 		return new ResponseEntity<ApiResponseDTO<UserAccount>>(response, HttpStatus.OK);
 	}
 
@@ -74,7 +74,7 @@ public class AdminAccountController {
 		if (responseError != null)
 			return responseError;
 		UserAccount account = userAccountService.adminChangeUserAccountInfo(dto, userAccountId);
-		var response = new ApiResponseDTO<UserAccount>("Cập nhật thông tin thành công", "success", account);
+		var response = new ApiResponseDTO<UserAccount>("Cập nhật thông tin thành công", true, account);
 		return new ResponseEntity<ApiResponseDTO<UserAccount>>(response, HttpStatus.OK);
 	}
 
@@ -82,7 +82,7 @@ public class AdminAccountController {
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> lockUserAccount(@PathVariable("id") String userAccountId) {
 		UserAccount account = userAccountService.lockUserAccount(userAccountId);
-		var response = new ApiResponseDTO<UserAccount>("Đã khóa tài khoản thành công", "success", account);
+		var response = new ApiResponseDTO<UserAccount>("Đã khóa tài khoản thành công", true, account);
 		return new ResponseEntity<ApiResponseDTO<UserAccount>>(response, HttpStatus.OK);
 	}
 
@@ -90,7 +90,7 @@ public class AdminAccountController {
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> unlockUserAccount(@PathVariable("id") String userAccountId) {
 		var account = userAccountService.unlockUserAccount(userAccountId);
-		var response = new ApiResponseDTO<Account>("Đã mở khóa tài khoản thành công", "success", account);
+		var response = new ApiResponseDTO<Account>("Đã mở khóa tài khoản thành công", true, account);
 		return new ResponseEntity<ApiResponseDTO<Account>>(response, HttpStatus.OK);
 	}
 
@@ -98,7 +98,7 @@ public class AdminAccountController {
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> resetPassword(@PathVariable("id") String userAccountId) {
 		userAccountService.resetPassword(userAccountId);
-		var response = new ApiResponseDTO<Account>("Làm mới mật khẩu của tài khoản thành công", "success");
+		var response = new ApiResponseDTO<Account>("Làm mới mật khẩu của tài khoản thành công", true);
 		return new ResponseEntity<ApiResponseDTO<Account>>(response, HttpStatus.OK);
 	}
 

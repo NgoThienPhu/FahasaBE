@@ -37,7 +37,7 @@ public class AdminSellPriceController {
 		Page<SellPrice> sellPrices = productApplicationService.findAllSellPrice(productId, sortBy, orderBy, page, size);
 		PagedResponseDTO<SellPrice> pagedResponseDTO = PagedResponseDTO.convertPageToPagedResponseDTO(sellPrices);
 		var response = new ApiResponseDTO<PagedResponseDTO<SellPrice>>("Lấy danh sách giá bán của sản phẩm thành công",
-				"success", pagedResponseDTO);
+				true, pagedResponseDTO);
 		return new ResponseEntity<ApiResponseDTO<PagedResponseDTO<SellPrice>>>(response, HttpStatus.OK);
 	}
 
@@ -46,7 +46,7 @@ public class AdminSellPriceController {
 	public ResponseEntity<?> createSellPrice(@PathVariable(required = true) String productId,
 			@RequestParam(required = true) BigDecimal newSellPrice) {
 		SellPrice sellPrice = productApplicationService.createSellPrice(productId, newSellPrice);
-		var response = new ApiResponseDTO<>("Tạo giá bán của sản phẩm thành công", "success", sellPrice);
+		var response = new ApiResponseDTO<>("Tạo giá bán của sản phẩm thành công", true, sellPrice);
 		return new ResponseEntity<ApiResponseDTO<SellPrice>>(response, HttpStatus.OK);
 	}
 

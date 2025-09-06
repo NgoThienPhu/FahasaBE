@@ -37,7 +37,7 @@ public class CategoryController {
 		PagedResponseDTO<CategoryResponseDTO> pagedResponseDTO = PagedResponseDTO
 				.convertPageToPagedResponseDTO(categoriesDTO);
 		var response = new ApiResponseDTO<PagedResponseDTO<CategoryResponseDTO>>(
-				"Lấy danh sách loại sản phẩm thành công", "success", pagedResponseDTO);
+				"Lấy danh sách loại sản phẩm thành công", true, pagedResponseDTO);
 		return new ResponseEntity<ApiResponseDTO<PagedResponseDTO<CategoryResponseDTO>>>(response, HttpStatus.OK);
 	}
 
@@ -46,7 +46,7 @@ public class CategoryController {
 		List<Category> categories = categoryService.getLeafCategories();
 		List<CategoryResponseDTO> categoriesDTO = categories.stream().map(CategoryResponseDTO::fromEntity).toList();
 		var response = new ApiResponseDTO<List<CategoryResponseDTO>>(
-				"Lấy danh sách loại sản phẩm có thể gán cho sản phẩm thành công", "success", categoriesDTO);
+				"Lấy danh sách loại sản phẩm có thể gán cho sản phẩm thành công", true, categoriesDTO);
 		return new ResponseEntity<ApiResponseDTO<List<CategoryResponseDTO>>>(response, HttpStatus.OK);
 	}
 
@@ -54,7 +54,7 @@ public class CategoryController {
 	public ResponseEntity<?> getTree() {
 		Category root = categoryService.getTree();
 		CategoryTreeResponseDTO categoryTreeResponseDTO = CategoryTreeResponseDTO.fromEntity(root);
-		var response = new ApiResponseDTO<CategoryTreeResponseDTO>("Lấy menu thành công", "success",
+		var response = new ApiResponseDTO<CategoryTreeResponseDTO>("Lấy menu thành công", true,
 				categoryTreeResponseDTO);
 		return new ResponseEntity<ApiResponseDTO<CategoryTreeResponseDTO>>(response, HttpStatus.OK);
 	}
@@ -63,7 +63,7 @@ public class CategoryController {
 	public ResponseEntity<?> get(@PathVariable String categoryId) {
 		Category category = categoryService.get(categoryId);
 		CategoryResponseDTO categoryDTO = CategoryResponseDTO.fromEntity(category);
-		var response = new ApiResponseDTO<CategoryResponseDTO>("Tìm loại sản phẩm thành công", "success", categoryDTO);
+		var response = new ApiResponseDTO<CategoryResponseDTO>("Tìm loại sản phẩm thành công", true, categoryDTO);
 		return new ResponseEntity<ApiResponseDTO<CategoryResponseDTO>>(response, HttpStatus.OK);
 	}
 
@@ -76,7 +76,7 @@ public class CategoryController {
 		PagedResponseDTO<CategoryResponseDTO> pagedResponseDTO = PagedResponseDTO
 				.convertPageToPagedResponseDTO(categoriesDTO);
 		var response = new ApiResponseDTO<PagedResponseDTO<CategoryResponseDTO>>(
-				"Lấy danh sách loại sản phẩm con thành công", "success", pagedResponseDTO);
+				"Lấy danh sách loại sản phẩm con thành công", true, pagedResponseDTO);
 		return new ResponseEntity<ApiResponseDTO<PagedResponseDTO<CategoryResponseDTO>>>(response, HttpStatus.OK);
 	}
 }

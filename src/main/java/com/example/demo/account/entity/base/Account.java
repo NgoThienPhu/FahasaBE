@@ -1,5 +1,7 @@
 package com.example.demo.account.entity.base;
 
+import java.time.LocalDateTime;
+
 import com.example.demo.common.base.entity.BaseEntity;
 import com.example.demo.common.base.entity.Email;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -36,6 +38,18 @@ public abstract class Account extends BaseEntity {
 	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "email")
 	protected Email email;
+	
+	@Column(name = "is_active", nullable = false)
+	protected Boolean isActived = true;
+	
+	@Column(name = "is_delete", nullable = false)
+	protected Boolean isDeleted = false;
+	
+	@Column(name = "activated_at", nullable = true)
+	protected LocalDateTime activatedAt;
+
+    @Column(name = "deleted_at", nullable = true)
+    protected LocalDateTime deletedAt;
 
 	public Account(String username, String password) {
 		this.username = username;
@@ -49,5 +63,24 @@ public abstract class Account extends BaseEntity {
 	public enum TokenType {
 		REFRESH, ACCESS
 	}
+	
+	public void activate() {
+        this.isActived = true;
+        this.activatedAt = LocalDateTime.now();
+    }
+
+    public void deactivate() {
+        this.isActived = false;
+    }
+
+    public void softDelete() {
+        this.isDeleted = true;
+        this.deletedAt = LocalDateTime.now();
+    }
+
+    public void restore() {
+        this.isDeleted = false;
+        this.deletedAt = null;
+    }
 
 }

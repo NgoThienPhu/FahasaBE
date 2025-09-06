@@ -32,7 +32,7 @@ public class ProductController {
 			@RequestParam(required = true, defaultValue = "20") int size) {
 		Page<Product> products = productService.findAll(orderBy, sortBy, page, size);
 		PagedResponseDTO<Product> pagedResponseDTO = PagedResponseDTO.convertPageToPagedResponseDTO(products);
-		var response = new ApiResponseDTO<PagedResponseDTO<Product>>("Tìm sản phẩm thành công", "success",
+		var response = new ApiResponseDTO<PagedResponseDTO<Product>>("Tìm sản phẩm thành công", true,
 				pagedResponseDTO);
 		return new ResponseEntity<ApiResponseDTO<PagedResponseDTO<Product>>>(response, HttpStatus.OK);
 	}
@@ -43,7 +43,7 @@ public class ProductController {
 		if (product == null)
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND,
 					String.format("Không tìm thấy sản phẩm với id là: %s", productId));
-		var response = new ApiResponseDTO<>("Tìm sản phẩm thành công", "success", product);
+		var response = new ApiResponseDTO<>("Tìm sản phẩm thành công", true, product);
 		return new ResponseEntity<ApiResponseDTO<Product>>(response, HttpStatus.OK);
 	}
 

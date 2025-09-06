@@ -31,14 +31,14 @@ public class AddressController {
 	public ResponseEntity<?> findByIdAndUsername(@PathVariable String addressId,
 			@AuthenticationPrincipal UserDetails currentUser) {
 		Address address = addressService.findByIdAndUsername(addressId, currentUser.getUsername());
-		var response = new ApiResponseDTO<Address>("Lấy chi tiết địa chỉ người dùng thành công", "success", address);
+		var response = new ApiResponseDTO<Address>("Lấy chi tiết địa chỉ người dùng thành công", true, address);
 		return new ResponseEntity<ApiResponseDTO<Address>>(response, HttpStatus.OK);
 	}
 
 	@GetMapping
 	public ResponseEntity<?> findAllByUsername(@AuthenticationPrincipal UserDetails currentUser) {
 		List<Address> addresses = addressService.findAllByUsername(currentUser.getUsername());
-		var response = new ApiResponseDTO<List<Address>>("Lấy danh sách địa chỉ người dùng thành công", "success", addresses);
+		var response = new ApiResponseDTO<List<Address>>("Lấy danh sách địa chỉ người dùng thành công", true, addresses);
 		return new ResponseEntity<ApiResponseDTO<List<Address>>>(response, HttpStatus.OK);
 	}
 
@@ -46,7 +46,7 @@ public class AddressController {
 	public ResponseEntity<?> deleteByIdAndUsername(@PathVariable String addressId,
 			@AuthenticationPrincipal UserDetails currentUser) {
 		addressService.deleteByIdAndUsername(addressId, addressId);
-		var response = new ApiResponseDTO<Void>("Xóa địa chỉ người dùng thành công", "success");
+		var response = new ApiResponseDTO<Void>("Xóa địa chỉ người dùng thành công", true);
 		return new ResponseEntity<ApiResponseDTO<Void>>(response, HttpStatus.OK);
 	}
 }

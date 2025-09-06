@@ -42,7 +42,7 @@ public class AdminPromoPriceController {
 		PagedResponseDTO<PromoPriceResponseDTO> pagedResponseDTO = PagedResponseDTO
 				.convertPageToPagedResponseDTO(promoPricesDTO);
 		var response = new ApiResponseDTO<PagedResponseDTO<PromoPriceResponseDTO>>(
-				"Lấy danh sách giá khuyến mại của sản phẩm thành công", "success", pagedResponseDTO);
+				"Lấy danh sách giá khuyến mại của sản phẩm thành công", true, pagedResponseDTO);
 		return new ResponseEntity<ApiResponseDTO<PagedResponseDTO<PromoPriceResponseDTO>>>(response, HttpStatus.OK);
 	}
 
@@ -52,7 +52,7 @@ public class AdminPromoPriceController {
 			@RequestBody CreatePromoPriceRequestDTO dto) {
 		Product product = productApplicationService.findById(productId);
 		PromoPrice promoPrice = productApplicationService.createPromoPrice(product, dto);
-		var response = new ApiResponseDTO<PromoPrice>("Tạo giá khuyến mại của sản phẩm thành công", "success",
+		var response = new ApiResponseDTO<PromoPrice>("Tạo giá khuyến mại của sản phẩm thành công", true,
 				promoPrice);
 		return new ResponseEntity<ApiResponseDTO<PromoPrice>>(response, HttpStatus.OK);
 	}
