@@ -23,7 +23,9 @@ import com.example.demo.auth.dto.LoginResponseDTO;
 import com.example.demo.auth.dto.RefreshAccessTokenResponseDTO;
 import com.example.demo.auth.service.AuthenticationService;
 import com.example.demo.common.cookie.CookieUtil;
+import com.example.demo.common.service.EmailService;
 import com.example.demo.common.service.JwtService;
+import com.example.demo.common.service.RedisService;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,13 +41,20 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 	private JwtService jwtService;
 
+	private RedisService redisService;
+	
+	private EmailService emailService;
+
 	private PasswordEncoder passwordEncoder;
 
 	public AuthenticationServiceImpl(AuthenticationManager authenticationManager, UserAccountService userAccountService,
-			JwtService jwtService, PasswordEncoder passwordEncoder) {
+			JwtService jwtService, RedisService redisService, EmailService emailService,
+			PasswordEncoder passwordEncoder) {
 		this.authenticationManager = authenticationManager;
 		this.userAccountService = userAccountService;
 		this.jwtService = jwtService;
+		this.redisService = redisService;
+		this.emailService = emailService;
 		this.passwordEncoder = passwordEncoder;
 	}
 
@@ -99,6 +108,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 					"Số điện thoại đã tồn tại, vui lòng thử số điện thoại khác");
 
+		String otpCode = redisService.getValue(body.email());
+		if (otpCode == null || otpCode != body.otp()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mã otp không chính xác vui lòng kiểm tra lại");
+		} else {
+			redisService.deleteValue(body.email());
+		}
+
 		return (UserAccount) userAccountService.save(CreateUserRequestDTO.toUserAccount(body, passwordEncoder));
 	}
 
@@ -145,7 +161,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		if (jwtService.isTokenExpired(refreshToken)) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
 					"Refresh token không hợp lệ hoặc đã hết hạn, vui lòng thử lại sau");
-		}else {
+		} else {
 			String username = jwtService.extractUsername(refreshToken);
 			String newAccessToken = jwtService.createToken(username, TokenType.ACCESS);
 			return new RefreshAccessTokenResponseDTO(newAccessToken);
@@ -161,6 +177,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public void sendOtp(String email) {
+		String otp = AuthenticationService.generate6DigitCode();
+		redisService.setValue(email, otp);
+		redisService.expire(email, 60L);
+		emailService.sendOtpEmail(email, "🔐 Mã OTP của bạn từ Fahasa", otp);
 	}
 
 }

@@ -27,6 +27,8 @@ public interface AuthenticationService {
 	void changePassword(ChangePasswordRequestDTO body, UserDetails currentUser);
 
 	RefreshAccessTokenResponseDTO refreshTokenAccess(HttpServletRequest request, HttpServletResponse response);
+	
+	void sendOtp(String email);
 
 	static String generate6DigitCode() {
 		Random random = new Random();

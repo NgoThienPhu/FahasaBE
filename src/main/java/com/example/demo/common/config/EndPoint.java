@@ -8,5 +8,6 @@ public class EndPoint {
 	
 	public static String[] PUBLIC_ENDPOINT_POST = {
 			"/api/auth/refresh",
+			"/api/auth/send-otp"
 	};
 }

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.account.dto.CreateUserRequestDTO;
@@ -35,6 +36,13 @@ public class AuthenticationController {
 
 	public AuthenticationController(AuthenticationServiceImpl authenticationService) {
 		this.authenticationService = authenticationService;
+	}
+	
+	@PostMapping("/send-otp")
+	public ResponseEntity<?> sendOtp(@RequestParam String toEmail) {
+		authenticationService.sendOtp(toEmail);
+		var myResponse = new ApiResponseDTO<Void>("Gửi mã otp thành công!", true);
+		return new ResponseEntity<ApiResponseDTO<Void>>(myResponse, HttpStatus.OK);
 	}
 
 	@PostMapping("/login")
