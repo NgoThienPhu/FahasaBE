@@ -1,5 +1,7 @@
 package com.example.demo.auth.service.impl;
 
+import java.util.concurrent.TimeUnit;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -7,7 +9,6 @@ import org.springframework.security.authentication.InternalAuthenticationService
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -22,6 +23,7 @@ import com.example.demo.auth.dto.LoginRequestDTO;
 import com.example.demo.auth.dto.LoginResponseDTO;
 import com.example.demo.auth.dto.RefreshAccessTokenResponseDTO;
 import com.example.demo.auth.service.AuthenticationService;
+import com.example.demo.common.base.entity.CustomUserDetails;
 import com.example.demo.common.cookie.CookieUtil;
 import com.example.demo.common.service.EmailService;
 import com.example.demo.common.service.JwtService;
@@ -75,7 +77,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 			String refreshToken = jwtService.createToken(account.getUsername(), Account.TokenType.REFRESH);
 
-			CookieUtil.setCookie(response, "refreshToken", refreshToken, 7 * 24 * 60 * 60, "/api/auth");
+			CookieUtil.setCookie(response, "refreshToken", refreshToken, 7 * 24 * 60 * 60, "/api/auth/refresh");
+			
+			redisService.setValue(String.format("REFRESH_TOKEN:%s", account.getId()), refreshToken);
+			redisService.expire(String.format("REFRESH_TOKEN:%s", account.getId()), 15L, TimeUnit.MINUTES);
+			redisService.setValue(String.format("ACCESS_TOKEN:%s", account.getId()), accessToken);
+			redisService.expire(String.format("ACCESS_TOKEN:%s", account.getId()), 7L, TimeUnit.DAYS);
 
 			return new LoginResponseDTO(accessToken);
 
@@ -108,20 +115,24 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 					"Số điện thoại đã tồn tại, vui lòng thử số điện thoại khác");
 
-		String otpCode = redisService.getValue(body.email());
-		if (otpCode == null || otpCode != body.otp()) {
+		String otpCode = redisService.getValue(String.format("OTP:%s", body.email()));
+		if (otpCode == null || !otpCode.equals(body.otpCode())) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mã otp không chính xác vui lòng kiểm tra lại");
 		} else {
 			redisService.deleteValue(body.email());
 		}
 
-		return (UserAccount) userAccountService.save(CreateUserRequestDTO.toUserAccount(body, passwordEncoder));
+		UserAccount userAccount = CreateUserRequestDTO.toUserAccount(body, passwordEncoder);
+		userAccount.activate();
+		return (UserAccount) userAccountService.save(userAccount);
 	}
 
 	@Override
-	public void logout(HttpServletResponse response) {
+	public void logout(String accountId, HttpServletResponse response) {
 		try {
 			CookieUtil.deleteCookie(response, "refresh-token", "/api/auth/refresh");
+			redisService.deleteValue(String.format("REFRESH_TOKEN:%s", accountId));
+			redisService.deleteValue(String.format("ACCESS_TOKEN:%s", accountId));
 			SecurityContextHolder.clearContext();
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Đăng xuất thất bại vui lòng thử lại sau!");
@@ -135,9 +146,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	}
 
 	@Override
-	public void changePassword(ChangePasswordRequestDTO body, UserDetails currentUser) {
+	public void changePassword(ChangePasswordRequestDTO body, CustomUserDetails currentUser) {
 		try {
-			Account account = userAccountService.findAccountByUsername(currentUser.getUsername());
+			Account account = userAccountService.findAccountById(currentUser.getId());
 
 			if (account == null || !passwordEncoder.matches(body.oldPassword(), account.getPassword()))
 				throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
@@ -182,8 +193,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	@Override
 	public void sendOtp(String email) {
 		String otp = AuthenticationService.generate6DigitCode();
-		redisService.setValue(email, otp);
-		redisService.expire(email, 60L);
+		redisService.setValue(String.format("OTP:%s", email), otp);
+		redisService.expire(String.format("OTP:%s", email), 120L, TimeUnit.SECONDS);
 		emailService.sendOtpEmail(email, "🔐 Mã OTP của bạn từ Fahasa", otp);
 	}
 

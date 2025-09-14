@@ -31,11 +31,12 @@ public class UserAccountServiceImpl extends AccountServiceImpl implements UserAc
 
 	private UserAccountRepository userAccountRepository;
 
-	public UserAccountServiceImpl(AccountRepository accountRepository, PasswordEncoder passwordEncoder, UserAccountRepository userAccountRepository) {
+	public UserAccountServiceImpl(AccountRepository accountRepository, PasswordEncoder passwordEncoder,
+			UserAccountRepository userAccountRepository) {
 		super(accountRepository, passwordEncoder);
 		this.userAccountRepository = userAccountRepository;
 	}
-	
+
 	@Transactional
 	@Override
 	public UserAccount adminCreateUserAccount(AdminCreateUserRequestDTO dto) {
@@ -54,13 +55,12 @@ public class UserAccountServiceImpl extends AccountServiceImpl implements UserAc
 
 		return userAccountRepository.save(convertAdminCreateUserRequestDTOToUserAccount(dto));
 	}
-	
+
 	@Transactional
 	@Override
-	public UserAccount changeUserAccountInfo(ChangeUserInfoRequestDTO dto, String username) {
+	public UserAccount changeUserAccountInfo(ChangeUserInfoRequestDTO dto, String userAccountId) {
 
-		UserAccount userAccount = userAccountRepository.findOne(UserAccountSpecification.hasUsername(username))
-				.orElse(null);
+		UserAccount userAccount = userAccountRepository.findById(userAccountId).orElse(null);
 
 		if (userAccount == null)
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Người dùng không tồn tại");
@@ -73,11 +73,11 @@ public class UserAccountServiceImpl extends AccountServiceImpl implements UserAc
 
 		return userAccountRepository.save(userAccount);
 	}
-	
+
 	@Transactional
 	@Override
 	public UserAccount adminChangeUserAccountInfo(AdminChangeUserInfoRequestDTO dto, String userAccountId) {
-		
+
 		Boolean checkExistsEmail = exitstAccountByEmail(dto.email());
 		Boolean checkExistsPhoneNumber = existsByPhoneNumber(dto.phoneNumber());
 
@@ -86,32 +86,32 @@ public class UserAccountServiceImpl extends AccountServiceImpl implements UserAc
 		if (checkExistsPhoneNumber)
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 					"Số điện thoại đã tồn tại, vui lòng thử số điện thoại khác");
-		
+
 		UserAccount userAccount = userAccountRepository.findById(userAccountId).orElse(null);
-		
+
 		if (userAccount == null)
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Người dùng không tồn tại");
-		
+
 		if (dto.fullName() != null)
 			userAccount.setFullName(dto.fullName());
 		if (dto.dateOfBirth() != null)
 			userAccount.setDateOfBirth(dto.dateOfBirth());
 		if (dto.gender() != null)
 			userAccount.setGender(UserAccount.Gender.valueOf(dto.gender()));
-		if(dto.email() != null)
+		if (dto.email() != null)
 			userAccount.setEmail(new Email(dto.email()));
-		if(dto.phoneNumber() != null)
+		if (dto.phoneNumber() != null)
 			userAccount.setPhoneNumber(new PhoneNumber(dto.phoneNumber()));
-		
+
 		return userAccountRepository.save(userAccount);
 	}
-	
+
 	@Override
 	public Boolean existsByPhoneNumber(String phoneNumber) {
 		Specification<UserAccount> spec = UserAccountSpecification.equalsPhoneNumber(phoneNumber);
 		return userAccountRepository.count(spec) > 0;
 	}
-	
+
 	@Override
 	public Page<UserAccount> findUserAccounts(String orderBy, String sortBy, int page, int size) {
 		List<String> allowedFields = List.of("username", "email", "phoneNumber");
@@ -165,24 +165,25 @@ public class UserAccountServiceImpl extends AccountServiceImpl implements UserAc
 		UserAccount user = userAccountRepository.findById(userAccountId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Người dùng không tồn tại"));
 		if (user.getIsActived() == true)
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tài khoản này đã được mở khóa, vui lòng thử lại sau");
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+					"Tài khoản này đã được mở khóa, vui lòng thử lại sau");
 		user.activate();
 		return userAccountRepository.save(user);
 	}
-	
+
 	private UserAccount convertAdminCreateUserRequestDTOToUserAccount(AdminCreateUserRequestDTO dto) {
 		UserAccount userAccount = new UserAccount();
 		userAccount.setUsername(dto.username());
 		userAccount.setFullName(dto.fullName());
 		userAccount.setEmail(new Email(dto.email()));
 		userAccount.setPhoneNumber(new PhoneNumber(dto.phoneNumber()));
-		
+
 		String password = AuthenticationService.generate6DigitCode();
 		userAccount.setPassword(passwordEncoder.encode(password));
-		
+
 		userAccount = userAccountRepository.save(userAccount);
 		System.out.println(String.format("Mật khẩu của bạn là: %s", password));
-		
+
 		return userAccount;
 	}
 

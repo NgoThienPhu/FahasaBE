@@ -1,8 +1,9 @@
 package com.example.demo.common.service.impl;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.example.demo.account.entity.AdminAccount;
 import com.example.demo.account.entity.base.Account;
 import com.example.demo.account.service.AccountService;
+import com.example.demo.common.base.entity.CustomUserDetails;
 import com.example.demo.common.service.CustomUserDetailService;
 
 @Service
@@ -33,10 +35,9 @@ public class CustomUserDetailServiceImpl implements CustomUserDetailService {
 		
 		if(account instanceof AdminAccount) authority = new SimpleGrantedAuthority("ROLE_" + Account.AccountType.ADMIN.name());
 		
-		UserDetails userDetails = User.withUsername(account.getUsername()).password(account.getPassword())
-				.authorities(authority).build();
+		CustomUserDetails customUserDetails =  new CustomUserDetails(account.getId(), username, account.getPassword(), List.of(authority));
 		
-		return userDetails;
+		return customUserDetails;
 	}
 
 }

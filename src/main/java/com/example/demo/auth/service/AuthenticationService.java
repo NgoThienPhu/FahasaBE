@@ -2,14 +2,13 @@ package com.example.demo.auth.service;
 
 import java.util.Random;
 
-import org.springframework.security.core.userdetails.UserDetails;
-
 import com.example.demo.account.dto.CreateUserRequestDTO;
 import com.example.demo.account.entity.UserAccount;
 import com.example.demo.auth.dto.ChangePasswordRequestDTO;
 import com.example.demo.auth.dto.LoginRequestDTO;
 import com.example.demo.auth.dto.LoginResponseDTO;
 import com.example.demo.auth.dto.RefreshAccessTokenResponseDTO;
+import com.example.demo.common.base.entity.CustomUserDetails;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,11 +19,11 @@ public interface AuthenticationService {
 
 	UserAccount userRegister(CreateUserRequestDTO body);
 
-	void logout(HttpServletResponse response);
+	void logout(String accountId, HttpServletResponse response);
 
 	UserAccount userForgotPassword();
 
-	void changePassword(ChangePasswordRequestDTO body, UserDetails currentUser);
+	void changePassword(ChangePasswordRequestDTO body, CustomUserDetails currentUser);
 
 	RefreshAccessTokenResponseDTO refreshTokenAccess(HttpServletRequest request, HttpServletResponse response);
 	

@@ -2,6 +2,7 @@ package com.example.demo.common.service;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 public interface RedisService {
 
@@ -9,7 +10,7 @@ public interface RedisService {
     String getValue(String key);
     void deleteValue(String key);
     boolean hasKey(String key);
-    void expire(String key, long timeoutInSeconds);
+    void expire(String key, long timeout, TimeUnit unit);
 
     void hSet(String key, String hashKey, Object value);
     <T> T hGet(String key, String hashKey, Class<T> clazz);

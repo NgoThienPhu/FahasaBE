@@ -3,7 +3,6 @@ package com.example.demo.auth.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +21,7 @@ import com.example.demo.auth.dto.RefreshAccessTokenResponseDTO;
 import com.example.demo.auth.service.AuthenticationService;
 import com.example.demo.auth.service.impl.AuthenticationServiceImpl;
 import com.example.demo.common.base.dto.ApiResponseDTO;
+import com.example.demo.common.base.entity.CustomUserDetails;
 import com.example.demo.common.validation.BindingResultUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -57,8 +57,8 @@ public class AuthenticationController {
 	}
 	
 	@PostMapping("/logout")
-	public ResponseEntity<?> userLogout(HttpServletResponse response) {
-		authenticationService.logout(response);
+	public ResponseEntity<?> userLogout(@AuthenticationPrincipal CustomUserDetails currentUser, HttpServletResponse response) {
+		authenticationService.logout(currentUser.getId(), response);
 		var myResponse = new ApiResponseDTO<Void>("Đăng xuất thành công!", true);
 		return new ResponseEntity<ApiResponseDTO<Void>>(myResponse, HttpStatus.OK);
 	}
@@ -77,7 +77,7 @@ public class AuthenticationController {
 
 	@PatchMapping("/change-password")
 	public ResponseEntity<?> userChangePassword(@Valid @RequestBody ChangePasswordRequestDTO body,
-			@AuthenticationPrincipal UserDetails currentUser, BindingResult result) {
+			@AuthenticationPrincipal CustomUserDetails currentUser, BindingResult result) {
 		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Đổi mật khẩu thất bại!");
 		if (responseError != null)
 			return responseError;

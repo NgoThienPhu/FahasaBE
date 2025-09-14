@@ -9,15 +9,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.demo.common.base.entity.CustomUserDetails;
 import com.example.demo.common.config.EndPoint;
 import com.example.demo.common.service.CustomUserDetailService;
 import com.example.demo.common.service.JwtService;
+import com.example.demo.common.service.RedisService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -31,10 +32,13 @@ import jakarta.servlet.http.HttpServletResponse;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	private JwtService jwtService;
+	private RedisService redisService;
 	private CustomUserDetailService customUserDetailService;
 
-	public JwtAuthenticationFilter(JwtService jwtService, CustomUserDetailService customUserDetailService) {
+	public JwtAuthenticationFilter(JwtService jwtService, RedisService redisService,
+			CustomUserDetailService customUserDetailService) {
 		this.jwtService = jwtService;
+		this.redisService = redisService;
 		this.customUserDetailService = customUserDetailService;
 	}
 
@@ -75,7 +79,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			if (antPathMatcher.match(endpoint, requestURI))
 				return true;
 		}
-		
+
 		for (String endpoint : EndPoint.PUBLIC_ENDPOINT_POST) {
 			if (antPathMatcher.match(endpoint, requestURI))
 				return true;
@@ -102,18 +106,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	private void handleAccessToken(String accessToken, HttpServletResponse response, HttpServletRequest request,
 			FilterChain filterChain) throws IOException, ServletException {
-
-		if (!jwtService.isTokenExpired(accessToken)) {
-			String username = jwtService.extractUsername(accessToken);
-			UserDetails userDetails = customUserDetailService.loadUserByUsername(username);
-			UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-					userDetails, null, userDetails.getAuthorities());
-			SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-			filterChain.doFilter(request, response);
-		} else {
+		String username = jwtService.extractUsername(accessToken);
+		CustomUserDetails customUserDetails = (CustomUserDetails) customUserDetailService.loadUserByUsername(username);
+		if (!redisService.hasKey(String.format("ACCESS_TOKEN:%s", customUserDetails.getId()))) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-					"Access token không hợp lệ hoặc đã hết hạn, vui lòng thử lại sau");
+					"Access token không tồn tại hoặc đã hết hạn, vui lòng thử lại sau");
 		}
+		String actoken = redisService.getValue(String.format("ACCESS_TOKEN:%s", customUserDetails.getId()));
+		if (!accessToken.equals(actoken)) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+					"Access token không tồn tại hoặc đã hết hạn, vui lòng thử lại sau");
+		}
+		UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+				customUserDetails, null, customUserDetails.getAuthorities());
+		SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+		filterChain.doFilter(request, response);
 
 	}
 

@@ -25,7 +25,7 @@ public record CreateUserRequestDTO(
 		String email,
 		
 		@NotBlank(message = "Mã otp không được để trống")
-		String otp,
+		String otpCode,
 
 		@NotNull(message = "Số điện thoại không được để trống")
 		@Pattern(regexp = "^(0|\\+84)(3[2-9]|5[6|8|9]|7[0|6-9]|8[1-5]|9[0-9])\\d{7}$", message = "Số điện thoại không hợp lệ")
