@@ -45,9 +45,6 @@ public abstract class Account extends BaseEntity {
 	@Column(name = "is_delete", nullable = false)
 	protected Boolean isDeleted = false;
 	
-	@Column(name = "actived_at", nullable = true)
-	protected LocalDateTime activedAt;
-
     @Column(name = "deleted_at", nullable = true)
     protected LocalDateTime deletedAt;
 
@@ -66,7 +63,6 @@ public abstract class Account extends BaseEntity {
 	
 	public void activate() {
         this.isActived = true;
-        this.activedAt = LocalDateTime.now();
     }
 
     public void deactivate() {

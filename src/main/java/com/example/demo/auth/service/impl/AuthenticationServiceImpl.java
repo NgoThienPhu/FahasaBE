@@ -77,7 +77,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 			String refreshToken = jwtService.createToken(account.getUsername(), Account.TokenType.REFRESH);
 
-			CookieUtil.setCookie(response, "refreshToken", refreshToken, 7 * 24 * 60 * 60, "/api/auth/refresh");
+			CookieUtil.setCookie(response, "refreshToken", refreshToken, 7 * 24 * 60 * 60, "/");
 			
 			redisService.setValue(String.format("REFRESH_TOKEN:%s", account.getId()), refreshToken);
 			redisService.expire(String.format("REFRESH_TOKEN:%s", account.getId()), 15L, TimeUnit.MINUTES);
@@ -174,7 +174,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 					"Refresh token không hợp lệ hoặc đã hết hạn, vui lòng thử lại sau");
 		} else {
 			String username = jwtService.extractUsername(refreshToken);
+			Account account = userAccountService.findAccountByUsername(username);
 			String newAccessToken = jwtService.createToken(username, TokenType.ACCESS);
+			
+			redisService.setValue(String.format("ACCESS_TOKEN:%s", account.getId()), newAccessToken);
+			redisService.expire(String.format("ACCESS_TOKEN:%s", account.getId()), 7L, TimeUnit.DAYS);
 			return new RefreshAccessTokenResponseDTO(newAccessToken);
 		}
 	}
@@ -182,7 +186,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	private String getRefreshToken(HttpServletRequest request) {
 		if (request.getCookies() != null) {
 			for (Cookie cookie : request.getCookies()) {
-				if ("refresh-token".equals(cookie.getName())) {
+				if ("refreshToken".equals(cookie.getName())) {
 					return cookie.getValue();
 				}
 			}

@@ -7,6 +7,7 @@ import java.util.List;
 import com.example.demo.account.entity.base.Account;
 import com.example.demo.address.entity.Address;
 import com.example.demo.common.base.entity.PhoneNumber;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -42,6 +43,7 @@ public class UserAccount extends Account {
 	@JoinColumn(name = "phone_number")
 	private PhoneNumber phoneNumber;
 	
+	@JsonIgnore
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "userAccount", orphanRemoval = true)
 	private List<Address> addresses = new ArrayList<>();
 

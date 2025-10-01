@@ -25,7 +25,6 @@ public class JwtServiceImpl implements JwtService {
 	@Value("${jwt.secretKey}")
 	private String SECRET_KEY;
 	private static final long ACCESS_TOKEN_EXPIRATION = TimeUnit.MINUTES.toMillis(16);
-
 	private static final long REFRESH_TOKEN_EXPIRATION = TimeUnit.DAYS.toMillis(7) + TimeUnit.MINUTES.toMillis(1);
 
 	@Override
