@@ -23,6 +23,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -68,6 +69,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			handleException(e.getStatusCode(), "error", e.getMessage(), response);
 		} catch (ExpiredJwtException e) {
 			handleException(HttpStatus.UNAUTHORIZED, "error", "Access Token đã hết hạn, vui lòng thử lại sau",
+					response);
+		} catch (MalformedJwtException e) {
+			handleException(HttpStatus.UNAUTHORIZED, "error", "Access Token không hợp , vui lòng thử lại sau",
 					response);
 		}
 	}

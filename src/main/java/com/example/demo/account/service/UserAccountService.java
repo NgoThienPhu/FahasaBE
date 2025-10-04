@@ -11,9 +11,9 @@ public interface UserAccountService extends AccountService {
 
 	UserAccount adminCreateUserAccount(AdminCreateUserRequestDTO dto);
 
-	UserAccount changeUserAccountInfo(ChangeUserInfoRequestDTO newUserInfo, String userAccountId);
-	
 	UserAccount adminChangeUserAccountInfo(AdminChangeUserInfoRequestDTO newUserInfo, String userAccountId);
+	
+	UserAccount changeUserAccountInfo(ChangeUserInfoRequestDTO newUserInfo, String userAccountId);
 	
 	Boolean existsByPhoneNumber(String phoneNumber);
 
@@ -25,5 +25,5 @@ public interface UserAccountService extends AccountService {
 	UserAccount lockUserAccount(String userAccountId);
 
 	UserAccount unlockUserAccount(String userAccountId);
-		
+	
 }

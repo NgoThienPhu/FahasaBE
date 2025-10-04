@@ -1,4 +1,6 @@
-package com.example.demo.common.base.entity;
+package com.example.demo.email.entity;
+
+import com.example.demo.common.base.entity.BaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,6 +33,10 @@ public class Email extends BaseEntity {
 	public void onCreate() {
 		super.onCreate();
 		this.isVerify = false;
+	}
+	
+	public void verify() {
+		this.isVerify = true;
 	}
 		
 }

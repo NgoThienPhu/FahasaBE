@@ -3,7 +3,7 @@ package com.example.demo.account.entity.base;
 import java.time.LocalDateTime;
 
 import com.example.demo.common.base.entity.BaseEntity;
-import com.example.demo.common.base.entity.Email;
+import com.example.demo.email.entity.Email;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
@@ -61,22 +61,16 @@ public abstract class Account extends BaseEntity {
 		REFRESH, ACCESS
 	}
 	
-	public void activate() {
+	public void active() {
         this.isActived = true;
     }
 
-    public void deactivate() {
+    public void disabled() {
         this.isActived = false;
     }
 
-    public void softDelete() {
-        this.isDeleted = true;
-        this.deletedAt = LocalDateTime.now();
-    }
-
-    public void restore() {
-        this.isDeleted = false;
-        this.deletedAt = null;
+    public void activeEmail() {
+    	this.email.setIsVerify(true);
     }
 
 }

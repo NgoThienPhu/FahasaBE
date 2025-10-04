@@ -25,7 +25,7 @@ import com.example.demo.auth.dto.RefreshAccessTokenResponseDTO;
 import com.example.demo.auth.service.AuthenticationService;
 import com.example.demo.common.base.entity.CustomUserDetails;
 import com.example.demo.common.cookie.CookieUtil;
-import com.example.demo.common.service.EmailService;
+import com.example.demo.common.service.MessageService;
 import com.example.demo.common.service.JwtService;
 import com.example.demo.common.service.RedisService;
 
@@ -45,12 +45,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 	private RedisService redisService;
 	
-	private EmailService emailService;
+	private MessageService emailService;
 
 	private PasswordEncoder passwordEncoder;
 
 	public AuthenticationServiceImpl(AuthenticationManager authenticationManager, UserAccountService userAccountService,
-			JwtService jwtService, RedisService redisService, EmailService emailService,
+			JwtService jwtService, RedisService redisService, MessageService emailService,
 			PasswordEncoder passwordEncoder) {
 		this.authenticationManager = authenticationManager;
 		this.userAccountService = userAccountService;
@@ -119,11 +119,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		if (otpCode == null || !otpCode.equals(body.otpCode())) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mã otp không chính xác vui lòng kiểm tra lại");
 		} else {
-			redisService.deleteValue(body.email());
+			redisService.deleteValue(String.format("OTP:%s", body.email()));
 		}
 
 		UserAccount userAccount = CreateUserRequestDTO.toUserAccount(body, passwordEncoder);
-		userAccount.activate();
+		userAccount.active();
 		return (UserAccount) userAccountService.save(userAccount);
 	}
 

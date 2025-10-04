@@ -6,14 +6,14 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
-import com.example.demo.common.service.EmailService;
+import com.example.demo.common.service.MessageService;
 
 @Service
-public class EmailServiceImpl implements EmailService {
+public class MessageServiceImpl implements MessageService {
 
 	private JavaMailSender mailSender;
 
-	public EmailServiceImpl(JavaMailSender mailSender) {
+	public MessageServiceImpl(JavaMailSender mailSender) {
 		this.mailSender = mailSender;
 	}
 

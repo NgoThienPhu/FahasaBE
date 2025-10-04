@@ -21,8 +21,8 @@ import com.example.demo.account.repository.UserAccountRepository;
 import com.example.demo.account.service.UserAccountService;
 import com.example.demo.account.specification.UserAccountSpecification;
 import com.example.demo.auth.service.AuthenticationService;
-import com.example.demo.common.base.entity.Email;
 import com.example.demo.common.base.entity.PhoneNumber;
+import com.example.demo.email.entity.Email;
 
 import jakarta.transaction.Transactional;
 
@@ -155,7 +155,7 @@ public class UserAccountServiceImpl extends AccountServiceImpl implements UserAc
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Người dùng không tồn tại"));
 		if (user.getIsActived() == false)
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tài khoản này đã bị khóa, vui lòng thử lại sau");
-		user.deactivate();
+		user.disabled();
 		return userAccountRepository.save(user);
 	}
 
@@ -167,7 +167,7 @@ public class UserAccountServiceImpl extends AccountServiceImpl implements UserAc
 		if (user.getIsActived() == true)
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 					"Tài khoản này đã được mở khóa, vui lòng thử lại sau");
-		user.activate();
+		user.active();
 		return userAccountRepository.save(user);
 	}
 
