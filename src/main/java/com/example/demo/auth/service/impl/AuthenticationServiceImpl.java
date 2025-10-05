@@ -80,9 +80,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			CookieUtil.setCookie(response, "refreshToken", refreshToken, 7 * 24 * 60 * 60, "/");
 			
 			redisService.setValue(String.format("REFRESH_TOKEN:%s", account.getId()), refreshToken);
-			redisService.expire(String.format("REFRESH_TOKEN:%s", account.getId()), 15L, TimeUnit.MINUTES);
+			redisService.expire(String.format("REFRESH_TOKEN:%s", account.getId()), 7L, TimeUnit.DAYS);
 			redisService.setValue(String.format("ACCESS_TOKEN:%s", account.getId()), accessToken);
-			redisService.expire(String.format("ACCESS_TOKEN:%s", account.getId()), 7L, TimeUnit.DAYS);
+			redisService.expire(String.format("ACCESS_TOKEN:%s", account.getId()), 15L, TimeUnit.MINUTES);
 
 			return new LoginResponseDTO(accessToken);
 

@@ -63,6 +63,7 @@ public abstract class AccountServiceImpl implements AccountService {
 		System.out.println(String.format("Mật khẩu mới của bạn là: %s", password));
 	}
 	
+	@Transactional
 	@Override
 	public Account changeEmail(String newEmail, String password, String accountId) {
 		Account account = findAccountById(accountId);
