@@ -6,46 +6,56 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.address.application.AddressApplicationService;
+import com.example.demo.address.dto.CreateAddressRequestDTO;
 import com.example.demo.address.entity.Address;
-import com.example.demo.address.service.AddressService;
 import com.example.demo.common.base.dto.ApiResponseDTO;
+import com.example.demo.common.base.entity.CustomUserDetails;
 
 @RestController
 @RequestMapping("/api/accounts/me/addresses")
 public class AddressController {
 
-	private AddressService addressService;
-
-	public AddressController(AddressService addressService) {
-		this.addressService = addressService;
+	private AddressApplicationService addressApplicationService;
+	
+	public AddressController(AddressApplicationService addressApplicationService) {
+		this.addressApplicationService = addressApplicationService;
 	}
 
 	@GetMapping("/{addressId}")
-	public ResponseEntity<?> findByIdAndUsername(@PathVariable String addressId,
-			@AuthenticationPrincipal UserDetails currentUser) {
-		Address address = addressService.findByIdAndUsername(addressId, currentUser.getUsername());
+	public ResponseEntity<?> findById(@PathVariable String addressId,
+			@AuthenticationPrincipal CustomUserDetails currentUser) {
+		Address address = addressApplicationService.findById(addressId, currentUser.getId());
 		var response = new ApiResponseDTO<Address>("Lấy chi tiết địa chỉ người dùng thành công", true, address);
 		return new ResponseEntity<ApiResponseDTO<Address>>(response, HttpStatus.OK);
 	}
 
 	@GetMapping
-	public ResponseEntity<?> findAllByUsername(@AuthenticationPrincipal UserDetails currentUser) {
-		List<Address> addresses = addressService.findAllByUsername(currentUser.getUsername());
+	public ResponseEntity<?> findAll(@AuthenticationPrincipal CustomUserDetails currentUser) {
+		List<Address> addresses = addressApplicationService.findAll(currentUser.getId());
 		var response = new ApiResponseDTO<List<Address>>("Lấy danh sách địa chỉ người dùng thành công", true, addresses);
 		return new ResponseEntity<ApiResponseDTO<List<Address>>>(response, HttpStatus.OK);
+	}
+	
+	@PostMapping
+	public ResponseEntity<?> create(@RequestBody CreateAddressRequestDTO body, @AuthenticationPrincipal CustomUserDetails currentUser) {
+		Address address = addressApplicationService.create(body, currentUser.getId());
+		var response = new ApiResponseDTO<Address>("Thêm địa chỉ giao hàng thành công", true, address);
+		return new ResponseEntity<ApiResponseDTO<Address>>(response, HttpStatus.OK);
 	}
 
 	@DeleteMapping("/{addressId}")
 	public ResponseEntity<?> deleteByIdAndUsername(@PathVariable String addressId,
-			@AuthenticationPrincipal UserDetails currentUser) {
-		addressService.deleteByIdAndUsername(addressId, addressId);
+			@AuthenticationPrincipal CustomUserDetails currentUser) {
+		addressApplicationService.deleteById(addressId, currentUser.getId());
 		var response = new ApiResponseDTO<Void>("Xóa địa chỉ người dùng thành công", true);
 		return new ResponseEntity<ApiResponseDTO<Void>>(response, HttpStatus.OK);
 	}

@@ -2,6 +2,7 @@ package com.example.demo.address.entity;
 
 import com.example.demo.account.entity.UserAccount;
 import com.example.demo.common.base.entity.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,9 +28,22 @@ public class Address extends BaseEntity {
 	@Column(name = "phone_number")
 	private String phoneNumber;
 	
-	@Column(name = "address")
-	private String address;
+	@Column(name = "address_detail")
+	private String addressDetail;
 	
+	@Column(name = "city")
+	private String city;
+	
+	@Column(name = "district")
+	private String district;
+	
+	@Column(name = "ward")
+	private String ward;
+	
+	@Column(name = "is_default")
+	private Boolean isDefault;
+	
+	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name = "account_id")
 	private UserAccount userAccount;

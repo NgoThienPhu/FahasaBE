@@ -178,7 +178,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 			String newAccessToken = jwtService.createToken(username, TokenType.ACCESS);
 			
 			redisService.setValue(String.format("ACCESS_TOKEN:%s", account.getId()), newAccessToken);
-			redisService.expire(String.format("ACCESS_TOKEN:%s", account.getId()), 7L, TimeUnit.DAYS);
+			redisService.expire(String.format("ACCESS_TOKEN:%s", account.getId()), 15L, TimeUnit.MINUTES);
 			return new RefreshAccessTokenResponseDTO(newAccessToken);
 		}
 	}

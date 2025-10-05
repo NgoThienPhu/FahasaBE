@@ -10,8 +10,8 @@ public class AddressSpecification {
 		return (root, query, cb) -> cb.equal(root.get("id"), addressId);
 	}
 
-	public static Specification<Address> hasUsername(String username) {
-		return (root, query, cb) -> cb.equal(root.get("userAccount").get("username"), username);
+	public static Specification<Address> hasUserAccountId(String username) {
+		return (root, query, cb) -> cb.equal(root.get("userAccount").get("id"), username);
 	}
 	
 }

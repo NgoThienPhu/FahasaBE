@@ -6,10 +6,12 @@ import com.example.demo.address.entity.Address;
 
 public interface AddressService {
 	
-	List<Address> findAllByUsername(String username);
+	Address save(Address address);
 	
-	Address findByIdAndUsername(String addressId, String username);
+	List<Address> findAll(String accountId);
 	
-	void deleteByIdAndUsername(String addressId, String username);
+	Address findById(String addressId, String accountId);
+	
+	void deleteById(String addressId, String accountId);
 	
 }
