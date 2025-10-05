@@ -4,7 +4,6 @@ import com.example.demo.common.base.entity.BaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,12 +26,6 @@ public class Email extends BaseEntity {
 	
 	public Email(String email) {
 		this.email = email;
-	}
-	
-	@PrePersist
-	public void onCreate() {
-		super.onCreate();
-		this.isVerify = false;
 	}
 	
 	public void verify() {

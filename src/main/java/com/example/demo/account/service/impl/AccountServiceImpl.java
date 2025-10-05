@@ -11,6 +11,7 @@ import com.example.demo.account.repository.AccountRepository;
 import com.example.demo.account.service.AccountService;
 import com.example.demo.account.specification.AccountSpecification;
 import com.example.demo.auth.service.AuthenticationService;
+import com.example.demo.email.entity.Email;
 
 public abstract class AccountServiceImpl implements AccountService {
 
@@ -55,13 +56,25 @@ public abstract class AccountServiceImpl implements AccountService {
 	@Transactional
 	@Override
 	public void resetPassword(String accountId) {
-		Account account = accountRepository.findById(accountId).orElse(null);
-		if (account == null)
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Người dùng không tồn tại");
+		Account account = findAccountById(accountId);
 		String password = AuthenticationService.generate6DigitCode();
 		account.setPassword(passwordEncoder.encode(password));
 		accountRepository.save(account);
 		System.out.println(String.format("Mật khẩu mới của bạn là: %s", password));
+	}
+	
+	@Override
+	public Account changeEmail(String newEmail, String password, String accountId) {
+		Account account = findAccountById(accountId);
+		if(!passwordEncoder.matches(password, account.getPassword())) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mật khẩu không chính xác");
+		}
+		if(exitstAccountByEmail(newEmail)) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email đã được sử dụng");
+		}
+		Email myEmail = new Email(newEmail, true);
+		account.setEmail(myEmail);
+		return save(account);
 	}
 
 }

@@ -9,6 +9,8 @@ public interface AccountService {
 	Account findAccountByUsername(String username);
 
 	Account findAccountById(String accountId);
+	
+	Account changeEmail(String newEmail, String password, String accountId);
 
 	Boolean existsAccountByUsername(String username);
 

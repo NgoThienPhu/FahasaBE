@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,13 +53,18 @@ public class AccountController {
 		return new ResponseEntity<ApiResponseDTO<Account>>(response, HttpStatus.OK);
 	}
 
-	@PatchMapping("/change-email")
-	public ResponseEntity<?> changeEmail(@RequestBody ChangeEmailRequestDTO dto,
+	@PostMapping("/change-email")
+	public ResponseEntity<?> changeEmail(@RequestBody @Valid ChangeEmailRequestDTO body, BindingResult result,
 			@AuthenticationPrincipal CustomUserDetails currentUser) {
-		return null;
+		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Cập nhật thất bại!");
+		if (responseError != null)
+			return responseError;
+		userAccountService.changeEmail(body.newEmail(), body.password(), currentUser.getId());
+		var response = new ApiResponseDTO<Void>("Đổi email thành công", true);
+		return new ResponseEntity<ApiResponseDTO<Void>>(response, HttpStatus.OK);
 	}
 
-	@PatchMapping("/change-phone")
+	@PostMapping("/change-phone")
 	public ResponseEntity<?> changePhone(@RequestBody ChangePhoneNumberRequestDTO dto,
 			@AuthenticationPrincipal CustomUserDetails currentUser) {
 		return null;
