@@ -14,4 +14,8 @@ public class AddressSpecification {
 		return (root, query, cb) -> cb.equal(root.get("userAccount").get("id"), username);
 	}
 	
+	public static Specification<Address> isDefault(Boolean isDefault) {
+		return (root, query, cb) -> cb.equal(root.get("isDefault"), isDefault);
+	}
+	
 }

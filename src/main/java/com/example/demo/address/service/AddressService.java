@@ -14,4 +14,6 @@ public interface AddressService {
 	
 	void deleteById(String addressId, String accountId);
 	
+	void ressetDefaultAddress(String accountId);
+	
 }

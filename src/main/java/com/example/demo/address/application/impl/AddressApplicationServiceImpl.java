@@ -26,6 +26,7 @@ public class AddressApplicationServiceImpl implements AddressApplicationService 
 	@Override
 	public Address create(CreateAddressRequestDTO body, String accountId) {
 		UserAccount user = (UserAccount) userAccountService.findAccountById(accountId);
+		if(body.isDefault() == true) addressService.ressetDefaultAddress(accountId);
 		Address myAddress = body.convertToEntity(body, user);
 		return addressService.save(myAddress);
 	}

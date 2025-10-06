@@ -34,7 +34,7 @@ public class UserAccount extends Account {
 	
 	@Column(name = "gender", nullable = false)
 	@Enumerated(EnumType.STRING)
-	private Gender gender = Gender.UNSPECIFIED;
+	private Gender gender = Gender.OTHER;
 	
 	@Column(name = "date_of_birth", nullable = true)
 	private LocalDate dateOfBirth;
@@ -53,7 +53,7 @@ public class UserAccount extends Account {
 	}
 	
 	public enum Gender {
-		MALE, FEMALE, OTHER, UNSPECIFIED
+		MALE, FEMALE, OTHER
 	}
 
 }

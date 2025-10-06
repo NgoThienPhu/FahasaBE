@@ -48,4 +48,12 @@ public class AddressServiceImpl implements AddressService {
 		return addressRepository.save(address);
 	}
 
+	@Override
+	public void ressetDefaultAddress(String accountId) {
+		Address defaultAddress = addressRepository.findOne(AddressSpecification.isDefault(true)).orElseThrow(
+				() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy địa chỉ mặc định"));
+		defaultAddress.setIsDefault(false);
+		save(defaultAddress);
+	}
+
 }
