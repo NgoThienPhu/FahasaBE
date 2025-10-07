@@ -2,6 +2,8 @@ package com.example.demo.address.service.impl;
 
 import java.util.List;
 
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -37,7 +39,8 @@ public class AddressServiceImpl implements AddressService {
 
 	@Override
 	public List<Address> findAll(String accountId) {
-		return addressRepository.findAll(AddressSpecification.hasUserAccountId(accountId));
+		Sort sort = Sort.by(Direction.DESC, "isDefault");
+		return addressRepository.findAll(AddressSpecification.hasUserAccountId(accountId), sort);
 	}
 
 	@Override

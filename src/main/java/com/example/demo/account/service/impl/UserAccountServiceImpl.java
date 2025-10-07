@@ -16,7 +16,6 @@ import com.example.demo.account.dto.AdminChangeUserInfoRequestDTO;
 import com.example.demo.account.dto.AdminCreateUserRequestDTO;
 import com.example.demo.account.dto.ChangeUserInfoRequestDTO;
 import com.example.demo.account.entity.UserAccount;
-import com.example.demo.account.entity.base.Account;
 import com.example.demo.account.repository.AccountRepository;
 import com.example.demo.account.repository.UserAccountRepository;
 import com.example.demo.account.service.UserAccountService;
