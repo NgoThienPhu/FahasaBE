@@ -50,7 +50,7 @@ public class AdminAccountController {
 	@GetMapping("/{id}")
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> getAccountById(@PathVariable("id") String accountId) {
-		Account account = userAccountService.findAccountById(accountId);
+		Account account = userAccountService.findById(accountId);
 		var response = new ApiResponseDTO<Account>("Lấy thông tin tài khoản thành công", true, account);
 		return new ResponseEntity<ApiResponseDTO<Account>>(response, HttpStatus.OK);
 	}

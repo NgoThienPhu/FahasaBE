@@ -71,7 +71,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 						"Tài khoản hoặc mật khẩu không chính xác, vui lòng đăng nhập lại");
 			}
 
-			Account account = userAccountService.findAccountByUsername(body.username());
+			Account account = userAccountService.findByUsername(body.username());
 
 			String accessToken = jwtService.createToken(account.getUsername(), Account.TokenType.ACCESS);
 
@@ -102,8 +102,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	@Transactional
 	@Override
 	public UserAccount userRegister(CreateUserRequestDTO body) {
-		Boolean checkExistsUsername = userAccountService.existsAccountByUsername(body.username());
-		Boolean checkExistsEmail = userAccountService.exitstAccountByEmail(body.email());
+		Boolean checkExistsUsername = userAccountService.existsByUsername(body.username());
+		Boolean checkExistsEmail = userAccountService.existsByEmail(body.email());
 		Boolean checkExistsPhoneNumber = userAccountService.existsByPhoneNumber(body.phoneNumber());
 
 		if (checkExistsUsername)
@@ -148,7 +148,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	@Override
 	public void changePassword(ChangePasswordRequestDTO body, CustomUserDetails currentUser) {
 		try {
-			Account account = userAccountService.findAccountById(currentUser.getId());
+			Account account = userAccountService.findById(currentUser.getId());
 
 			if (account == null || !passwordEncoder.matches(body.oldPassword(), account.getPassword()))
 				throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
@@ -174,7 +174,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 					"Refresh token không hợp lệ hoặc đã hết hạn, vui lòng thử lại sau");
 		} else {
 			String username = jwtService.extractUsername(refreshToken);
-			Account account = userAccountService.findAccountByUsername(username);
+			Account account = userAccountService.findByUsername(username);
 			String newAccessToken = jwtService.createToken(username, TokenType.ACCESS);
 			
 			redisService.setValue(String.format("ACCESS_TOKEN:%s", account.getId()), newAccessToken);

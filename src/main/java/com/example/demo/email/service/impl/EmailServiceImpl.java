@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.demo.common.service.RedisService;
 import com.example.demo.email.entity.Email;
 import com.example.demo.email.repository.EmailRepository;
 import com.example.demo.email.service.EmailService;
@@ -13,13 +14,22 @@ import com.example.demo.email.specification.EmailSpecification;
 public class EmailServiceImpl implements EmailService {
 
 	private EmailRepository emailRepository;
+	
+	private RedisService redisService;
 
-	public EmailServiceImpl(EmailRepository emailRepository) {
+	public EmailServiceImpl(EmailRepository emailRepository, RedisService redisService) {
 		this.emailRepository = emailRepository;
+		this.redisService = redisService;
 	}
 
 	@Override
-	public Email verify(String email) {
+	public Email verify(String email, String otp) {
+		String otpCode = redisService.getValue(String.format("OTP:%s", email));
+		if (otpCode == null || !otpCode.equals(otp)) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mã otp không chính xác vui lòng kiểm tra lại");
+		} else {
+			redisService.deleteValue(String.format("OTP:%s", email));
+		}
 		Email myEmail = emailRepository.findOne(EmailSpecification.hasEmail(email))
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
 						String.format("Không tìm thấy email: %s", email)));

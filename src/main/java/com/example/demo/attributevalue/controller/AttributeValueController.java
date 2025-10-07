@@ -10,24 +10,24 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.attribute.application.AttributeApplicationService;
 import com.example.demo.attributevalue.entity.AttributeValue;
+import com.example.demo.attributevalue.service.AttributeValueService;
 import com.example.demo.common.base.dto.ApiResponseDTO;
 
 @RestController
 @RequestMapping("/api/attributes/{attributeId}/attribute-values")
 public class AttributeValueController {
 
-	private AttributeApplicationService attributeApplicationService;
-
-	public AttributeValueController(AttributeApplicationService attributeApplicationService) {
-		this.attributeApplicationService = attributeApplicationService;
+	private AttributeValueService attributeValueService;
+	
+	public AttributeValueController(AttributeValueService attributeValueService) {
+		this.attributeValueService = attributeValueService;
 	}
 
 	@GetMapping
 	public ResponseEntity<?> findAll(@PathVariable String attributeId,
 			@RequestParam(defaultValue = "asc") String orderBy) {
-		List<AttributeValue> attributeValues = attributeApplicationService.findAllAttributeValue(attributeId, orderBy);
+		List<AttributeValue> attributeValues = attributeValueService.findAllByAttributeId(attributeId, orderBy);
 		var response = new ApiResponseDTO<List<AttributeValue>>("Lấy danh sách giá trị thuộc tính thành công",
 				true, attributeValues);
 		return new ResponseEntity<ApiResponseDTO<List<AttributeValue>>>(response, HttpStatus.OK);
@@ -35,8 +35,7 @@ public class AttributeValueController {
 
 	@GetMapping("/{attributeValueId}")
 	public ResponseEntity<?> findById(@PathVariable String attributeId, @PathVariable String attributeValueId) {
-		AttributeValue attributeValue = attributeApplicationService.findAttributeValueByAttributeById(attributeId,
-				attributeValueId);
+		AttributeValue attributeValue = attributeValueService.findByAttributeIdAndId(attributeId, attributeValueId);
 		var response = new ApiResponseDTO<AttributeValue>("Lấy giá trị thuộc tính thành công", true,
 				attributeValue);
 		return new ResponseEntity<ApiResponseDTO<AttributeValue>>(response, HttpStatus.OK);

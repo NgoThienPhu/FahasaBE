@@ -7,6 +7,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.demo.account.entity.UserAccount;
+import com.example.demo.account.service.AccountReader;
+import com.example.demo.address.dto.CreateAddressRequestDTO;
 import com.example.demo.address.entity.Address;
 import com.example.demo.address.repository.AddressRepository;
 import com.example.demo.address.service.AddressService;
@@ -16,9 +19,20 @@ import com.example.demo.address.specification.AddressSpecification;
 public class AddressServiceImpl implements AddressService {
 
 	private AddressRepository addressRepository;
+	
+	private AccountReader accountReader;
 
-	public AddressServiceImpl(AddressRepository addressRepository) {
+	public AddressServiceImpl(AddressRepository addressRepository, AccountReader accountReader) {
 		this.addressRepository = addressRepository;
+		this.accountReader = accountReader;
+	}
+
+	@Override
+	public Address create(CreateAddressRequestDTO body, String accountId) {
+		UserAccount user = (UserAccount) accountReader.findById(accountId);
+		if(body.isDefault() == true) ressetDefaultAddress(accountId);
+		Address myAddress = body.convertToEntity(body, user);
+		return addressRepository.save(myAddress);
 	}
 
 	@Override
@@ -39,13 +53,7 @@ public class AddressServiceImpl implements AddressService {
 	public void deleteById(String addressId, String username) {
 		Specification<Address> spec = Specification.where(AddressSpecification.hasId(addressId))
 				.and(AddressSpecification.hasUserAccountId(username));
-
 		addressRepository.delete(spec);
-	}
-
-	@Override
-	public Address save(Address address) {
-		return addressRepository.save(address);
 	}
 
 	@Override
@@ -53,7 +61,7 @@ public class AddressServiceImpl implements AddressService {
 		Address defaultAddress = addressRepository.findOne(AddressSpecification.isDefault(true)).orElseThrow(
 				() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy địa chỉ mặc định"));
 		defaultAddress.setIsDefault(false);
-		save(defaultAddress);
+		addressRepository.save(defaultAddress);
 	}
 
 }

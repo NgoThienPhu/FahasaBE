@@ -62,7 +62,7 @@ public class AttributeServiceImpl implements AttributeService {
 	@Transactional
 	@Override
 	public Attribute create(CreateAttributeRequestDTO dto) {
-		boolean checkNameExists = existsName(dto.attributeName());
+		boolean checkNameExists = existsByName(dto.attributeName());
 		if (checkNameExists)
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 					"Tên thuộc tính đã tồn tại vui lòng chọn tên khác");
@@ -89,7 +89,7 @@ public class AttributeServiceImpl implements AttributeService {
 	}
 
 	@Override
-	public boolean existsName(String categoryName) {
+	public Boolean existsByName(String categoryName) {
 		Specification<Attribute> spec = AttributeSpecification.hasName(categoryName);
 		return attributeRepository.count(spec) > 0;
 	}

@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.attribute.application.AttributeApplicationService;
 import com.example.demo.attribute.dto.CreateAttributeRequestDTO;
 import com.example.demo.attribute.entity.Attribute;
+import com.example.demo.attribute.service.AttributeService;
 import com.example.demo.common.base.dto.ApiResponseDTO;
 import com.example.demo.common.validation.BindingResultUtil;
 
@@ -23,10 +23,10 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/admin/attributes")
 public class AdminAttributeController {
 
-	private AttributeApplicationService attributeApplicationService;
+	private AttributeService attributeService;
 
-	public AdminAttributeController(AttributeApplicationService attributeApplicationService) {
-		this.attributeApplicationService = attributeApplicationService;
+	public AdminAttributeController(AttributeService attributeService) {
+		this.attributeService = attributeService;
 	}
 
 	@PostMapping
@@ -38,7 +38,7 @@ public class AdminAttributeController {
 		if (responseError != null)
 			return responseError;
 
-		Attribute attribute = attributeApplicationService.create(body);
+		Attribute attribute = attributeService.create(body);
 		var response = new ApiResponseDTO<Attribute>("Tạo thuộc tính thành công", true, attribute);
 		return new ResponseEntity<ApiResponseDTO<Attribute>>(response, HttpStatus.CREATED);
 	}
@@ -46,7 +46,7 @@ public class AdminAttributeController {
 	@DeleteMapping("/{attributeId}")
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> deleteById(@PathVariable String attributeId) {
-		attributeApplicationService.deleteById(attributeId);
+		attributeService.deleteById(attributeId);
 		var response = new ApiResponseDTO<Void>("Xóa thuộc tính thành công", true);
 		return new ResponseEntity<ApiResponseDTO<Void>>(response, HttpStatus.OK);
 	}
@@ -61,7 +61,7 @@ public class AdminAttributeController {
 		if (responseError != null)
 			return responseError;
 
-		Attribute attribute = attributeApplicationService.updateById(attributeId, body.attributeName());
+		Attribute attribute = attributeService.update(attributeId, body.attributeName());
 		var response = new ApiResponseDTO<Attribute>("Cập nhật thuộc tính thành công", true, attribute);
 		return new ResponseEntity<ApiResponseDTO<Attribute>>(response, HttpStatus.OK);
 	}

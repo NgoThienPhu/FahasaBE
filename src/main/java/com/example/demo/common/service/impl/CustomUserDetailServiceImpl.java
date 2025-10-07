@@ -27,7 +27,7 @@ public class CustomUserDetailServiceImpl implements CustomUserDetailService {
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		
-		Account account = accountService.findAccountByUsername(username);
+		Account account = accountService.findByUsername(username);
 		
 		if(account == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Tài khoản không tồn tại vui lòng thử lại sau");
 		

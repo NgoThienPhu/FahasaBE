@@ -9,24 +9,30 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.attribute.application.AttributeApplicationService;
+import com.example.demo.attribute.entity.Attribute;
+import com.example.demo.attribute.service.AttributeReader;
 import com.example.demo.attributevalue.entity.AttributeValue;
+import com.example.demo.attributevalue.service.AttributeValueService;
 import com.example.demo.common.base.dto.ApiResponseDTO;
 
 @RestController
 @RequestMapping("/api/admin/attributes/{attributeId}/attribute-values")
 public class AdminAttributeValueController {
 
-	private AttributeApplicationService attributeApplicationService;
-
-	public AdminAttributeValueController(AttributeApplicationService attributeApplicationService) {
-		this.attributeApplicationService = attributeApplicationService;
+	private AttributeValueService attributeValueService;
+	
+	private AttributeReader attributeReader;
+	
+	public AdminAttributeValueController(AttributeValueService attributeValueService, AttributeReader attributeReader) {
+		this.attributeValueService = attributeValueService;
+		this.attributeReader = attributeReader;
 	}
 
 	@PostMapping
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> create(@PathVariable String attributeId, @RequestParam String attributeValue) {
-		AttributeValue attributev = attributeApplicationService.createAttributeValue(attributeId, attributeValue);
+		Attribute attribute = attributeReader.findById(attributeId);
+		AttributeValue attributev = attributeValueService.create(attribute, attributeValue);
 		var response = new ApiResponseDTO<AttributeValue>("Thêm giá trị thuộc tính thành công", true, attributev);
 		return new ResponseEntity<ApiResponseDTO<AttributeValue>>(response, HttpStatus.OK);
 	}
@@ -34,7 +40,7 @@ public class AdminAttributeValueController {
 	@DeleteMapping("{attributeValueId}")
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> delete(@PathVariable String attributeId, @PathVariable String attributeValueId) {
-		attributeApplicationService.deleteAttributeValueById(attributeId, attributeValueId);
+		attributeValueService.deleteByAttributeIdAndId(attributeId, attributeValueId);
 		var response = new ApiResponseDTO<AttributeValue>("Xóa giá trị thuộc tính thành công", true);
 		return new ResponseEntity<ApiResponseDTO<AttributeValue>>(response, HttpStatus.OK);
 	}

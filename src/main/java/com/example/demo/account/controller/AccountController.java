@@ -35,7 +35,7 @@ public class AccountController {
 
 	@GetMapping
 	public ResponseEntity<?> getInfo(@AuthenticationPrincipal CustomUserDetails currentUser) {
-		Account account = userAccountService.findAccountById(currentUser.getId());
+		Account account = userAccountService.findById(currentUser.getId());
 		if (account == null)
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Người dùng không tồn tại");
 		var response = new ApiResponseDTO<Account>("Lấy thông tin tài khoản thành công", true, account);
@@ -56,10 +56,10 @@ public class AccountController {
 	@PostMapping("/change-email")
 	public ResponseEntity<?> changeEmail(@RequestBody @Valid ChangeEmailRequestDTO body, BindingResult result,
 			@AuthenticationPrincipal CustomUserDetails currentUser) {
-		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Cập nhật thất bại!");
+		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Cập nhật email thất bại!");
 		if (responseError != null)
 			return responseError;
-		userAccountService.changeEmail(body.newEmail(), body.password(), currentUser.getId());
+		userAccountService.changeEmail(body, currentUser.getId());
 		var response = new ApiResponseDTO<Void>("Đổi email thành công", true);
 		return new ResponseEntity<ApiResponseDTO<Void>>(response, HttpStatus.OK);
 	}

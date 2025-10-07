@@ -6,6 +6,6 @@ public interface EmailService {
 
 	Boolean exists(String email);
 	
-	Email verify(String email);
+	Email verify(String email, String otp);
 	
 }

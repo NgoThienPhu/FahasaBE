@@ -16,12 +16,14 @@ import com.example.demo.account.dto.AdminChangeUserInfoRequestDTO;
 import com.example.demo.account.dto.AdminCreateUserRequestDTO;
 import com.example.demo.account.dto.ChangeUserInfoRequestDTO;
 import com.example.demo.account.entity.UserAccount;
+import com.example.demo.account.entity.base.Account;
 import com.example.demo.account.repository.AccountRepository;
 import com.example.demo.account.repository.UserAccountRepository;
 import com.example.demo.account.service.UserAccountService;
 import com.example.demo.account.specification.UserAccountSpecification;
 import com.example.demo.auth.service.AuthenticationService;
 import com.example.demo.common.base.entity.PhoneNumber;
+import com.example.demo.common.service.RedisService;
 import com.example.demo.email.entity.Email;
 
 import jakarta.transaction.Transactional;
@@ -32,16 +34,16 @@ public class UserAccountServiceImpl extends AccountServiceImpl implements UserAc
 	private UserAccountRepository userAccountRepository;
 
 	public UserAccountServiceImpl(AccountRepository accountRepository, PasswordEncoder passwordEncoder,
-			UserAccountRepository userAccountRepository) {
-		super(accountRepository, passwordEncoder);
+			RedisService redisService, UserAccountRepository userAccountRepository) {
+		super(accountRepository, passwordEncoder, redisService);
 		this.userAccountRepository = userAccountRepository;
 	}
 
 	@Transactional
 	@Override
 	public UserAccount adminCreateUserAccount(AdminCreateUserRequestDTO dto) {
-		Boolean checkExistsUsername = existsAccountByUsername(dto.username());
-		Boolean checkExistsEmail = exitstAccountByEmail(dto.email());
+		Boolean checkExistsUsername = existsByUsername(dto.username());
+		Boolean checkExistsEmail = existsByEmail(dto.email());
 		Boolean checkExistsPhoneNumber = existsByPhoneNumber(dto.phoneNumber());
 
 		if (checkExistsUsername)
@@ -78,7 +80,7 @@ public class UserAccountServiceImpl extends AccountServiceImpl implements UserAc
 	@Override
 	public UserAccount adminChangeUserAccountInfo(AdminChangeUserInfoRequestDTO dto, String userAccountId) {
 
-		Boolean checkExistsEmail = exitstAccountByEmail(dto.email());
+		Boolean checkExistsEmail = existsByEmail(dto.email());
 		Boolean checkExistsPhoneNumber = existsByPhoneNumber(dto.phoneNumber());
 
 		if (checkExistsEmail)

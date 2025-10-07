@@ -8,22 +8,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.common.base.dto.ApiResponseDTO;
-import com.example.demo.email.application.EmailApplicationService;
 import com.example.demo.email.dto.EmailVerifyRequestDTO;
+import com.example.demo.email.service.EmailService;
 
 @RestController
 @RequestMapping("/api/emails")
 public class EmailController {
 
-	private EmailApplicationService emailApplicationService;
-
-	public EmailController(EmailApplicationService emailApplicationService) {
-		this.emailApplicationService = emailApplicationService;
-	}
+	private EmailService emailService;
 	
+	public EmailController(EmailService emailService) {
+		this.emailService = emailService;
+	}
+
 	@PostMapping("/verify-otp")
 	public ResponseEntity<?> verifyOTP(@RequestBody EmailVerifyRequestDTO body) {
-		emailApplicationService.verify(body.email(), body.otp());
+		emailService.verify(body.email(), body.otp());
 		var response = new ApiResponseDTO<Void>("Xác thực Email thành công", true);
 		return new ResponseEntity<ApiResponseDTO<Void>>(response, HttpStatus.OK);
 	}
