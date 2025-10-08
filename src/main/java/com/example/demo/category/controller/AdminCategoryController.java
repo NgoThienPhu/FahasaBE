@@ -15,8 +15,8 @@ import com.example.demo.category.dto.CreateCategoryRequestDTO;
 import com.example.demo.category.dto.UpdateCategoryNameRequestDTO;
 import com.example.demo.category.entity.Category;
 import com.example.demo.category.service.CategoryService;
-import com.example.demo.common.base.dto.ApiResponseDTO;
-import com.example.demo.common.validation.BindingResultUtil;
+import com.example.demo.util.base.dto.ApiResponseDTO;
+import com.example.demo.util.validation.BindingResultUtil;
 
 import jakarta.validation.Valid;
 

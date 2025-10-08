@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.example.demo.common.base.dto.ApiResponseDTO;
-import com.example.demo.common.base.dto.PagedResponseDTO;
 import com.example.demo.product.entity.Product;
 import com.example.demo.product.service.ProductService;
+import com.example.demo.util.base.dto.ApiResponseDTO;
+import com.example.demo.util.base.dto.PagedResponseDTO;
 
 @RestController
 @RequestMapping("/api/products")

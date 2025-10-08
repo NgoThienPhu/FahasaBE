@@ -12,19 +12,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.common.base.dto.ApiResponseDTO;
-import com.example.demo.common.base.dto.PagedResponseDTO;
 import com.example.demo.price.entity.SellPrice;
-import com.example.demo.product.application.ProductApplicationService;
+import com.example.demo.price.service.SellPriceService;
+import com.example.demo.product.flow.ProductPricingFlow;
+import com.example.demo.util.base.dto.ApiResponseDTO;
+import com.example.demo.util.base.dto.PagedResponseDTO;
 
 @RestController
 @RequestMapping("/api/admin/products/{productId}/sell-prices")
 public class AdminSellPriceController {
 
-	private ProductApplicationService productApplicationService;
-
-	public AdminSellPriceController(ProductApplicationService productApplicationService) {
-		this.productApplicationService = productApplicationService;
+	private SellPriceService sellPriceService;
+	
+	private ProductPricingFlow productPricingFlow;
+	
+	public AdminSellPriceController(SellPriceService sellPriceService, ProductPricingFlow productPricingFlow) {
+		this.sellPriceService = sellPriceService;
+		this.productPricingFlow = productPricingFlow;
 	}
 
 	@GetMapping
@@ -34,7 +38,7 @@ public class AdminSellPriceController {
 			@RequestParam(required = true, defaultValue = "asc") String orderBy,
 			@RequestParam(required = true, defaultValue = "0") int page,
 			@RequestParam(required = true, defaultValue = "20") int size) {
-		Page<SellPrice> sellPrices = productApplicationService.findAllSellPrice(productId, sortBy, orderBy, page, size);
+		Page<SellPrice> sellPrices = sellPriceService.findAll(productId, sortBy, orderBy, page, size);
 		PagedResponseDTO<SellPrice> pagedResponseDTO = PagedResponseDTO.convertPageToPagedResponseDTO(sellPrices);
 		var response = new ApiResponseDTO<PagedResponseDTO<SellPrice>>("Lấy danh sách giá bán của sản phẩm thành công",
 				true, pagedResponseDTO);
@@ -45,7 +49,7 @@ public class AdminSellPriceController {
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> createSellPrice(@PathVariable(required = true) String productId,
 			@RequestParam(required = true) BigDecimal newSellPrice) {
-		SellPrice sellPrice = productApplicationService.createSellPrice(productId, newSellPrice);
+		SellPrice sellPrice = productPricingFlow.createSellPrice(productId, newSellPrice);
 		var response = new ApiResponseDTO<>("Tạo giá bán của sản phẩm thành công", true, sellPrice);
 		return new ResponseEntity<ApiResponseDTO<SellPrice>>(response, HttpStatus.OK);
 	}

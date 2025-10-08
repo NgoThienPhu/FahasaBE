@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.common.base.dto.ApiResponseDTO;
 import com.example.demo.email.dto.EmailVerifyRequestDTO;
 import com.example.demo.email.service.EmailService;
+import com.example.demo.util.base.dto.ApiResponseDTO;
 
 @RestController
 @RequestMapping("/api/emails")

@@ -20,13 +20,16 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.example.demo.common.base.dto.ApiResponseDTO;
-import com.example.demo.common.base.dto.PagedResponseDTO;
-import com.example.demo.common.validation.BindingResultUtil;
-import com.example.demo.product.application.ProductApplicationService;
 import com.example.demo.product.dto.CreateProductRequestDTO;
-import com.example.demo.product.dto.ProductResponseDTO;
+import com.example.demo.product.dto.ProductDetailDTO;
 import com.example.demo.product.dto.UpdateProductRequestDTO;
+import com.example.demo.product.entity.Product;
+import com.example.demo.product.flow.CreateProductFlow;
+import com.example.demo.product.mapper.ProductDetailMapper;
+import com.example.demo.product.service.ProductService;
+import com.example.demo.util.base.dto.ApiResponseDTO;
+import com.example.demo.util.base.dto.PagedResponseDTO;
+import com.example.demo.util.validation.BindingResultUtil;
 
 import jakarta.validation.Valid;
 
@@ -34,10 +37,17 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/admin/products")
 public class AdminProductController {
 
-	private ProductApplicationService productApplicationService;
+	private ProductService productService;
+	
+	private CreateProductFlow createProductFlow;
 
-	public AdminProductController(ProductApplicationService productApplicationService) {
-		this.productApplicationService = productApplicationService;
+	private ProductDetailMapper productDetailMapper;
+
+	public AdminProductController(ProductService productService, CreateProductFlow createProductFlow,
+			ProductDetailMapper productDetailMapper) {
+		this.productService = productService;
+		this.createProductFlow = createProductFlow;
+		this.productDetailMapper = productDetailMapper;
 	}
 
 	@GetMapping
@@ -46,24 +56,25 @@ public class AdminProductController {
 			@RequestParam(required = true, defaultValue = "asc") String orderBy,
 			@RequestParam(required = true, defaultValue = "0") int page,
 			@RequestParam(required = true, defaultValue = "20") int size) {
-		Page<ProductResponseDTO> products = productApplicationService.getPageProductResponseDTO(orderBy, sortBy, page,
-				size);
-		PagedResponseDTO<ProductResponseDTO> pagedResponseDTO = PagedResponseDTO
-				.convertPageToPagedResponseDTO(products);
-		var response = new ApiResponseDTO<PagedResponseDTO<ProductResponseDTO>>("Tìm sản phẩm thành công", true,
+		Page<Product> products = productService.findAll(orderBy, sortBy, page, size);
+		Page<ProductDetailDTO> productDetails = products.map(productDetailMapper::convertToProductDetailDTO);
+		PagedResponseDTO<ProductDetailDTO> pagedResponseDTO = PagedResponseDTO
+				.convertPageToPagedResponseDTO(productDetails);
+		var response = new ApiResponseDTO<PagedResponseDTO<ProductDetailDTO>>("Tìm sản phẩm thành công", true,
 				pagedResponseDTO);
-		return new ResponseEntity<ApiResponseDTO<PagedResponseDTO<ProductResponseDTO>>>(response, HttpStatus.OK);
+		return new ResponseEntity<ApiResponseDTO<PagedResponseDTO<ProductDetailDTO>>>(response, HttpStatus.OK);
 	}
 
 	@GetMapping("/{productId}")
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> getProductById(@PathVariable String productId) {
-		ProductResponseDTO product = productApplicationService.getProductResponseDTOById(productId);
+		Product product = productService.findById(productId);
 		if (product == null)
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND,
 					String.format("Không tìm thấy sản phẩm với id là: %s", productId));
-		var response = new ApiResponseDTO<>("Tìm sản phẩm thành công", true, product);
-		return new ResponseEntity<ApiResponseDTO<ProductResponseDTO>>(response, HttpStatus.OK);
+		ProductDetailDTO productDetail = productDetailMapper.convertToProductDetailDTO(product);
+		var response = new ApiResponseDTO<>("Tìm sản phẩm thành công", true, productDetail);
+		return new ResponseEntity<ApiResponseDTO<ProductDetailDTO>>(response, HttpStatus.OK);
 	}
 
 	@PostMapping
@@ -77,16 +88,17 @@ public class AdminProductController {
 		if (responseError != null)
 			return responseError;
 
-		ProductResponseDTO myProduct = productApplicationService.create(product, image, images);
+		Product myProduct = createProductFlow.create(product, image, images);
+		ProductDetailDTO productDetail = productDetailMapper.convertToProductDetailDTO(myProduct);
 
-		var response = new ApiResponseDTO<>("Tạo sản phẩm thành công", true, myProduct);
-		return new ResponseEntity<ApiResponseDTO<ProductResponseDTO>>(response, HttpStatus.OK);
+		var response = new ApiResponseDTO<>("Tạo sản phẩm thành công", true, productDetail);
+		return new ResponseEntity<ApiResponseDTO<ProductDetailDTO>>(response, HttpStatus.OK);
 	}
 
 	@DeleteMapping("/{productId}")
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> deleteProductById(@PathVariable String productId) {
-		productApplicationService.deleteById(productId);
+		productService.deleteById(productId);
 		var response = new ApiResponseDTO<Void>("Xóa sản phẩm thành công", true);
 		return new ResponseEntity<ApiResponseDTO<Void>>(response, HttpStatus.OK);
 	}
@@ -95,9 +107,10 @@ public class AdminProductController {
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> updateProductById(@PathVariable String productId,
 			@RequestBody UpdateProductRequestDTO dto) {
-		ProductResponseDTO product = productApplicationService.update(productId, dto);
-		var response = new ApiResponseDTO<ProductResponseDTO>("Cập nhật sản phẩm thành công", true, product);
-		return new ResponseEntity<ApiResponseDTO<ProductResponseDTO>>(response, HttpStatus.OK);
+		Product product = productService.update(productId, dto);
+		ProductDetailDTO productDetail = productDetailMapper.convertToProductDetailDTO(product);
+		var response = new ApiResponseDTO<ProductDetailDTO>("Cập nhật sản phẩm thành công", true, productDetail);
+		return new ResponseEntity<ApiResponseDTO<ProductDetailDTO>>(response, HttpStatus.OK);
 	}
 
 }

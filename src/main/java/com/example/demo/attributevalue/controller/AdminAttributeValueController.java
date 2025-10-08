@@ -13,7 +13,7 @@ import com.example.demo.attribute.entity.Attribute;
 import com.example.demo.attribute.service.AttributeReader;
 import com.example.demo.attributevalue.entity.AttributeValue;
 import com.example.demo.attributevalue.service.AttributeValueService;
-import com.example.demo.common.base.dto.ApiResponseDTO;
+import com.example.demo.util.base.dto.ApiResponseDTO;
 
 @RestController
 @RequestMapping("/api/admin/attributes/{attributeId}/attribute-values")

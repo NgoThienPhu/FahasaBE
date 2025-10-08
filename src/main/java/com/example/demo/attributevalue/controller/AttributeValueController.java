@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.attributevalue.entity.AttributeValue;
 import com.example.demo.attributevalue.service.AttributeValueService;
-import com.example.demo.common.base.dto.ApiResponseDTO;
+import com.example.demo.util.base.dto.ApiResponseDTO;
 
 @RestController
 @RequestMapping("/api/attributes/{attributeId}/attribute-values")

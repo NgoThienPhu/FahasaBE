@@ -12,19 +12,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.common.base.dto.ApiResponseDTO;
-import com.example.demo.common.base.dto.PagedResponseDTO;
 import com.example.demo.price.entity.PurchasePrice;
-import com.example.demo.product.application.ProductApplicationService;
+import com.example.demo.price.service.PurchasePriceService;
+import com.example.demo.util.base.dto.ApiResponseDTO;
+import com.example.demo.util.base.dto.PagedResponseDTO;
 
 @RestController
 @RequestMapping("/api/admin/products/{productId}/purchase-prices")
 public class AdminPurchasePriceController {
 
-	private ProductApplicationService productApplicationService;
+	private PurchasePriceService purchasePriceService;
 
-	public AdminPurchasePriceController(ProductApplicationService productApplicationService) {
-		this.productApplicationService = productApplicationService;
+	public AdminPurchasePriceController(PurchasePriceService purchasePriceService) {
+		this.purchasePriceService = purchasePriceService;
 	}
 
 	@GetMapping
@@ -34,8 +34,7 @@ public class AdminPurchasePriceController {
 			@RequestParam(required = true, defaultValue = "asc") String orderBy,
 			@RequestParam(required = true, defaultValue = "0") int page,
 			@RequestParam(required = true, defaultValue = "20") int size) {
-		Page<PurchasePrice> purchasePrices = productApplicationService.findAllPurchasePrice(productId, sortBy, orderBy,
-				page, size);
+		Page<PurchasePrice> purchasePrices = purchasePriceService.findAll(productId, sortBy, orderBy, page, size);
 		PagedResponseDTO<PurchasePrice> pagedResponseDTO = PagedResponseDTO
 				.convertPageToPagedResponseDTO(purchasePrices);
 		var response = new ApiResponseDTO<PagedResponseDTO<PurchasePrice>>(
@@ -47,7 +46,7 @@ public class AdminPurchasePriceController {
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> createPurchasePrice(@PathVariable(required = true) String productId,
 			@RequestParam(required = true) BigDecimal newPurchasePrice) {
-		PurchasePrice purchasePrice = productApplicationService.createPurchasePrice(productId, newPurchasePrice);
+		PurchasePrice purchasePrice = purchasePriceService.update(productId, newPurchasePrice);
 		var response = new ApiResponseDTO<>("Tạo giá nhập của sản phẩm thành công", true, purchasePrice);
 		return new ResponseEntity<ApiResponseDTO<PurchasePrice>>(response, HttpStatus.OK);
 	}

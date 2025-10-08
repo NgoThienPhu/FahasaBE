@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.example.demo.account.entity.base.Account;
 import com.example.demo.address.entity.Address;
-import com.example.demo.common.base.entity.PhoneNumber;
+import com.example.demo.util.base.entity.PhoneNumber;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;

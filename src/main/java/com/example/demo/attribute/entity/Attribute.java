@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.example.demo.category.entity.Category;
-import com.example.demo.common.base.entity.BaseEntity;
+import com.example.demo.util.base.entity.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;

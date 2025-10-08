@@ -1,7 +1,7 @@
 package com.example.demo.address.entity;
 
 import com.example.demo.account.entity.UserAccount;
-import com.example.demo.common.base.entity.BaseEntity;
+import com.example.demo.util.base.entity.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;

@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.address.dto.CreateAddressRequestDTO;
 import com.example.demo.address.entity.Address;
 import com.example.demo.address.service.AddressService;
-import com.example.demo.common.base.dto.ApiResponseDTO;
-import com.example.demo.common.base.entity.CustomUserDetails;
+import com.example.demo.util.base.dto.ApiResponseDTO;
+import com.example.demo.util.base.entity.CustomUserDetails;
 
 @RestController
 @RequestMapping("/api/accounts/me/addresses")

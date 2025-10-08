@@ -12,12 +12,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.example.demo.price.dto.CreatePromoPriceRequestDTO;
 import com.example.demo.price.entity.PromoPrice;
 import com.example.demo.price.repository.PromoPriceRepository;
 import com.example.demo.price.service.PromoPriceService;
 import com.example.demo.price.specification.PromoPriceSpecification;
-import com.example.demo.product.entity.Product;
 
 @Service
 public class PromoPriceServiceImpl implements PromoPriceService {
@@ -27,7 +25,7 @@ public class PromoPriceServiceImpl implements PromoPriceService {
 	public PromoPriceServiceImpl(PromoPriceRepository promoPriceRepository) {
 		this.promoPriceRepository = promoPriceRepository;
 	}
-	
+
 	@Override
 	public PromoPrice save(PromoPrice promoPrice) {
 		return promoPriceRepository.save(promoPrice);
@@ -48,25 +46,6 @@ public class PromoPriceServiceImpl implements PromoPriceService {
 		Pageable pageable = PageRequest.of(page, size, sort);
 
 		return promoPriceRepository.findAll(PromoPriceSpecification.hasProductId(productId), pageable);
-	}
-
-	@Override
-	public PromoPrice create(Product product, CreatePromoPriceRequestDTO dto) {
-
-		if (dto.endDate().isBefore(dto.startDate())) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ngày kết thúc phải sau ngày bắt đầu");
-		}
-
-		Boolean checkOverlap = existsOverlap(product.getId(), dto.startDate(), dto.endDate());
-
-		if (checkOverlap)
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-					"Đã có khuyến mại được thiết lập trong khoảng thời gian này");
-
-		PromoPrice promoPrice = new PromoPrice(product, dto.promoName(), dto.promoPrice(), dto.startDate(),
-				dto.endDate());
-
-		return promoPriceRepository.save(promoPrice);
 	}
 
 	@Override

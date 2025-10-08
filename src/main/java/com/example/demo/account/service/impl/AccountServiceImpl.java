@@ -12,8 +12,8 @@ import com.example.demo.account.repository.AccountRepository;
 import com.example.demo.account.service.AccountService;
 import com.example.demo.account.specification.AccountSpecification;
 import com.example.demo.auth.service.AuthenticationService;
-import com.example.demo.common.service.RedisService;
 import com.example.demo.email.entity.Email;
+import com.example.demo.util.service.RedisService;
 
 public abstract class AccountServiceImpl implements AccountService {
 

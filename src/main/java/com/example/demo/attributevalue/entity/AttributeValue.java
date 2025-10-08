@@ -1,7 +1,7 @@
 package com.example.demo.attributevalue.entity;
 
 import com.example.demo.attribute.entity.Attribute;
-import com.example.demo.common.base.entity.BaseEntity;
+import com.example.demo.util.base.entity.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;

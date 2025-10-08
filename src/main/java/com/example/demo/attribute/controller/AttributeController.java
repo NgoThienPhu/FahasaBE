@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.attribute.service.AttributeService;
-import com.example.demo.common.base.dto.ApiResponseDTO;
-import com.example.demo.common.base.dto.PagedResponseDTO;
+import com.example.demo.util.base.dto.ApiResponseDTO;
+import com.example.demo.util.base.dto.PagedResponseDTO;
 
 @RestController
 @RequestMapping("/api/attributes")

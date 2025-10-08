@@ -26,11 +26,6 @@ public class SellPriceServiceImpl implements SellPriceService {
 	public SellPriceServiceImpl(SellPriceRepository sellPriceRepository) {
 		this.sellPriceRepository = sellPriceRepository;
 	}
-	
-	@Override
-	public SellPrice save(SellPrice sellPrice) {
-		return sellPriceRepository.save(sellPrice);
-	}
 
 	@Override
 	public Page<SellPrice> findAll(String productId, String sortBy, String orderBy, int page, int size) {
@@ -70,5 +65,10 @@ public class SellPriceServiceImpl implements SellPriceService {
 
 		return sellPriceRepository.save(sellPrice);
 	}
-	
+
+	@Override
+	public SellPrice save(SellPrice sellPrice) {
+		return sellPriceRepository.save(sellPrice);
+	}
+
 }

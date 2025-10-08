@@ -5,8 +5,8 @@ import java.util.List;
 
 import com.example.demo.attributevalue.entity.AttributeValue;
 import com.example.demo.category.entity.Category;
-import com.example.demo.common.base.entity.BaseEntity;
 import com.example.demo.productimage.entity.ProductImage;
+import com.example.demo.util.base.entity.BaseEntity;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

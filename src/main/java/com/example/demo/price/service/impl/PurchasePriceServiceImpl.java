@@ -58,7 +58,7 @@ public class PurchasePriceServiceImpl implements PurchasePriceService {
 	}
 
 	@Override
-	public PurchasePrice updatePurchasePrice(String productId, BigDecimal newPurchasePrice) {
+	public PurchasePrice update(String productId, BigDecimal newPurchasePrice) {
 		if (newPurchasePrice.compareTo(BigDecimal.valueOf(1_000)) < 0) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Giá của sản phẩm phải lớn hơn 1.000 VNĐ");
 		}

@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.attribute.dto.CreateAttributeRequestDTO;
 import com.example.demo.attribute.entity.Attribute;
 import com.example.demo.attribute.service.AttributeService;
-import com.example.demo.common.base.dto.ApiResponseDTO;
-import com.example.demo.common.validation.BindingResultUtil;
+import com.example.demo.util.base.dto.ApiResponseDTO;
+import com.example.demo.util.validation.BindingResultUtil;
 
 import jakarta.validation.Valid;
 

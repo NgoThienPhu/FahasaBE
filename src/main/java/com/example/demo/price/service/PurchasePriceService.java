@@ -14,6 +14,6 @@ public interface PurchasePriceService {
 
 	Page<PurchasePrice> findAll(String productId, String sortBy, String orderBy, int page, int size);
 
-	PurchasePrice updatePurchasePrice(String productId, BigDecimal newPurchasePrice);
+	PurchasePrice update(String productId, BigDecimal newPurchasePrice);
 
 }

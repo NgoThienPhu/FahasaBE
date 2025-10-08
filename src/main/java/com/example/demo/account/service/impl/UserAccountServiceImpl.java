@@ -21,9 +21,9 @@ import com.example.demo.account.repository.UserAccountRepository;
 import com.example.demo.account.service.UserAccountService;
 import com.example.demo.account.specification.UserAccountSpecification;
 import com.example.demo.auth.service.AuthenticationService;
-import com.example.demo.common.base.entity.PhoneNumber;
-import com.example.demo.common.service.RedisService;
 import com.example.demo.email.entity.Email;
+import com.example.demo.util.base.entity.PhoneNumber;
+import com.example.demo.util.service.RedisService;
 
 import jakarta.transaction.Transactional;
 

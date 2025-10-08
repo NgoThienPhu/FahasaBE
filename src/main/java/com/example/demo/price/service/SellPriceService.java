@@ -12,8 +12,8 @@ public interface SellPriceService {
 	
 	Page<SellPrice> findAll(String productId, String sortBy, String orderBy, int page, int size);
 
-	SellPrice getCurrentSellPrice(String productId);
-	
 	SellPrice updateProductSellPrice(String productId, BigDecimal newSellPrice);
+	
+	SellPrice getCurrentSellPrice(String productId);
 	
 }

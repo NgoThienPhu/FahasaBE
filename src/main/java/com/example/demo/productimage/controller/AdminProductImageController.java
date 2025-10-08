@@ -13,48 +13,56 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.demo.common.base.dto.ApiResponseDTO;
-import com.example.demo.product.application.ProductApplicationService;
-import com.example.demo.product.dto.ProductResponseDTO;
+import com.example.demo.product.dto.ProductDetailDTO;
+import com.example.demo.product.entity.Product;
+import com.example.demo.product.mapper.ProductDetailMapper;
+import com.example.demo.product.service.ProductService;
+import com.example.demo.util.base.dto.ApiResponseDTO;
 
 @RestController
 @RequestMapping("/api/admin/products/{productId}/images")
 public class AdminProductImageController {
 
-	private ProductApplicationService productApplicationService;
+	private ProductService productService;
 
-	public AdminProductImageController(ProductApplicationService productApplicationService) {
-		this.productApplicationService = productApplicationService;
+	private ProductDetailMapper productDetailMapper;
+
+	public AdminProductImageController(ProductService productService, ProductDetailMapper productDetailMapper) {
+		this.productService = productService;
+		this.productDetailMapper = productDetailMapper;
 	}
 
 	@PatchMapping("/main-image")
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> updatePrimaryImage(@PathVariable String productId,
 			@RequestPart(required = true) MultipartFile image) throws Exception {
-		ProductResponseDTO product = productApplicationService.updatePrimaryImage(productId, image);
-		var response = new ApiResponseDTO<ProductResponseDTO>("Cập nhật ảnh chính của sản phẩm thành công", true,
-				product);
-		return new ResponseEntity<ApiResponseDTO<ProductResponseDTO>>(response, HttpStatus.OK);
+		Product product = productService.updatePrimaryImage(productId, image);
+		ProductDetailDTO productDetail = productDetailMapper.convertToProductDetailDTO(product);
+		var response = new ApiResponseDTO<ProductDetailDTO>("Cập nhật ảnh chính của sản phẩm thành công", true,
+				productDetail);
+		return new ResponseEntity<ApiResponseDTO<ProductDetailDTO>>(response, HttpStatus.OK);
 	}
 
 	@PatchMapping
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> updateImages(@PathVariable String productId,
 			@RequestPart(required = true) List<MultipartFile> images) {
-		ProductResponseDTO product = productApplicationService.updateSecondImage(productId, images);
-		var response = new ApiResponseDTO<ProductResponseDTO>("Cập nhật danh sách ảnh của sản phẩm thành công",
-				true, product);
-		return new ResponseEntity<ApiResponseDTO<ProductResponseDTO>>(response, HttpStatus.OK);
+		Product product = productService.updateSecondImage(productId, images);
+		ProductDetailDTO productDetail = productDetailMapper.convertToProductDetailDTO(product);
+		var response = new ApiResponseDTO<ProductDetailDTO>("Cập nhật danh sách ảnh của sản phẩm thành công", true,
+				productDetail);
+		return new ResponseEntity<ApiResponseDTO<ProductDetailDTO>>(response, HttpStatus.OK);
 	}
 
 	@DeleteMapping
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> deleteImages(@PathVariable String productId,
 			@RequestBody(required = true) List<String> imagesId) {
-		ProductResponseDTO product = productApplicationService.deleteSecondImage(productId, imagesId);
-		var response = new ApiResponseDTO<ProductResponseDTO>("Xóa danh sách ảnh của sản phẩm thành công", true,
-				product);
-		return new ResponseEntity<ApiResponseDTO<ProductResponseDTO>>(response, HttpStatus.OK);
+		Product product = productService.deleteSecondImage(productId, imagesId);
+		ProductDetailDTO productDetail = productDetailMapper.convertToProductDetailDTO(product);
+		var response = new ApiResponseDTO<ProductDetailDTO>("Xóa danh sách ảnh của sản phẩm thành công", true,
+				productDetail);
+		return new ResponseEntity<ApiResponseDTO<ProductDetailDTO>>(response, HttpStatus.OK);
 	}
 
 }

@@ -8,7 +8,7 @@ import com.example.demo.auth.dto.ChangePasswordRequestDTO;
 import com.example.demo.auth.dto.LoginRequestDTO;
 import com.example.demo.auth.dto.LoginResponseDTO;
 import com.example.demo.auth.dto.RefreshAccessTokenResponseDTO;
-import com.example.demo.common.base.entity.CustomUserDetails;
+import com.example.demo.util.base.entity.CustomUserDetails;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

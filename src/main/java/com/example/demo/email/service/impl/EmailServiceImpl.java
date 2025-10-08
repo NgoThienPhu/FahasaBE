@@ -4,11 +4,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.example.demo.common.service.RedisService;
 import com.example.demo.email.entity.Email;
 import com.example.demo.email.repository.EmailRepository;
 import com.example.demo.email.service.EmailService;
 import com.example.demo.email.specification.EmailSpecification;
+import com.example.demo.util.service.RedisService;
 
 @Service
 public class EmailServiceImpl implements EmailService {
