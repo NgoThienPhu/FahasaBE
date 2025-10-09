@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.address.dto.CreateAddressRequestDTO;
 import com.example.demo.address.entity.Address;
+import com.example.demo.address.flow.CreateAddressFlow;
 import com.example.demo.address.service.AddressService;
 import com.example.demo.util.base.dto.ApiResponseDTO;
 import com.example.demo.util.base.entity.CustomUserDetails;
@@ -26,8 +27,11 @@ public class AddressController {
 
 	private AddressService addressService;
 	
-	public AddressController(AddressService addressService) {
+	private CreateAddressFlow createAddressFlow;
+	
+	public AddressController(AddressService addressService, CreateAddressFlow createAddressFlow) {
 		this.addressService = addressService;
+		this.createAddressFlow = createAddressFlow;
 	}
 
 	@GetMapping("/{addressId}")
@@ -47,7 +51,7 @@ public class AddressController {
 	
 	@PostMapping
 	public ResponseEntity<?> create(@RequestBody CreateAddressRequestDTO body, @AuthenticationPrincipal CustomUserDetails currentUser) {
-		Address address = addressService.create(body, currentUser.getId());
+		Address address = createAddressFlow.createAddress(body, currentUser.getId());
 		var response = new ApiResponseDTO<Address>("Thêm địa chỉ giao hàng thành công", true, address);
 		return new ResponseEntity<ApiResponseDTO<Address>>(response, HttpStatus.OK);
 	}

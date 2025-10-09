@@ -9,9 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.attribute.entity.Attribute;
-import com.example.demo.attribute.service.AttributeReader;
 import com.example.demo.attributevalue.entity.AttributeValue;
+import com.example.demo.attributevalue.flow.CreateAttributeValueFlow;
 import com.example.demo.attributevalue.service.AttributeValueService;
 import com.example.demo.util.base.dto.ApiResponseDTO;
 
@@ -20,19 +19,19 @@ import com.example.demo.util.base.dto.ApiResponseDTO;
 public class AdminAttributeValueController {
 
 	private AttributeValueService attributeValueService;
-	
-	private AttributeReader attributeReader;
-	
-	public AdminAttributeValueController(AttributeValueService attributeValueService, AttributeReader attributeReader) {
+
+	private CreateAttributeValueFlow createAttributeValueFlow;
+
+	public AdminAttributeValueController(AttributeValueService attributeValueService,
+			CreateAttributeValueFlow createAttributeValueFlow) {
 		this.attributeValueService = attributeValueService;
-		this.attributeReader = attributeReader;
+		this.createAttributeValueFlow = createAttributeValueFlow;
 	}
 
 	@PostMapping
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> create(@PathVariable String attributeId, @RequestParam String attributeValue) {
-		Attribute attribute = attributeReader.findById(attributeId);
-		AttributeValue attributev = attributeValueService.create(attribute, attributeValue);
+		AttributeValue attributev = createAttributeValueFlow.createAttributeValue(attributeId, attributeValue);
 		var response = new ApiResponseDTO<AttributeValue>("Thêm giá trị thuộc tính thành công", true, attributev);
 		return new ResponseEntity<ApiResponseDTO<AttributeValue>>(response, HttpStatus.OK);
 	}
