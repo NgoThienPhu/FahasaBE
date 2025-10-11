@@ -6,7 +6,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,7 +18,6 @@ import com.example.demo.account.entity.UserAccount;
 import com.example.demo.account.repository.AccountRepository;
 import com.example.demo.account.repository.UserAccountRepository;
 import com.example.demo.account.service.UserAccountService;
-import com.example.demo.account.specification.UserAccountSpecification;
 import com.example.demo.auth.service.AuthenticationService;
 import com.example.demo.email.entity.Email;
 import com.example.demo.util.base.entity.PhoneNumber;
@@ -104,9 +102,8 @@ public class UserAccountService extends AccountService {
 		return userAccountRepository.save(userAccount);
 	}
 
-	public Boolean existsByPhoneNumber(String phoneNumber) {
-		Specification<UserAccount> spec = UserAccountSpecification.equalsPhoneNumber(phoneNumber);
-		return userAccountRepository.count(spec) > 0;
+	public boolean existsByPhoneNumber(String phoneNumber) {
+		return userAccountRepository.existsByPhoneNumber(phoneNumber);
 	}
 
 	public Page<UserAccount> findUserAccounts(String orderBy, String sortBy, int page, int size) {
@@ -137,10 +134,7 @@ public class UserAccountService extends AccountService {
 
 		Pageable pageable = PageRequest.of(page, size, sort);
 
-		Specification<UserAccount> spec = Specification.where(UserAccountSpecification.equalsUsername(keyWord))
-				.or(UserAccountSpecification.hasEmail(keyWord)).or(UserAccountSpecification.hasPhoneNumber(keyWord));
-
-		return userAccountRepository.findAll(spec, pageable);
+		return userAccountRepository.findByUsernameOrEmailOrPhoneNumber(keyWord, pageable);
 	}
 
 	@Transactional

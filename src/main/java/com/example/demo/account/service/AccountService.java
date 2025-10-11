@@ -1,6 +1,5 @@
 package com.example.demo.account.service;
 
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,7 +9,6 @@ import com.example.demo.account.dto.ChangeEmailRequestDTO;
 import com.example.demo.account.entity.base.Account;
 import com.example.demo.account.repository.AccountRepository;
 import com.example.demo.account.service.AccountService;
-import com.example.demo.account.specification.AccountSpecification;
 import com.example.demo.auth.service.AuthenticationService;
 import com.example.demo.email.entity.Email;
 import com.example.demo.util.service.RedisService;
@@ -39,18 +37,15 @@ public class AccountService {
 	}
 
 	public Account findByUsername(String username) {
-		Specification<Account> spec = AccountSpecification.hasUsername(username);
-		return accountRepository.findOne(spec).orElse(null);
+		return accountRepository.findByUsername(username);
 	}
 
 	public Boolean existsByUsername(String username) {
-		Specification<Account> spec = AccountSpecification.hasUsername(username);
-		return accountRepository.count(spec) > 0;
+		return accountRepository.existsByUsername(username);
 	}
 
 	public Boolean existsByEmail(String email) {
-		Specification<Account> spec = Specification.where(AccountSpecification.hasEmail(email));
-		return accountRepository.count(spec) > 0;
+		return accountRepository.existsByEmail(email);
 	}
 
 	@Transactional
