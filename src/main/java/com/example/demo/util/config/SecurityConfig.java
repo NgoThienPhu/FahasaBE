@@ -19,16 +19,16 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.example.demo.util.filter.JwtAuthenticationFilter;
-import com.example.demo.util.service.impl.CustomUserDetailServiceImpl;
+import com.example.demo.util.service.CustomUserDetailService;
 
 @Configuration
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
-	private CustomUserDetailServiceImpl customUserDetailServiceImpl;
+	private CustomUserDetailService customUserDetailServiceImpl;
 	private JwtAuthenticationFilter jwtAuthenticationFilter;
 
-	public SecurityConfig(@Lazy CustomUserDetailServiceImpl customUserDetailServiceImpl,
+	public SecurityConfig(@Lazy CustomUserDetailService customUserDetailServiceImpl,
 			@Lazy JwtAuthenticationFilter jwtAuthenticationFilter) {
 		this.customUserDetailServiceImpl = customUserDetailServiceImpl;
 		this.jwtAuthenticationFilter = jwtAuthenticationFilter;

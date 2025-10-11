@@ -1,14 +1,10 @@
 package com.example.demo.category.dto;
 
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.NotBlank;
 
 public record UpdateCategoryNameRequestDTO(
 		
-		String categoryName,
-		
-		@Positive(message = "Thứ tự sắp xếp luôn luôn phải lớn hơn 0")
-		Integer sortOrder,
-		
-		Boolean visible
+		@NotBlank(message = "Tên thể loại không được để trống")
+		String categoryName
 		
 ) {}

@@ -19,13 +19,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Table(name = "account")
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "account_type")
+@Table(name = "account")
 public abstract class Account extends BaseEntity {
 
 	@Column(name = "username", nullable = false, unique = true, updatable = false)

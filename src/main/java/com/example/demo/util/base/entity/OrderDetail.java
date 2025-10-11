@@ -1,6 +1,6 @@
 package com.example.demo.util.base.entity;
 
-import com.example.demo.product.entity.Product;
+import com.example.demo.book.entity.Book;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,8 +21,12 @@ import lombok.Setter;
 public class OrderDetail extends BaseEntity {
 	
 	@ManyToOne
+	@JoinColumn(name = "my_order_id")
+	private MyOrder myOrder;
+	
+	@ManyToOne
 	@JoinColumn(name = "product_id")
-	private Product product;
+	private Book product;
 	
 	@Column(name = "quantity")
 	private int quantity;

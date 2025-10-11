@@ -60,7 +60,7 @@ public class AdminCategoryController {
 	@DeleteMapping("/{categoryId}")
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> deleteCategory(@PathVariable String categoryId) {
-		categoryService.delete(categoryId);
+		categoryService.deleteById(categoryId);
 		var response = new ApiResponseDTO<Void>(String.format("Đã xóa loại sản phẩm với id là: %s", categoryId),
 				true);
 		return new ResponseEntity<ApiResponseDTO<Void>>(response, HttpStatus.OK);
