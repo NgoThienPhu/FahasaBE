@@ -31,13 +31,13 @@ public class AccountService {
 	}
 
 	public Account findById(String accountId) {
-		return accountRepository.findById(accountId)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+		return accountRepository.findById(accountId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
 				String.format("Không tìm thấy tài khoản với Id là: %s", accountId)));
 	}
 
 	public Account findByUsername(String username) {
-		return accountRepository.findByUsername(username);
+		return accountRepository.findByUsername(username)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Người dùng không tồn tại"));
 	}
 
 	public Boolean existsByUsername(String username) {
@@ -56,23 +56,23 @@ public class AccountService {
 		accountRepository.save(account);
 		System.out.println(String.format("Mật khẩu mới của bạn là: %s", password));
 	}
-	
+
 	@Transactional
 	public Account changeEmail(ChangeEmailRequestDTO body, String accountId) {
 		Account account = findById(accountId);
-		if(!passwordEncoder.matches(body.password(), account.getPassword())) {
+		if (!passwordEncoder.matches(body.password(), account.getPassword())) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mật khẩu không chính xác");
 		}
-		if(existsByEmail(body.newEmail())) {
+		if (existsByEmail(body.newEmail())) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email đã được sử dụng");
 		}
 		String myOtp = redisService.getValue(String.format("OTP:%s", body.newEmail()));
-		if(myOtp == null || !body.otp().equals(myOtp)) {
+		if (myOtp == null || !body.otp().equals(myOtp)) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mã Otp không chính xác");
 		}
 		Email myEmail = new Email(body.newEmail(), true);
 		account.setEmail(myEmail);
 		return save(account);
 	}
-	
+
 }

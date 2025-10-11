@@ -1,5 +1,7 @@
 package com.example.demo.account.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -15,7 +17,7 @@ public interface AccountRepository extends JpaRepository<Account, String> {
 			SELECT u FROM Account u
 			WHERE u.username = :username
 			""")
-	Account findByUsername(@Param("username") String username);
+	Optional<Account> findByUsername(@Param("username") String username);
 	
 	@Query("""
 			SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END

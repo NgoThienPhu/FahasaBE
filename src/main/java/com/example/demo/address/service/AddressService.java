@@ -2,9 +2,6 @@ package com.example.demo.address.service;
 
 import java.util.List;
 
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -12,7 +9,6 @@ import org.springframework.web.server.ResponseStatusException;
 import com.example.demo.address.entity.Address;
 import com.example.demo.address.repository.AddressRepository;
 import com.example.demo.address.service.AddressService;
-import com.example.demo.address.specification.AddressSpecification;
 
 @Service
 public class AddressService {
@@ -23,27 +19,23 @@ public class AddressService {
 		this.addressRepository = addressRepository;
 	}
 
-	public List<Address> findAll(String accountId) {
-		Sort sort = Sort.by(Direction.DESC, "isDefault");
-		return addressRepository.findAll(AddressSpecification.hasUserAccountId(accountId), sort);
+	public List<Address> findAllByUserAccountId(String userAccountId) {
+		return addressRepository.findAllByUserAccountId(userAccountId);
 	}
 
-	public Address findById(String addressId, String username) {
-		Specification<Address> spec = Specification.where(AddressSpecification.hasId(addressId))
-				.and(AddressSpecification.hasUserAccountId(username));
+	public Address findByIdAndUserAccountId(String addressId, String userAccountId) {
 
-		return addressRepository.findOne(spec).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-				"Địa chỉ cần tìm không tồn tại, vui lòng thử lại sau"));
+		return addressRepository.findByIdAndUserAccountId(addressId, userAccountId)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Địa chỉ không tồn tại"));
 	}
 
-	public void deleteById(String addressId, String username) {
-		Specification<Address> spec = Specification.where(AddressSpecification.hasId(addressId))
-				.and(AddressSpecification.hasUserAccountId(username));
-		addressRepository.delete(spec);
+	public void deleteById(String addressId, String userAccountId) {
+		Address address = findByIdAndUserAccountId(addressId, userAccountId);
+		addressRepository.delete(address);
 	}
 
-	public void ressetDefaultAddress(String accountId) {
-		Address defaultAddress = addressRepository.findOne(AddressSpecification.isDefault(true)).orElseThrow(
+	public void ressetDefaultAddress(String userAccountId) {
+		Address defaultAddress = addressRepository.findDefaultAddress(userAccountId).orElseThrow(
 				() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy địa chỉ mặc định"));
 		defaultAddress.setIsDefault(false);
 		addressRepository.save(defaultAddress);

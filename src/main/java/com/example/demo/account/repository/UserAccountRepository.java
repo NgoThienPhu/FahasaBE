@@ -1,5 +1,7 @@
 package com.example.demo.account.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,7 +19,7 @@ public interface UserAccountRepository extends JpaRepository<UserAccount, String
 			SELECT u FROM UserAccount u
 			WHERE u.username = :username
 			""")
-	UserAccount findByUsername(@Param("username") String username);
+	Optional<UserAccount> findByUsername(@Param("username") String username);
 	
 	@Query("""
 		    SELECT u FROM UserAccount u

@@ -37,14 +37,14 @@ public class AddressController {
 	@GetMapping("/{addressId}")
 	public ResponseEntity<?> findById(@PathVariable String addressId,
 			@AuthenticationPrincipal CustomUserDetails currentUser) {
-		Address address = addressService.findById(addressId, currentUser.getId());
+		Address address = addressService.findByIdAndUserAccountId(addressId, currentUser.getId());
 		var response = new ApiResponseDTO<Address>("Lấy chi tiết địa chỉ người dùng thành công", true, address);
 		return new ResponseEntity<ApiResponseDTO<Address>>(response, HttpStatus.OK);
 	}
 
 	@GetMapping
 	public ResponseEntity<?> findAll(@AuthenticationPrincipal CustomUserDetails currentUser) {
-		List<Address> addresses = addressService.findAll(currentUser.getId());
+		List<Address> addresses = addressService.findAllByUserAccountId(currentUser.getId());
 		var response = new ApiResponseDTO<List<Address>>("Lấy danh sách địa chỉ người dùng thành công", true, addresses);
 		return new ResponseEntity<ApiResponseDTO<List<Address>>>(response, HttpStatus.OK);
 	}
