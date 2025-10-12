@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.example.demo.book_image.entity.BookImage;
-import com.example.demo.book_price.base.BookPrice;
+import com.example.demo.book_price.entity.base.BookPrice;
 import com.example.demo.category.entity.Category;
 import com.example.demo.util.base.entity.BaseEntity;
 

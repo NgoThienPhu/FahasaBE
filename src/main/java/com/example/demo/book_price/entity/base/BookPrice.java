@@ -1,4 +1,4 @@
-package com.example.demo.book_price.base;
+package com.example.demo.book_price.entity.base;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

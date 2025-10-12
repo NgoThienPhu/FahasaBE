@@ -37,7 +37,7 @@ import jakarta.transaction.Transactional;
 
 @Service
 public class AuthenticationService {
-
+	
 	private AuthenticationManager authenticationManager;
 	private UserAccountService userAccountService;
 	private JwtService jwtService;

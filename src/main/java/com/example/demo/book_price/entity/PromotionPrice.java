@@ -1,6 +1,6 @@
 package com.example.demo.book_price.entity;
 
-import com.example.demo.book_price.base.BookPrice;
+import com.example.demo.book_price.entity.base.BookPrice;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
