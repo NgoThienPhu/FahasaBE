@@ -39,15 +39,10 @@ import jakarta.transaction.Transactional;
 public class AuthenticationService {
 
 	private AuthenticationManager authenticationManager;
-
 	private UserAccountService userAccountService;
-
 	private JwtService jwtService;
-
 	private RedisService redisService;
-	
 	private MessageService emailService;
-
 	private PasswordEncoder passwordEncoder;
 
 	public AuthenticationService(AuthenticationManager authenticationManager, UserAccountService userAccountService,
@@ -67,8 +62,7 @@ public class AuthenticationService {
 					.authenticate(new UsernamePasswordAuthenticationToken(body.username(), body.password()));
 
 			if (!authentication.isAuthenticated()) {
-				throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-						"Tài khoản hoặc mật khẩu không chính xác, vui lòng đăng nhập lại");
+				throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Tài khoản hoặc mật khẩu không chính xác");
 			}
 
 			Account account = userAccountService.findByUsername(body.username());
@@ -78,7 +72,7 @@ public class AuthenticationService {
 			String refreshToken = jwtService.createToken(account.getUsername(), Account.TokenType.REFRESH);
 
 			CookieUtil.setCookie(response, "refreshToken", refreshToken, 7 * 24 * 60 * 60, "/");
-			
+
 			redisService.setValue(String.format("REFRESH_TOKEN:%s", account.getId()), refreshToken);
 			redisService.expire(String.format("REFRESH_TOKEN:%s", account.getId()), 7L, TimeUnit.DAYS);
 			redisService.setValue(String.format("ACCESS_TOKEN:%s", account.getId()), accessToken);
@@ -87,11 +81,9 @@ public class AuthenticationService {
 			return new LoginResponseDTO(accessToken);
 
 		} catch (BadCredentialsException e) {
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-					"Tài khoản hoặc mật khẩu không chính xác, vui lòng đăng nhập lại");
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Tài khoản hoặc mật khẩu không chính xác");
 		} catch (InternalAuthenticationServiceException e) {
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-					"Tài khoản hoặc mật khẩu không chính xác, vui lòng đăng nhập lại");
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Tài khoản hoặc mật khẩu không chính xác");
 		} catch (ResponseStatusException e) {
 			throw e;
 		} catch (Exception e) {
@@ -106,17 +98,15 @@ public class AuthenticationService {
 		Boolean checkExistsPhoneNumber = userAccountService.existsByPhoneNumber(body.phoneNumber());
 
 		if (checkExistsUsername)
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-					"Tên đăng nhập đã tồn tại, vui lòng thử tên đăng nhập khác");
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tên đăng nhập đã tồn tại");
 		if (checkExistsEmail)
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email đã tồn tại, vui lòng thử Email khác");
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email đã tồn tại");
 		if (checkExistsPhoneNumber)
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-					"Số điện thoại đã tồn tại, vui lòng thử số điện thoại khác");
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Số điện thoại đã tồn tại");
 
 		String otpCode = redisService.getValue(String.format("OTP:%s", body.email()));
 		if (otpCode == null || !otpCode.equals(body.otpCode())) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mã otp không chính xác vui lòng kiểm tra lại");
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mã otp không chính xác");
 		} else {
 			redisService.deleteValue(String.format("OTP:%s", body.email()));
 		}
@@ -133,7 +123,7 @@ public class AuthenticationService {
 			redisService.deleteValue(String.format("ACCESS_TOKEN:%s", accountId));
 			SecurityContextHolder.clearContext();
 		} catch (Exception e) {
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Đăng xuất thất bại vui lòng thử lại sau!");
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Đăng xuất thất bại");
 		}
 	}
 
@@ -148,7 +138,7 @@ public class AuthenticationService {
 
 			if (account == null || !passwordEncoder.matches(body.oldPassword(), account.getPassword()))
 				throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-						"Tài khoản không tồn tại hoặc mật khẩu cũ không chính xác, vui lòng thử lại sau");
+						"Tài khoản không tồn tại hoặc mật khẩu cũ không chính xác");
 
 			String newPassword = passwordEncoder.encode(body.newPassword());
 			account.setPassword(newPassword);
@@ -162,27 +152,31 @@ public class AuthenticationService {
 	public RefreshAccessTokenResponseDTO refreshTokenAccess(HttpServletRequest request, HttpServletResponse response) {
 		String refreshToken = getRefreshToken(request);
 		if (refreshToken == null)
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-					"Refresh token không tồn tại hoặc đã hết hạn, vui lòng thử lại sau");
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token không tồn tại hoặc đã hết hạn");
 		if (jwtService.isTokenExpired(refreshToken)) {
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-					"Refresh token không hợp lệ hoặc đã hết hạn, vui lòng thử lại sau");
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token không hợp lệ hoặc đã hết hạn");
 		} else {
 			String username = jwtService.extractUsername(refreshToken);
 			Account account = userAccountService.findByUsername(username);
 			String newAccessToken = jwtService.createToken(username, TokenType.ACCESS);
-			
+
 			redisService.setValue(String.format("ACCESS_TOKEN:%s", account.getId()), newAccessToken);
 			redisService.expire(String.format("ACCESS_TOKEN:%s", account.getId()), 15L, TimeUnit.MINUTES);
 			return new RefreshAccessTokenResponseDTO(newAccessToken);
 		}
 	}
-	
+
 	public void sendOtp(String email) {
 		String otp = AuthenticationService.generate6DigitCode();
 		redisService.setValue(String.format("OTP:%s", email), otp);
 		redisService.expire(String.format("OTP:%s", email), 120L, TimeUnit.SECONDS);
 		emailService.sendOtpEmail(email, "🔐 Mã OTP của bạn từ Fahasa", otp);
+	}
+
+	public static String generate6DigitCode() {
+		Random random = new Random();
+		int code = 100_000 + random.nextInt(900_000);
+		return String.valueOf(code);
 	}
 
 	private String getRefreshToken(HttpServletRequest request) {
@@ -195,11 +189,4 @@ public class AuthenticationService {
 		}
 		return null;
 	}
-	
-	public static String generate6DigitCode() {
-		Random random = new Random();
-		int code = 100_000 + random.nextInt(900_000);
-		return String.valueOf(code);
-	}
-
 }

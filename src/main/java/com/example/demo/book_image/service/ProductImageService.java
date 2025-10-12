@@ -20,8 +20,7 @@ public class ProductImageService {
 
 	public BookImage findById(String productImageId) {
 		return productImageRepository.findById(productImageId)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-						String.format("Không tìm thấy hình ảnh với Id là: %s", productImageId)));
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ảnh không tồn tại"));
 	}
 
 	@Transactional

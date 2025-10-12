@@ -7,14 +7,13 @@ import org.springframework.web.server.ResponseStatusException;
 import com.example.demo.email.entity.Email;
 import com.example.demo.email.repository.EmailRepository;
 import com.example.demo.email.service.EmailService;
-import com.example.demo.email.specification.EmailSpecification;
 import com.example.demo.util.service.RedisService;
 
 @Service
 public class EmailService {
 
 	private EmailRepository emailRepository;
-	
+
 	private RedisService redisService;
 
 	public EmailService(EmailRepository emailRepository, RedisService redisService) {
@@ -29,15 +28,14 @@ public class EmailService {
 		} else {
 			redisService.deleteValue(String.format("OTP:%s", email));
 		}
-		Email myEmail = emailRepository.findOne(EmailSpecification.hasEmail(email))
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-						String.format("Không tìm thấy email: %s", email)));
+		Email myEmail = emailRepository.findByEmail(email)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Email không tồn tại"));
 		myEmail.verify();
 		return emailRepository.save(myEmail);
 	}
 
 	public Boolean exists(String email) {
-		return emailRepository.count(EmailSpecification.hasEmail(email)) > 0;
+		return emailRepository.existsByEmail(email);
 	}
 
 }

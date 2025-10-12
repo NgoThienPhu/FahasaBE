@@ -6,7 +6,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -16,7 +15,6 @@ import com.example.demo.category.dto.UpdateCategoryNameRequestDTO;
 import com.example.demo.category.entity.Category;
 import com.example.demo.category.repository.CategoryRepository;
 import com.example.demo.category.service.CategoryService;
-import com.example.demo.category.specification.CategorySpecification;
 
 import jakarta.transaction.Transactional;
 
@@ -31,16 +29,14 @@ public class CategoryService {
 
 	public Category findById(String categoryId) {
 		return categoryRepository.findById(categoryId)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-						String.format("Không tìm thấy loại sản phẩm với Id là: %s", categoryId)));
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Loại sản phẩm không tồn tại"));
 	}
 
 	public Page<Category> findAll(String orderBy, String sortBy, int page, int size) {
 		List<String> allowedFields = List.of("name");
 
 		if (!allowedFields.contains(sortBy)) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-					"Thuộc tính cần sắp xếp không hợp lệ vui lòng thử lại");
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Thuộc tính sắp xếp không hợp lệ");
 		}
 
 		Sort sort = orderBy.equalsIgnoreCase("asc") ? Sort.by(Sort.Direction.ASC, sortBy)
@@ -53,53 +49,32 @@ public class CategoryService {
 
 	@Transactional
 	public Category create(CreateCategoryRequestDTO dto) {
-
 		boolean existsName = existsByName(dto.categoryName());
 
 		if (existsName)
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-					"Tên loại sản phẩm đã tồn tại vui lòng chọn tên khác");
-
-		Category parentCategory = findById(dto.parentCategoryId());
-
-		if (parentCategory == null)
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-					String.format("Không tìm thấy loại sản phẩm có Id là: %s", dto.parentCategoryId()));
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tên loại sản phẩm đã tồn tại");
 
 		Category category = new Category(dto.categoryName());
 
 		return categoryRepository.save(category);
-
 	}
 
 	@Transactional
 	public Category update(UpdateCategoryNameRequestDTO dto, String categoryId) {
 		Category category = findById(categoryId);
-
-		if (category == null)
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-					String.format("Không tìm thấy loại sản phẩm với Id là: %s", categoryId));
-
 		if (dto.categoryName() != null)
 			category.setName(dto.categoryName());
-
 		return categoryRepository.save(category);
 	}
 
 	@Transactional
 	public void deleteById(String categoryId) {
 		Category category = findById(categoryId);
-
-		if (category == null)
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-					String.format("Không tìm thấy loại sản phẩm có Id là: %s", categoryId));
-
 		categoryRepository.delete(category);
 	}
 
 	public boolean existsByName(String categoryName) {
-		Specification<Category> spec = CategorySpecification.hasName(categoryName);
-		return categoryRepository.count(spec) > 0;
+		return categoryRepository.existsByCategoryName(categoryName);
 	}
 
 }
