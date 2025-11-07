@@ -1,7 +1,7 @@
 package com.example.demo.book_price.repository;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
+import java.awt.print.Pageable;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -12,20 +12,15 @@ import com.example.demo.book_price.entity.ImportPrice;
 
 @Repository
 public interface ImportPriceRepository extends JpaRepository<ImportPrice, String> {
-	
+
 	@Query("""
 			SELECT p FROM ImportPrice p
-			WHERE p.effectiveFrom <= NOW()
-			AND (p.effectiveTo IS NULL OR p.effectiveTo >= NOW())
+			WHERE p.book.id = :bookId
+			AND p.effectiveFrom <= CURRENT_TIMESTAMP
+			AND (p.effectiveTo IS NULL OR p.effectiveTo >= CURRENT_TIMESTAMP)
+			ORDER BY p.effectiveFrom ASC
 			""")
-	Optional<ImportPrice> getCurrentImportPrice(@Param("productId") String productId);
-	
-	@Query("""
-			SELECT CASE WHEN COUNT(p) > 0 THEN true ELSE false END
-			FROM ImportPrice p
-			WHERE (p.effectiveFrom <= :to AND p.effectiveTo >= :from)
-			OR (p.effectiveTo IS NULL AND p.effectiveFrom <= :to)
-			""")
-	boolean existsTimeOverlap(@Param("productId") String productId ,@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+	List<ImportPrice> findCurrentPrices(@Param("bookId") Long bookId, Pageable pageable);
+
 
 }

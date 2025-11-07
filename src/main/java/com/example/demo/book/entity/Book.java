@@ -42,20 +42,21 @@ public class Book extends BaseEntity {
 	@Column(name = "publisher", nullable = false)
 	private String publisher;
 	
-	@Column(name = "isbn", nullable = false)
+	@Column(name = "isbn", nullable = false, unique = true)
 	private String isbn;
 	
 	@ManyToOne
 	@JoinColumn(name = "category_id", nullable = false)
 	private Category category;
 	
+	@Column(name = "publish_date", nullable = false)
+	private LocalDate publishDate;
+	
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "book")
 	private List<BookPrice> bookPrices = new ArrayList<>();
 	
-	@Column(name = "publish_date", nullable = false)
-	private LocalDate publishDate;
 
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "book")
-	private List<BookImage> images = new ArrayList<>();
+	private List<BookImage> bookImages = new ArrayList<>();
 
 }

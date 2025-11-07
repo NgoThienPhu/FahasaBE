@@ -40,7 +40,7 @@ public abstract class BookPrice extends BaseEntity {
 	@Column(name = "effective_from", nullable = false)
 	protected LocalDateTime effectiveFrom;
 	
-	@Column(name = "effective_to", nullable = false)
+	@Column(name = "effective_to", nullable = true)
 	protected LocalDateTime effectiveTo;
 	
 }
