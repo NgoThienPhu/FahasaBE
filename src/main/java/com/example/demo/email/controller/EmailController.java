@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.email.dto.EmailVerifyRequestDTO;
 import com.example.demo.email.service.EmailService;
-import com.example.demo.util.base.dto.ApiResponseDTO;
+import com.example.demo.util.dto.ApiResponseDTO;
 
 @RestController
 @RequestMapping("/api/emails")

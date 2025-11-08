@@ -3,7 +3,7 @@ package com.example.demo.account.entity.base;
 import java.time.LocalDateTime;
 
 import com.example.demo.email.entity.Email;
-import com.example.demo.util.base.entity.BaseEntity;
+import com.example.demo.util.entity.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;

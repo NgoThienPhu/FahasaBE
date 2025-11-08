@@ -3,7 +3,7 @@ package com.example.demo.account.dto;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.example.demo.account.entity.UserAccount;
-import com.example.demo.util.base.entity.PhoneNumber;
+import com.example.demo.util.entity.PhoneNumber;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

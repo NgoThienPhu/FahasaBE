@@ -19,8 +19,8 @@ import com.example.demo.auth.dto.LoginRequestDTO;
 import com.example.demo.auth.dto.LoginResponseDTO;
 import com.example.demo.auth.dto.RefreshAccessTokenResponseDTO;
 import com.example.demo.auth.service.AuthenticationService;
-import com.example.demo.util.base.dto.ApiResponseDTO;
-import com.example.demo.util.base.entity.CustomUserDetails;
+import com.example.demo.util.dto.ApiResponseDTO;
+import com.example.demo.util.entity.CustomUserDetails;
 import com.example.demo.util.validation.BindingResultUtil;
 
 import jakarta.servlet.http.HttpServletRequest;

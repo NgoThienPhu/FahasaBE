@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.example.demo.util.base.dto.ApiResponseDTO;
+import com.example.demo.util.dto.ApiResponseDTO;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {

@@ -1,7 +1,8 @@
 package com.example.demo.book_image.entity;
 
 import com.example.demo.book.entity.Book;
-import com.example.demo.util.base.entity.BaseEntity;
+import com.example.demo.util.entity.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,6 +28,7 @@ public class BookImage extends BaseEntity {
 	@Column(name = "is_primary", nullable = false)
 	private Boolean isPrimary;
 	
+	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name = "book_id", nullable = false)
 	private Book book;

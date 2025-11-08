@@ -17,8 +17,8 @@ import com.example.demo.account.dto.ChangePhoneNumberRequestDTO;
 import com.example.demo.account.dto.ChangeUserInfoRequestDTO;
 import com.example.demo.account.entity.base.Account;
 import com.example.demo.account.service.UserAccountService;
-import com.example.demo.util.base.dto.ApiResponseDTO;
-import com.example.demo.util.base.entity.CustomUserDetails;
+import com.example.demo.util.dto.ApiResponseDTO;
+import com.example.demo.util.entity.CustomUserDetails;
 import com.example.demo.util.validation.BindingResultUtil;
 
 import jakarta.validation.Valid;

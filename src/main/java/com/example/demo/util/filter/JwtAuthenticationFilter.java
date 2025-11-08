@@ -14,8 +14,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.example.demo.util.base.entity.CustomUserDetails;
 import com.example.demo.util.config.EndPoint;
+import com.example.demo.util.entity.CustomUserDetails;
 import com.example.demo.util.service.CustomUserDetailService;
 import com.example.demo.util.service.JwtService;
 import com.example.demo.util.service.RedisService;

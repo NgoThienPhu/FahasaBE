@@ -15,7 +15,7 @@ import com.example.demo.category.dto.CreateCategoryRequestDTO;
 import com.example.demo.category.dto.UpdateCategoryNameRequestDTO;
 import com.example.demo.category.entity.Category;
 import com.example.demo.category.service.CategoryService;
-import com.example.demo.util.base.dto.ApiResponseDTO;
+import com.example.demo.util.dto.ApiResponseDTO;
 import com.example.demo.util.validation.BindingResultUtil;
 
 import jakarta.validation.Valid;
@@ -41,7 +41,7 @@ public class AdminCategoryController {
 
 		Category myCategory = categoryService.create(body);
 		var response = new ApiResponseDTO<Category>("Tạo loại sản phẩm thành công", true, myCategory);
-		return new ResponseEntity<ApiResponseDTO<Category>>(response, HttpStatus.OK);
+		return new ResponseEntity<com.example.demo.util.dto.ApiResponseDTO<Category>>(response, HttpStatus.OK);
 	}
 
 	@PatchMapping("/{categoryId}")

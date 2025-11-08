@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import com.example.demo.book.entity.Book;
-import com.example.demo.util.base.entity.BaseEntity;
+import com.example.demo.util.entity.BaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;

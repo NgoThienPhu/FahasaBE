@@ -1,5 +1,8 @@
 package com.example.demo.book.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.book.entity.Book;
@@ -16,6 +19,11 @@ public class BookService {
 
 	public Book save(Book book) {
 		return bookRepository.save(book);
+	}
+	
+	public Page<Book> findAll(int page, int size) {
+		Pageable pageable = PageRequest.of(page, size);
+		return bookRepository.findAll(pageable);
 	}
 
 }

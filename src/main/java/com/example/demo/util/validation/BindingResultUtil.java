@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 
-import com.example.demo.util.base.dto.ApiResponseDTO;
+import com.example.demo.util.dto.ApiResponseDTO;
 
 public class BindingResultUtil {
 	

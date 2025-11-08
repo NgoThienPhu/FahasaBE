@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -39,7 +40,8 @@ public class CreateBookRequestDTO {
 		@NotBlank(message = "Loại sản phẩm không được để trống")
 		String categoryId;
 		
-		@NotBlank(message = "Ngày phát hành không được để trống")
+		@NotNull(message = "Ngày phát hành không được để trống")
+		@PastOrPresent(message = "Ngày phát hành phải bằng thời gian hiện tại hoặc trong quá khứ")
 		LocalDate publishDate;
 		
 		@Positive(message = "Giá sản phẩm phải lớn hơn 0")
@@ -49,7 +51,7 @@ public class CreateBookRequestDTO {
 		@NotNull(message = "Ảnh chính sản phẩm không được để trống")
 		MultipartFile primaryImage;
 		
-	    @Size(max = 5, message = "Sách chỉ có tối đa 5 ảnh")
+	    @Size(max = 5, message = "Sách chỉ có tối đa 5 ảnh phụ")
 		List<MultipartFile> secondImages = new ArrayList<>();
 		
 }

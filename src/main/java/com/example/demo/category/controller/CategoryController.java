@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.category.entity.Category;
 import com.example.demo.category.service.CategoryService;
-import com.example.demo.util.base.dto.ApiResponseDTO;
-import com.example.demo.util.base.dto.PagedResponseDTO;
+import com.example.demo.util.dto.ApiResponseDTO;
+import com.example.demo.util.dto.PagedResponseDTO;
 
 @RestController
 @RequestMapping("/api/categories")

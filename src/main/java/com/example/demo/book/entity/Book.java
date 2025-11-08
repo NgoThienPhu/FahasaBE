@@ -7,7 +7,8 @@ import java.util.List;
 import com.example.demo.book_image.entity.BookImage;
 import com.example.demo.book_price.entity.base.BookPrice;
 import com.example.demo.category.entity.Category;
-import com.example.demo.util.base.entity.BaseEntity;
+import com.example.demo.util.entity.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -52,10 +53,11 @@ public class Book extends BaseEntity {
 	@Column(name = "publish_date", nullable = false)
 	private LocalDate publishDate;
 	
+	@JsonIgnore
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "book")
 	private List<BookPrice> bookPrices = new ArrayList<>();
 	
-
+	@JsonIgnore
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "book")
 	private List<BookImage> bookImages = new ArrayList<>();
 

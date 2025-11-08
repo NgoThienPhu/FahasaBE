@@ -73,6 +73,9 @@ public class CreateBookFlow {
 		sellPrice.setEffectiveFrom(LocalDateTime.now());
 		sellPrice.setEffectiveTo(null);
 		
+		book.getBookPrices().add(importPrice);
+		book.getBookPrices().add(sellPrice);
+		
 		return bookService.save(book);
 	}
 

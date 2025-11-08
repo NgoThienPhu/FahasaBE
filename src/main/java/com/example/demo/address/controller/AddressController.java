@@ -18,8 +18,8 @@ import com.example.demo.address.dto.CreateAddressRequestDTO;
 import com.example.demo.address.entity.Address;
 import com.example.demo.address.flow.CreateAddressFlow;
 import com.example.demo.address.service.AddressService;
-import com.example.demo.util.base.dto.ApiResponseDTO;
-import com.example.demo.util.base.entity.CustomUserDetails;
+import com.example.demo.util.dto.ApiResponseDTO;
+import com.example.demo.util.entity.CustomUserDetails;
 
 @RestController
 @RequestMapping("/api/accounts/me/addresses")

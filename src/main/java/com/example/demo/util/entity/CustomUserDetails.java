@@ -1,4 +1,4 @@
-package com.example.demo.util.base.entity;
+package com.example.demo.util.entity;
 
 import java.util.Collection;
 

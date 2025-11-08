@@ -1,6 +1,6 @@
 package com.example.demo.email.entity;
 
-import com.example.demo.util.base.entity.BaseEntity;
+import com.example.demo.util.entity.BaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

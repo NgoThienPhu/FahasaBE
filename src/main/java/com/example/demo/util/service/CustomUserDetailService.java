@@ -13,7 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.example.demo.account.entity.AdminAccount;
 import com.example.demo.account.entity.base.Account;
 import com.example.demo.account.service.AccountService;
-import com.example.demo.util.base.entity.CustomUserDetails;
+import com.example.demo.util.entity.CustomUserDetails;
 import com.example.demo.util.service.CustomUserDetailService;
 
 @Service

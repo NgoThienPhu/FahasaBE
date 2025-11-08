@@ -33,7 +33,7 @@ public class S3Service {
 	}
 
 	public String uploadFile(MultipartFile file) {
-		String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+		String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename().trim();
 
 		PutObjectRequest request = PutObjectRequest.builder().bucket(bucketName).key(fileName)
 				.contentType(file.getContentType()).build();
