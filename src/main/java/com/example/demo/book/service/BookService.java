@@ -21,6 +21,10 @@ public class BookService {
 		return bookRepository.save(book);
 	}
 	
+	public Book findById(String bookId) {
+		return bookRepository.findById(bookId).orElse(null);
+	}
+	
 	public Page<Book> findAll(int page, int size) {
 		Pageable pageable = PageRequest.of(page, size);
 		return bookRepository.findAll(pageable);

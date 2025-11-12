@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 
 import com.example.demo.book.entity.Book;
 import com.example.demo.util.entity.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
@@ -30,6 +31,7 @@ import lombok.Setter;
 @DiscriminatorColumn(name = "price_type")
 public abstract class BookPrice extends BaseEntity {
 	
+	@JsonIgnore
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id")
     protected Book book;
