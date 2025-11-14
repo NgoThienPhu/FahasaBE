@@ -21,7 +21,7 @@ public interface ImportPriceRepository extends JpaRepository<ImportPrice, String
 			AND (p.effectiveTo IS NULL OR p.effectiveTo >= CURRENT_TIMESTAMP)
 			ORDER BY p.effectiveFrom ASC
 			""")
-	List<ImportPrice> findCurrentPrices(@Param("bookId") String bookId, Pageable pageable);
+	List<ImportPrice> findCurrentPrice(@Param("bookId") String bookId, Pageable pageable);
 	
 	@Query("""
 			SELECT COUNT(p) > 0 FROM ImportPrice p
