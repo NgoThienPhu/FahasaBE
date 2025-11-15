@@ -42,7 +42,7 @@ public interface ImportPriceRepository extends JpaRepository<ImportPrice, String
 			SELECT p FROM ImportPrice p
 			WHERE p.book.id = :bookId
 			AND p.effectiveFrom > :from
-			ORDER BY p.effectiveFrom DESC
+			ORDER BY p.effectiveFrom ASC
 			""")
 	ImportPrice findNextPrice(@Param("bookId") String bookId, @Param("from") LocalDateTime from);
 

@@ -42,7 +42,7 @@ public interface SellPriceRepository extends JpaRepository<SellPrice, String> {
 			SELECT p FROM SellPrice p
 			WHERE p.book.id = :bookId
 			AND p.effectiveFrom > :from
-			ORDER BY p.effectiveFrom DESC
+			ORDER BY p.effectiveFrom ASC
 			""")
 	SellPrice findNextPrice(@Param("bookId") String bookId, @Param("from") LocalDateTime from);
 
