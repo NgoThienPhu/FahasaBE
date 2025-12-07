@@ -9,7 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.email.dto.EmailVerifyRequestDTO;
 import com.example.demo.email.service.EmailService;
-import com.example.demo.util.dto.ApiResponseDTO;
+import com.example.demo.util.dto.api_response.ApiResponseDTO;
+import com.example.demo.util.dto.api_response.ApiResponseSuccessDTO;
 
 @RestController
 @RequestMapping("/api/emails")
@@ -24,8 +25,8 @@ public class EmailController {
 	@PostMapping("/verify-otp")
 	public ResponseEntity<?> verifyOTP(@RequestBody EmailVerifyRequestDTO body) {
 		emailService.verify(body.email(), body.otp());
-		var response = new ApiResponseDTO<Void>("Xác thực Email thành công", true);
-		return new ResponseEntity<ApiResponseDTO<Void>>(response, HttpStatus.OK);
+		var response = new ApiResponseSuccessDTO<Void>(200, "Xác thực thành công");
+		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
 	}
 	
 }

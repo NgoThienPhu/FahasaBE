@@ -15,9 +15,11 @@ import com.example.demo.category.dto.CreateCategoryRequestDTO;
 import com.example.demo.category.dto.UpdateCategoryNameRequestDTO;
 import com.example.demo.category.entity.Category;
 import com.example.demo.category.service.CategoryService;
-import com.example.demo.util.dto.ApiResponseDTO;
+import com.example.demo.util.dto.api_response.ApiResponseDTO;
+import com.example.demo.util.dto.api_response.ApiResponseSuccessDTO;
 import com.example.demo.util.validation.BindingResultUtil;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 @RestController
@@ -33,37 +35,37 @@ public class AdminCategoryController {
 	@PostMapping
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> createCategoryRequestDTO(@Valid @RequestBody CreateCategoryRequestDTO body,
-			BindingResult result) {
+			HttpServletRequest request, BindingResult result) {
 		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result,
-				"Tạo mới loại sản phẩm thất bại!");
+				"Tạo mới loại sản phẩm thất bại!", request.getRequestURI());
 		if (responseError != null)
 			return responseError;
 
 		Category myCategory = categoryService.create(body);
-		var response = new ApiResponseDTO<Category>("Tạo loại sản phẩm thành công", true, myCategory);
-		return new ResponseEntity<com.example.demo.util.dto.ApiResponseDTO<Category>>(response, HttpStatus.OK);
+		var response = new ApiResponseSuccessDTO<Category>(200, "Tạo loại sản phẩm thành công", myCategory);
+		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
 	}
 
 	@PatchMapping("/{categoryId}")
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> updateCategoryName(@PathVariable String categoryId,
-			@Valid @RequestBody UpdateCategoryNameRequestDTO updateCategoryNameRequestDTO, BindingResult result) {
+			@Valid @RequestBody UpdateCategoryNameRequestDTO updateCategoryNameRequestDTO, HttpServletRequest request,
+			BindingResult result) {
 		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result,
-				"Cập nhật loại sản phẩm thất bại!");
+				"Cập nhật loại sản phẩm thất bại!", request.getRequestURI());
 		if (responseError != null)
 			return responseError;
 		Category category = categoryService.update(updateCategoryNameRequestDTO, categoryId);
-		var response = new ApiResponseDTO<Category>("Cập nhật loại sản phẩm thành công", true, category);
-		return new ResponseEntity<ApiResponseDTO<Category>>(response, HttpStatus.OK);
+		var response = new ApiResponseSuccessDTO<Category>(200, "Cập nhật loại sản phẩm thành công", category);
+		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
 	}
 
 	@DeleteMapping("/{categoryId}")
 //	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> deleteCategory(@PathVariable String categoryId) {
 		categoryService.deleteById(categoryId);
-		var response = new ApiResponseDTO<Void>(String.format("Đã xóa loại sản phẩm với id là: %s", categoryId),
-				true);
-		return new ResponseEntity<ApiResponseDTO<Void>>(response, HttpStatus.OK);
+		var response = new ApiResponseSuccessDTO<Void>(200, "Xoá thành công");
+		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
 	}
 
 }

@@ -19,7 +19,8 @@ import com.example.demo.auth.dto.LoginRequestDTO;
 import com.example.demo.auth.dto.LoginResponseDTO;
 import com.example.demo.auth.dto.RefreshAccessTokenResponseDTO;
 import com.example.demo.auth.service.AuthenticationService;
-import com.example.demo.util.dto.ApiResponseDTO;
+import com.example.demo.util.dto.api_response.ApiResponseDTO;
+import com.example.demo.util.dto.api_response.ApiResponseSuccessDTO;
 import com.example.demo.util.entity.CustomUserDetails;
 import com.example.demo.util.validation.BindingResultUtil;
 
@@ -36,60 +37,67 @@ public class AuthenticationController {
 	public AuthenticationController(AuthenticationService authenticationService) {
 		this.authenticationService = authenticationService;
 	}
-	
+
 	@PostMapping("/send-otp")
 	public ResponseEntity<?> sendOtp(@RequestParam String toEmail) {
 		authenticationService.sendOtp(toEmail);
-		var myResponse = new ApiResponseDTO<Void>("Gửi mã otp thành công!", true);
-		return new ResponseEntity<ApiResponseDTO<Void>>(myResponse, HttpStatus.OK);
+		var myResponse = new ApiResponseSuccessDTO<Void>(200, "Gửi mã otp thành công!");
+		return new ResponseEntity<ApiResponseDTO>(myResponse, HttpStatus.OK);
 	}
 
 	@PostMapping("/login")
-	public ResponseEntity<?> userLogin(@Valid @RequestBody LoginRequestDTO body, BindingResult result, HttpServletResponse response) {
-		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Đăng nhập thất bại!");
+	public ResponseEntity<?> userLogin(@Valid @RequestBody LoginRequestDTO body, HttpServletRequest request,
+			BindingResult result, HttpServletResponse response) {
+		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Đăng nhập thất bại!",
+				request.getRequestURI());
 		if (responseError != null)
 			return responseError;
 
 		LoginResponseDTO account = authenticationService.login(body, response);
-		var myResponse = new ApiResponseDTO<LoginResponseDTO>("Đăng nhập thành công!", true, account);
-		return new ResponseEntity<ApiResponseDTO<LoginResponseDTO>>(myResponse, HttpStatus.OK);
+		var myResponse = new ApiResponseSuccessDTO<LoginResponseDTO>(200, "Đăng nhập thành công!", account);
+		return new ResponseEntity<ApiResponseDTO>(myResponse, HttpStatus.OK);
 	}
-	
+
 	@PostMapping("/logout")
-	public ResponseEntity<?> userLogout(@AuthenticationPrincipal CustomUserDetails currentUser, HttpServletResponse response) {
+	public ResponseEntity<?> userLogout(@AuthenticationPrincipal CustomUserDetails currentUser,
+			HttpServletResponse response) {
 		authenticationService.logout(currentUser.getId(), response);
-		var myResponse = new ApiResponseDTO<Void>("Đăng xuất thành công!", true);
-		return new ResponseEntity<ApiResponseDTO<Void>>(myResponse, HttpStatus.OK);
+		var myResponse = new ApiResponseSuccessDTO<Void>(200, "Đăng xuất thành công!");
+		return new ResponseEntity<ApiResponseDTO>(myResponse, HttpStatus.OK);
 	}
 
 	@PostMapping("/register")
-	public ResponseEntity<?> userRegister(@Valid @RequestBody CreateUserRequestDTO body, BindingResult result) {
+	public ResponseEntity<?> userRegister(@Valid @RequestBody CreateUserRequestDTO body, HttpServletRequest request,
+			BindingResult result) {
 
-		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Đăng kí thất bại!");
+		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Đăng kí thất bại!",
+				request.getRequestURI());
 		if (responseError != null)
 			return responseError;
 
 		UserAccount account = authenticationService.userRegister(body);
-		var response = new ApiResponseDTO<Account>("Đăng kí thành công", true, account);
-		return new ResponseEntity<ApiResponseDTO<Account>>(response, HttpStatus.OK);
+		var response = new ApiResponseSuccessDTO<Account>(201, "Đăng kí thành công", account);
+		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
 	}
 
 	@PatchMapping("/change-password")
 	public ResponseEntity<?> userChangePassword(@Valid @RequestBody ChangePasswordRequestDTO body,
-			@AuthenticationPrincipal CustomUserDetails currentUser, BindingResult result) {
-		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Đổi mật khẩu thất bại!");
+			@AuthenticationPrincipal CustomUserDetails currentUser, HttpServletRequest request, BindingResult result) {
+		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Đổi mật khẩu thất bại!",
+				request.getRequestURI());
 		if (responseError != null)
 			return responseError;
 		authenticationService.changePassword(body, currentUser);
-		var response = new ApiResponseDTO<Void>("Đổi mật khẩu thành công", true);
-		return new ResponseEntity<ApiResponseDTO<Void>>(response, HttpStatus.OK);
+		var response = new ApiResponseSuccessDTO<Void>(200, "Đổi mật khẩu thành công");
+		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
 	}
-	
+
 	@PostMapping("/refresh")
-	public ResponseEntity<?> refreshAccessToken(HttpServletRequest request, HttpServletResponse response) {
-		RefreshAccessTokenResponseDTO newAccessToken = authenticationService.refreshTokenAccess(request, response);
-		var myResponse = new ApiResponseDTO<RefreshAccessTokenResponseDTO>("Làm mới Access token thành công", true, newAccessToken);
-		return new ResponseEntity<ApiResponseDTO<RefreshAccessTokenResponseDTO>>(myResponse, HttpStatus.OK);
+	public ResponseEntity<?> refreshAccessToken(HttpServletRequest request) {
+		RefreshAccessTokenResponseDTO newAccessToken = authenticationService.refreshTokenAccess(request);
+		var myResponse = new ApiResponseSuccessDTO<RefreshAccessTokenResponseDTO>(200,
+				"Làm mới access token thành công", newAccessToken);
+		return new ResponseEntity<ApiResponseDTO>(myResponse, HttpStatus.OK);
 	}
 
 }

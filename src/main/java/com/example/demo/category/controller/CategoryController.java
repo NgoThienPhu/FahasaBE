@@ -1,5 +1,7 @@
 package com.example.demo.category.controller;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,8 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.category.entity.Category;
 import com.example.demo.category.service.CategoryService;
-import com.example.demo.util.dto.ApiResponseDTO;
-import com.example.demo.util.dto.PagedResponseDTO;
+import com.example.demo.util.dto.api_response.ApiResponseDTO;
+import com.example.demo.util.dto.api_response.ApiResponsePaginationSuccess;
+import com.example.demo.util.dto.api_response.ApiResponseSuccessDTO;
 
 @RestController
 @RequestMapping("/api/categories")
@@ -29,16 +32,16 @@ public class CategoryController {
 			@RequestParam(defaultValue = "asc") String orderBy, @RequestParam(defaultValue = "name") String sortBy,
 			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
 		Page<Category> categories = categoryService.findAll(orderBy, sortBy, page, size);
-		PagedResponseDTO<Category> pagedResponseDTO = PagedResponseDTO.convertPageToPagedResponseDTO(categories);
-		var response = new ApiResponseDTO<PagedResponseDTO<Category>>("Lấy danh sách loại sản phẩm thành công", true,
-				pagedResponseDTO);
-		return new ResponseEntity<ApiResponseDTO<PagedResponseDTO<Category>>>(response, HttpStatus.OK);
+		var response = new ApiResponsePaginationSuccess<List<Category>>(200, "Lấy danh sách thành công",
+				categories.getContent(), categories.getNumber(), categories.getSize(), categories.getTotalElements(),
+				categories.getTotalPages());
+		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
 	}
 
 	@GetMapping("/{categoryId}")
 	public ResponseEntity<?> findById(@PathVariable String categoryId) {
 		Category category = categoryService.findById(categoryId);
-		var response = new ApiResponseDTO<Category>("Tìm loại sản phẩm thành công", true, category);
-		return new ResponseEntity<ApiResponseDTO<Category>>(response, HttpStatus.OK);
+		var response = new ApiResponseSuccessDTO<Category>(200, "Tìm kiếm thành công", category);
+		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
 	}
 }

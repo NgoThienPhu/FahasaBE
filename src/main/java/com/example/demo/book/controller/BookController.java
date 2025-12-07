@@ -1,5 +1,7 @@
 package com.example.demo.book.controller;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,8 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.book.entity.Book;
 import com.example.demo.book.service.BookService;
-import com.example.demo.util.dto.ApiResponseDTO;
-import com.example.demo.util.dto.PagedResponseDTO;
+import com.example.demo.util.dto.api_response.ApiResponseDTO;
+import com.example.demo.util.dto.api_response.ApiResponsePaginationSuccess;
 
 @RestController
 @RequestMapping("/api/books")
@@ -28,9 +30,16 @@ public class BookController {
 			@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "20") int size) {
 		Page<Book> books = bookService.findAll(page, size);
-		PagedResponseDTO<Book> pageBooks = PagedResponseDTO.convertPageToPagedResponseDTO(books);
-		var response = new ApiResponseDTO<PagedResponseDTO<Book>>("Lấy danh sách thành công", true, pageBooks);
-		return new ResponseEntity<ApiResponseDTO<PagedResponseDTO<Book>>>(response, HttpStatus.OK);
+		var response = new ApiResponsePaginationSuccess<List<Book>>(
+				200, 
+				"Lấy danh sách thành công", 
+				books.getContent(), 
+				books.getNumber(), 
+				books.getSize(), 
+				books.getTotalElements(), 
+				books.getTotalPages()
+		);
+		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
 	}
 
 }

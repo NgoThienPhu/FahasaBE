@@ -26,6 +26,7 @@ import com.example.demo.auth.dto.RefreshAccessTokenResponseDTO;
 import com.example.demo.auth.service.AuthenticationService;
 import com.example.demo.util.cookie.CookieUtil;
 import com.example.demo.util.entity.CustomUserDetails;
+import com.example.demo.util.exception.CustomException;
 import com.example.demo.util.service.JwtService;
 import com.example.demo.util.service.MessageService;
 import com.example.demo.util.service.RedisService;
@@ -37,7 +38,7 @@ import jakarta.transaction.Transactional;
 
 @Service
 public class AuthenticationService {
-	
+
 	private AuthenticationManager authenticationManager;
 	private UserAccountService userAccountService;
 	private JwtService jwtService;
@@ -62,7 +63,7 @@ public class AuthenticationService {
 					.authenticate(new UsernamePasswordAuthenticationToken(body.username(), body.password()));
 
 			if (!authentication.isAuthenticated()) {
-				throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Tài khoản hoặc mật khẩu không chính xác");
+				throw new CustomException(HttpStatus.BAD_REQUEST, "Tài khoản hoặc mật khẩu không chính xác");
 			}
 
 			Account account = userAccountService.findByUsername(body.username());
@@ -80,14 +81,8 @@ public class AuthenticationService {
 
 			return new LoginResponseDTO(accessToken);
 
-		} catch (BadCredentialsException e) {
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Tài khoản hoặc mật khẩu không chính xác");
-		} catch (InternalAuthenticationServiceException e) {
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Tài khoản hoặc mật khẩu không chính xác");
-		} catch (ResponseStatusException e) {
-			throw e;
-		} catch (Exception e) {
-			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+		} catch (BadCredentialsException | InternalAuthenticationServiceException | ResponseStatusException e) {
+			throw new CustomException(HttpStatus.BAD_REQUEST, "Tài khoản hoặc mật khẩu không chính xác");
 		}
 	}
 
@@ -137,8 +132,8 @@ public class AuthenticationService {
 			Account account = userAccountService.findById(currentUser.getId());
 
 			if (account == null || !passwordEncoder.matches(body.oldPassword(), account.getPassword()))
-				throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-						"Tài khoản không tồn tại hoặc mật khẩu cũ không chính xác");
+				throw new CustomException(HttpStatus.BAD_REQUEST,
+						"Tài khoản không tồn tại hoặc mật khẩu không chính xác");
 
 			String newPassword = passwordEncoder.encode(body.newPassword());
 			account.setPassword(newPassword);
@@ -149,12 +144,11 @@ public class AuthenticationService {
 		}
 	}
 
-	public RefreshAccessTokenResponseDTO refreshTokenAccess(HttpServletRequest request, HttpServletResponse response) {
+	public RefreshAccessTokenResponseDTO refreshTokenAccess(HttpServletRequest request) {
 		String refreshToken = getRefreshToken(request);
-		if (refreshToken == null)
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token không tồn tại hoặc đã hết hạn");
-		if (jwtService.isTokenExpired(refreshToken)) {
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token không hợp lệ hoặc đã hết hạn");
+		if (refreshToken == null || jwtService.isTokenExpired(refreshToken)) {
+			throw new CustomException(HttpStatus.UNAUTHORIZED, "REFRESH_TOKEN_EXPIRED",
+					"Refresh token không tồn tại hoặc đã hết hạn");
 		} else {
 			String username = jwtService.extractUsername(refreshToken);
 			Account account = userAccountService.findByUsername(username);
