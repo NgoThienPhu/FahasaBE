@@ -6,16 +6,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.util.config.EndPoint;
 import com.example.demo.util.entity.CustomUserDetails;
+import com.example.demo.util.exception.CustomException;
 import com.example.demo.util.service.CustomUserDetailService;
 import com.example.demo.util.service.JwtService;
 import com.example.demo.util.service.RedisService;
@@ -58,21 +57,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			String authorizationHeader = request.getHeader("Authorization");
 			if (authorizationHeader == null || authorizationHeader.isBlank()
 					|| !authorizationHeader.startsWith("Bearer "))
-				throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-						"Mã JWT không tồn tại, vui lòng thử lại sau");
+				throw new CustomException(HttpStatus.NOT_FOUND, "Access Token không tồn tại");
 
 			String jwt = authorizationHeader.substring(7);
 
 			handleAccessToken(jwt, response, request, filterChain);
-
-		} catch (ResponseStatusException e) {
-			handleException(e.getStatusCode(), "error", e.getMessage(), response);
-		} catch (ExpiredJwtException e) {
-			handleException(HttpStatus.UNAUTHORIZED, "error", "Access Token đã hết hạn, vui lòng thử lại sau",
-					response);
-		} catch (MalformedJwtException e) {
-			handleException(HttpStatus.UNAUTHORIZED, "error", "Access Token không hợp , vui lòng thử lại sau",
-					response);
+		} catch (ExpiredJwtException | MalformedJwtException | CustomException ex) {
+			handleException(ex, response);
 		}
 	}
 
@@ -92,16 +83,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		return false;
 	}
 
-	private void handleException(HttpStatusCode httpStatusCode, String status, String message,
-			HttpServletResponse response) throws JsonProcessingException, IOException {
+	private void handleException(Exception ex, HttpServletResponse response) throws JsonProcessingException, IOException {
 
-		response.setStatus(httpStatusCode.value());
+		response.setStatus(HttpStatus.UNAUTHORIZED.value());
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
 
 		Map<String, String> errors = new HashMap<String, String>();
-		errors.put("status", status);
-		errors.put("message", message);
+		errors.put("status", HttpStatus.UNAUTHORIZED.value()+"");
+		if (ex instanceof CustomException) {
+		    CustomException ce = (CustomException) ex;
+		    errors.put("error", ce.getMessage()); 
+		}
+		if (ex instanceof MalformedJwtException) {
+		    errors.put("error", "INVALID_TOKEN_FORMAT"); 
+		}
+		if (ex instanceof ExpiredJwtException) {
+		    errors.put("error", "ACCESS_TOKEN_EXPIRED"); 
+		}
+		errors.put("message", ex.getMessage());
 		errors.put("timestamp", LocalDateTime.now().toString());
 
 		response.getWriter().write(new ObjectMapper().writeValueAsString(errors));
@@ -113,13 +113,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		String username = jwtService.extractUsername(accessToken);
 		CustomUserDetails customUserDetails = (CustomUserDetails) customUserDetailService.loadUserByUsername(username);
 		if (!redisService.hasKey(String.format("ACCESS_TOKEN:%s", customUserDetails.getId()))) {
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-					"Access token không tồn tại hoặc đã hết hạn, vui lòng thử lại sau");
+			throw new CustomException(HttpStatus.UNAUTHORIZED, "ACCESS_TOKEN_EXPIRED", "Access token không tồn tại hoặc đã hết hạn, vui lòng thử lại sau");
 		}
 		String actoken = redisService.getValue(String.format("ACCESS_TOKEN:%s", customUserDetails.getId()));
 		if (!accessToken.equals(actoken)) {
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-					"Access token không tồn tại hoặc đã hết hạn, vui lòng thử lại sau");
+			throw new CustomException(HttpStatus.UNAUTHORIZED, "ACCESS_TOKEN_EXPIRED", "Access token không tồn tại hoặc đã hết hạn, vui lòng thử lại sau");
 		}
 		UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
 				customUserDetails, null, customUserDetails.getAuthorities());

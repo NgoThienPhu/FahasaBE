@@ -47,7 +47,7 @@ public class AuthenticationController {
 
 	@PostMapping("/login")
 	public ResponseEntity<?> userLogin(@Valid @RequestBody LoginRequestDTO body, HttpServletRequest request,
-			BindingResult result, HttpServletResponse response) {
+			HttpServletResponse response, BindingResult result) {
 		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Đăng nhập thất bại!",
 				request.getRequestURI());
 		if (responseError != null)
