@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 
-import com.example.demo.util.dto.api_response.ApiResponseDTO;
 import com.example.demo.util.dto.api_response.ApiResponseErrorDTO;
 
 public class BindingResultUtil {
@@ -18,8 +17,8 @@ public class BindingResultUtil {
             result.getFieldErrors().forEach(error -> {
                 errors.put(error.getField(), error.getDefaultMessage());
             });
-           ApiResponseDTO response = new ApiResponseErrorDTO(400, message, "VALIDATION_ERROR", errors, path);
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+           var response = new ApiResponseErrorDTO(400, message, "VALIDATION_ERROR", errors, path);
+           return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
         return null;
     }

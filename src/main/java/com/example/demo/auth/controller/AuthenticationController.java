@@ -1,5 +1,7 @@
 package com.example.demo.auth.controller;
 
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,6 +22,7 @@ import com.example.demo.auth.dto.LoginResponseDTO;
 import com.example.demo.auth.dto.RefreshAccessTokenResponseDTO;
 import com.example.demo.auth.service.AuthenticationService;
 import com.example.demo.util.dto.api_response.ApiResponseDTO;
+import com.example.demo.util.dto.api_response.ApiResponseErrorDTO;
 import com.example.demo.util.dto.api_response.ApiResponseSuccessDTO;
 import com.example.demo.util.entity.CustomUserDetails;
 import com.example.demo.util.validation.BindingResultUtil;
@@ -67,16 +70,25 @@ public class AuthenticationController {
 	}
 
 	@PostMapping("/register")
-	public ResponseEntity<?> userRegister(@Valid @RequestBody CreateUserRequestDTO body, HttpServletRequest request,
-			BindingResult result) {
+	public ResponseEntity<?> userRegister(@Valid @RequestBody CreateUserRequestDTO body, BindingResult result,
+			HttpServletRequest request) {
 
 		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Đăng kí thất bại!",
 				request.getRequestURI());
+		
+		Map<String, String> errors = authenticationService.validateUniqueUserFields(body.username(), body.email(), body.phoneNumber());
+		
+		if(!errors.isEmpty()) {
+			var response = new ApiResponseErrorDTO(400, "Đăng kí thất bại", "VALIDATION_ERROR", errors, request.getRequestURI());
+	        responseError = new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+		}
+		
 		if (responseError != null)
 			return responseError;
 
 		UserAccount account = authenticationService.userRegister(body);
 		var response = new ApiResponseSuccessDTO<Account>(201, "Đăng kí thành công", account);
+		
 		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
 	}
 

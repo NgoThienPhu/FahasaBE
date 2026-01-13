@@ -27,11 +27,11 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/accounts/me")
-public class AccountController {
+public class UserAccountController {
 
 	private UserAccountService userAccountService;
 
-	public AccountController(UserAccountService userAccountService) {
+	public UserAccountController(UserAccountService userAccountService) {
 		this.userAccountService = userAccountService;
 	}
 

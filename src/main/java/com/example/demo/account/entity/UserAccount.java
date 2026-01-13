@@ -55,5 +55,9 @@ public class UserAccount extends Account {
 	public enum Gender {
 		MALE, FEMALE, OTHER
 	}
+	
+	public void activePhoneNumber() {
+		this.phoneNumber.setIsVerify(true);
+	}
 
 }

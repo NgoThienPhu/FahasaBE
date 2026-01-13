@@ -1,5 +1,7 @@
 package com.example.demo.auth.service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -88,26 +90,7 @@ public class AuthenticationService {
 
 	@Transactional
 	public UserAccount userRegister(CreateUserRequestDTO body) {
-		Boolean checkExistsUsername = userAccountService.existsByUsername(body.username());
-		Boolean checkExistsEmail = userAccountService.existsByEmail(body.email());
-		Boolean checkExistsPhoneNumber = userAccountService.existsByPhoneNumber(body.phoneNumber());
-
-		if (checkExistsUsername)
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tên đăng nhập đã tồn tại");
-		if (checkExistsEmail)
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email đã tồn tại");
-		if (checkExistsPhoneNumber)
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Số điện thoại đã tồn tại");
-
-		String otpCode = redisService.getValue(String.format("OTP:%s", body.email()));
-		if (otpCode == null || !otpCode.equals(body.otpCode())) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mã otp không chính xác");
-		} else {
-			redisService.deleteValue(String.format("OTP:%s", body.email()));
-		}
-
 		UserAccount userAccount = CreateUserRequestDTO.toUserAccount(body, passwordEncoder);
-		userAccount.active();
 		return (UserAccount) userAccountService.save(userAccount);
 	}
 
@@ -165,6 +148,24 @@ public class AuthenticationService {
 		redisService.setValue(String.format("OTP:%s", email), otp);
 		redisService.expire(String.format("OTP:%s", email), 120L, TimeUnit.SECONDS);
 		emailService.sendOtpEmail(email, "🔐 Mã OTP của bạn từ Fahasa", otp);
+	}
+	
+	public Map<String, String> validateUniqueUserFields(String username, String email, String phoneNumber) {
+	    Map<String, String> errors = new HashMap<>();
+
+	    if (userAccountService.existsByUsername(username)) {
+	        errors.put("username", "Tên tài khoản đã được sử dụng");
+	    }
+
+	    if (userAccountService.existsByEmail(email)) {
+	        errors.put("email", "Email đã được sử dụng");
+	    }
+
+	    if (userAccountService.existsByPhoneNumber(phoneNumber)) {
+	        errors.put("phoneNumber", "Số điện thoại đã được sử dụng");
+	    }
+
+	    return errors;
 	}
 
 	public static String generate6DigitCode() {

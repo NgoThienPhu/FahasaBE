@@ -1,7 +1,5 @@
 package com.example.demo.account.entity.base;
 
-import java.time.LocalDateTime;
-
 import com.example.demo.email.entity.Email;
 import com.example.demo.util.entity.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -41,12 +39,6 @@ public abstract class Account extends BaseEntity {
 	
 	@Column(name = "is_active", nullable = false)
 	protected Boolean isActived = true;
-	
-	@Column(name = "is_delete", nullable = false)
-	protected Boolean isDeleted = false;
-	
-    @Column(name = "deleted_at", nullable = true)
-    protected LocalDateTime deletedAt;
 
 	public Account(String username, String password) {
 		this.username = username;
