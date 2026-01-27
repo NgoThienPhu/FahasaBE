@@ -35,7 +35,7 @@ public record CreateUserRequestDTO(
 		userAccount.setUsername(dto.username());
 		userAccount.setPassword(passwordEncoder.encode(dto.password()));
 		userAccount.setFullName(dto.fullName());
-		userAccount.setEmail(new com.example.demo.email.entity.Email(dto.email(), true));
+		userAccount.setEmail(new com.example.demo.email.entity.Email(dto.email()));
 		userAccount.setPhoneNumber(new PhoneNumber(dto.phoneNumber()));
 		return userAccount;
 	}

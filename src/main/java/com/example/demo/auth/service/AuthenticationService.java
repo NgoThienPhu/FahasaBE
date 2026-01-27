@@ -30,7 +30,6 @@ import com.example.demo.util.cookie.CookieUtil;
 import com.example.demo.util.entity.CustomUserDetails;
 import com.example.demo.util.exception.CustomException;
 import com.example.demo.util.service.JwtService;
-import com.example.demo.util.service.MessageService;
 import com.example.demo.util.service.RedisService;
 
 import jakarta.servlet.http.Cookie;
@@ -45,17 +44,14 @@ public class AuthenticationService {
 	private UserAccountService userAccountService;
 	private JwtService jwtService;
 	private RedisService redisService;
-	private MessageService emailService;
 	private PasswordEncoder passwordEncoder;
 
 	public AuthenticationService(AuthenticationManager authenticationManager, UserAccountService userAccountService,
-			JwtService jwtService, RedisService redisService, MessageService emailService,
-			PasswordEncoder passwordEncoder) {
+			JwtService jwtService, RedisService redisService, PasswordEncoder passwordEncoder) {
 		this.authenticationManager = authenticationManager;
 		this.userAccountService = userAccountService;
 		this.jwtService = jwtService;
 		this.redisService = redisService;
-		this.emailService = emailService;
 		this.passwordEncoder = passwordEncoder;
 	}
 
@@ -96,7 +92,7 @@ public class AuthenticationService {
 
 	public void logout(String accountId, HttpServletResponse response) {
 		try {
-			CookieUtil.deleteCookie(response, "refresh-token", "/api/auth/refresh");
+			CookieUtil.deleteCookie(response, "refreshToken", "/");
 			redisService.deleteValue(String.format("REFRESH_TOKEN:%s", accountId));
 			redisService.deleteValue(String.format("ACCESS_TOKEN:%s", accountId));
 			SecurityContextHolder.clearContext();
@@ -143,29 +139,22 @@ public class AuthenticationService {
 		}
 	}
 
-	public void sendOtp(String email) {
-		String otp = AuthenticationService.generate6DigitCode();
-		redisService.setValue(String.format("OTP:%s", email), otp);
-		redisService.expire(String.format("OTP:%s", email), 120L, TimeUnit.SECONDS);
-		emailService.sendOtpEmail(email, "🔐 Mã OTP của bạn từ Fahasa", otp);
-	}
-	
 	public Map<String, String> validateUniqueUserFields(String username, String email, String phoneNumber) {
-	    Map<String, String> errors = new HashMap<>();
+		Map<String, String> errors = new HashMap<>();
 
-	    if (userAccountService.existsByUsername(username)) {
-	        errors.put("username", "Tên tài khoản đã được sử dụng");
-	    }
+		if (userAccountService.existsByUsername(username)) {
+			errors.put("username", "Tên tài khoản đã được sử dụng");
+		}
 
-	    if (userAccountService.existsByEmail(email)) {
-	        errors.put("email", "Email đã được sử dụng");
-	    }
+		if (userAccountService.existsByEmail(email)) {
+			errors.put("email", "Email đã được sử dụng");
+		}
 
-	    if (userAccountService.existsByPhoneNumber(phoneNumber)) {
-	        errors.put("phoneNumber", "Số điện thoại đã được sử dụng");
-	    }
+		if (userAccountService.existsByPhoneNumber(phoneNumber)) {
+			errors.put("phoneNumber", "Số điện thoại đã được sử dụng");
+		}
 
-	    return errors;
+		return errors;
 	}
 
 	public static String generate6DigitCode() {
