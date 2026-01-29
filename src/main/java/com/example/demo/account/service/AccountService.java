@@ -66,11 +66,7 @@ public class AccountService {
 		if (existsByEmail(body.newEmail())) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email đã được sử dụng");
 		}
-		String myOtp = redisService.getValue(String.format("OTP:%s", body.newEmail()));
-		if (myOtp == null || !body.otp().equals(myOtp)) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mã Otp không chính xác");
-		}
-		Email myEmail = new Email(body.newEmail(), true);
+		Email myEmail = new Email(body.newEmail(), false);
 		account.setEmail(myEmail);
 		return save(account);
 	}
