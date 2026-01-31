@@ -22,7 +22,9 @@ public class CreateAddressFlow {
 
 	public Address createAddress(CreateAddressRequestDTO body, String accountId) {
 		UserAccount user = (UserAccount) accountService.findById(accountId);
-		if(body.isDefault() == true) addressService.ressetDefaultAddress(accountId);
+		Address addressDefault = addressService.findDefaultAddress(accountId);
+		if(body.getIsDefault() == true && addressDefault != null) addressService.ressetDefaultAddress(accountId);
+		else body.setIsDefault(true);
 		Address myAddress = body.convertToEntity(body, user);
 		return addressService.save(myAddress);
 	}

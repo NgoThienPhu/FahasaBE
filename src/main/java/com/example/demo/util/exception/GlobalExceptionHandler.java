@@ -16,8 +16,7 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<?> handleResponseStatusException(Exception ex) {
 		ApiResponseDTO apiResponse = new ApiResponseErrorDTO(500, ex.getMessage());
-		ResponseEntity<ApiResponseDTO> myResponse = new ResponseEntity<ApiResponseDTO>(apiResponse,
-				HttpStatus.INTERNAL_SERVER_ERROR);
+		var myResponse = new ResponseEntity<ApiResponseDTO>(apiResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 		return myResponse;
 	}
 
@@ -26,7 +25,7 @@ public class GlobalExceptionHandler {
 		ApiResponseDTO apiResponse = new ApiResponseErrorDTO(ex.getStatus().value(), ex.getMessage(),
 				ex.getErrorCode() == null ? ex.getStatus().toString() : ex.getErrorCode(), null,
 				request.getRequestURI());
-		ResponseEntity<ApiResponseDTO> myResponse = new ResponseEntity<ApiResponseDTO>(apiResponse, ex.getStatus());
+		var myResponse = new ResponseEntity<ApiResponseDTO>(apiResponse, ex.getStatus());
 		return myResponse;
 	}
 }

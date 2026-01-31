@@ -3,34 +3,38 @@ package com.example.demo.address.dto;
 import com.example.demo.account.entity.UserAccount;
 import com.example.demo.address.entity.Address;
 
-public record CreateAddressRequestDTO(
-		
-		String fullName,
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import lombok.Getter;
+import lombok.Setter;
 
-		String phoneNumber,
+@Getter
+@Setter
+public class CreateAddressRequestDTO {
 
-		String addressDetail,
+	@NotBlank(message = "Tên đầy đủ không được để trống")
+	private String fullName;
 
-		String city,
+	@Pattern(regexp = "^(0|\\+84)(3[2-9]|5[6|8|9]|7[0|6-9]|8[1-5]|9[0-9])\\d{7}$", message = "Số điện thoại không hợp lệ")
+	private String phoneNumber;
 
-		String district,
+	@NotBlank(message = "Địa chỉ chi tiết không được để trống")
+	private String addressDetail;
 
-		String ward,
+	@NotBlank(message = "Tên thành phố không được để trống")
+	private String city;
 
-		Boolean isDefault
+	@NotBlank(message = "Tên Quận/Huyện không được để trống")
+	private String district;
 
-) {
-	
+	@NotBlank(message = "Tên Tỉnh/Thành phố không được để trống")
+	private String ward;
+
+	Boolean isDefault;
+
 	public Address convertToEntity(CreateAddressRequestDTO dto, UserAccount userAccount) {
-		return new Address(
-				dto.fullName, 
-				dto.phoneNumber, 
-				dto.addressDetail, 
-				dto.city, 
-				dto.district, 
-				dto.ward, 
-				dto.isDefault, 
-				userAccount
-		);
+		return new Address(dto.fullName, dto.phoneNumber, dto.addressDetail, dto.city, dto.district, dto.ward,
+				dto.isDefault, userAccount);
 	}
+
 }
