@@ -48,4 +48,16 @@ public class Address extends BaseEntity {
 	@JoinColumn(name = "account_id")
 	private UserAccount userAccount;
 	
+	public Address update(String fullName, String phoneNumber, String addressDetail, String city, String district, String ward, Boolean isDefault) {
+		if (fullName != null) this.fullName = fullName;
+		if (phoneNumber != null) this.phoneNumber = phoneNumber;
+		if (addressDetail != null) this.addressDetail = addressDetail;
+		if (city != null) this.city = city;
+		if (district != null) this.district = district;
+		if (ward != null) this.ward = ward;
+		if (isDefault != null) this.isDefault = isDefault;
+		
+		return this;
+	}
+	
 }

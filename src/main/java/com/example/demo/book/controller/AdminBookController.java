@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.book.dto.CreateBookRequestDTO;
 import com.example.demo.book.entity.Book;
-import com.example.demo.book.flow.CreateBookFlow;
 import com.example.demo.book.service.BookService;
 import com.example.demo.util.dto.api_response.ApiResponseDTO;
 import com.example.demo.util.dto.api_response.ApiResponseSuccessDTO;
@@ -24,11 +23,9 @@ import jakarta.validation.Valid;
 public class AdminBookController {
 
 	private BookService bookService;
-	private CreateBookFlow createBookFlow;
 
-	public AdminBookController(BookService bookService, CreateBookFlow createBookFlow) {
+	public AdminBookController(BookService bookService) {
 		this.bookService = bookService;
-		this.createBookFlow = createBookFlow;
 	}
 
 	@PostMapping
@@ -38,7 +35,7 @@ public class AdminBookController {
 				request.getRequestURI());
 		if (responseError != null)
 			return responseError;
-		Book book = createBookFlow.createBook(dto);
+		Book book = bookService.createBook(dto);
 		var response = new ApiResponseSuccessDTO<Book>(201, "Tạo sách thành công", book);
 		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
 	}

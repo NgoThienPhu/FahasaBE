@@ -4,8 +4,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.demo.account.dto.AdminChangeUserInfoRequestDTO;
 import com.example.demo.account.entity.base.Account;
 import com.example.demo.address.entity.Address;
+import com.example.demo.email.entity.Email;
 import com.example.demo.util.entity.PhoneNumber;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -46,6 +48,9 @@ public class UserAccount extends Account {
 	@JsonIgnore
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "userAccount", orphanRemoval = true)
 	private List<Address> addresses = new ArrayList<>();
+	
+	@Column(name = "is_active", nullable = false)
+	protected Boolean isActived = true;
 
 	public UserAccount(String username, String password, String fullName) {
 		super(username, password);
@@ -56,8 +61,33 @@ public class UserAccount extends Account {
 		MALE, FEMALE, OTHER
 	}
 	
-	public void activePhoneNumber() {
-		this.phoneNumber.setIsVerify(true);
-	}
+	public void active() {
+        this.isActived = true;
+    }
+
+    public void disabled() {
+        this.isActived = false;
+    }
+	
+	public void initByAdmin(
+            String username,
+            String fullName,
+            Email email,
+            PhoneNumber phone,
+            String passwordEncode) {
+
+        this.username = username;
+        this.fullName = fullName;
+        this.email = email;
+        this.phoneNumber = phone;
+        this.password = passwordEncode;
+    }
+	
+	public void updateProfileByAdmin(AdminChangeUserInfoRequestDTO dto) {
+        if (dto.fullName() != null) this.fullName = dto.fullName();
+        if (dto.gender() != null) this.gender = Gender.valueOf(dto.gender());
+        if (dto.email() != null) this.email = new Email(dto.email());
+        if (dto.phoneNumber() != null) this.phoneNumber = new PhoneNumber(dto.phoneNumber());
+    }
 
 }

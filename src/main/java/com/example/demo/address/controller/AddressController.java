@@ -17,12 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.address.dto.CreateAddressRequestDTO;
 import com.example.demo.address.dto.UpdateAddressRequestDTO;
 import com.example.demo.address.entity.Address;
-import com.example.demo.address.flow.CreateAddressFlow;
 import com.example.demo.address.service.AddressService;
 import com.example.demo.util.dto.api_response.ApiResponseDTO;
 import com.example.demo.util.dto.api_response.ApiResponseSuccessDTO;
 import com.example.demo.util.entity.CustomUserDetails;
-import com.example.demo.util.exception.CustomException;
 import com.example.demo.util.validation.BindingResultUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,11 +33,8 @@ public class AddressController {
 
 	private AddressService addressService;
 
-	private CreateAddressFlow createAddressFlow;
-
-	public AddressController(AddressService addressService, CreateAddressFlow createAddressFlow) {
+	public AddressController(AddressService addressService) {
 		this.addressService = addressService;
-		this.createAddressFlow = createAddressFlow;
 	}
 
 	@GetMapping("/{addressId}")
@@ -52,7 +47,7 @@ public class AddressController {
 
 	@GetMapping
 	public ResponseEntity<?> findAll(@AuthenticationPrincipal CustomUserDetails currentUser) {
-		List<Address> addresses = addressService.findAllByUserAccountId(currentUser.getId());
+		List<Address> addresses = addressService.findAll(currentUser.getId());
 		var response = new ApiResponseSuccessDTO<List<Address>>(200, "Lấy danh sách địa chỉ người dùng thành công",
 				addresses);
 		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
@@ -66,11 +61,7 @@ public class AddressController {
 		if (responseError != null)
 			return responseError;
 
-		List<Address> addresses = addressService.findAllByUserAccountId(currentUser.getId());
-		if (addresses.size() >= 3)
-			throw new CustomException(HttpStatus.BAD_REQUEST, "Số lượng địa chỉ >= 3, không thể thêm địa chỉ");
-
-		Address address = createAddressFlow.createAddress(body, currentUser.getId());
+		Address address = addressService.createAddress(body, currentUser.getId());
 		var response = new ApiResponseSuccessDTO<Address>(201, "Thêm địa chỉ giao hàng thành công", address);
 		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
 	}
@@ -82,9 +73,9 @@ public class AddressController {
 				request.getRequestURI());
 		if (responseError != null)
 			return responseError;
-		
+
 		Address address = addressService.updateById(body, addressId, currentUser.getId());
-		
+
 		var response = new ApiResponseSuccessDTO<Address>(200, "Cập nhật chỉ giao hàng thành công", address);
 		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
 	}
@@ -93,14 +84,6 @@ public class AddressController {
 	public ResponseEntity<?> deleteByIdAndUsername(@PathVariable String addressId,
 			@AuthenticationPrincipal CustomUserDetails currentUser) {
 		addressService.deleteById(addressId, currentUser.getId());
-
-		List<Address> addresses = addressService.findAllByUserAccountId(currentUser.getId());
-		if (!addresses.isEmpty()) {
-			Address newDefaultAddress = addresses.get(0);
-			newDefaultAddress.setIsDefault(true);
-			addressService.save(newDefaultAddress);
-		}
-
 		var response = new ApiResponseSuccessDTO<Void>(200, "Xóa địa chỉ người dùng thành công");
 		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
 	}

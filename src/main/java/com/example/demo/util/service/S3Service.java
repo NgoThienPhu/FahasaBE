@@ -5,9 +5,11 @@ import java.io.InputStream;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.demo.util.exception.CustomException;
 import com.example.demo.util.service.S3Service;
 
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
@@ -20,51 +22,60 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 @Service
 public class S3Service {
 
-	private S3Client s3Client;
+	private final S3Client s3Client;
+	private final String bucketName;
 
-	@Value("${aws.s3.bucketName}")
-	private String bucketName;
-
-	@Value("${aws.region}")
-	private String region;
-
-	public S3Service(S3Client s3Client) {
+	public S3Service(S3Client s3Client, @Value("${aws.s3.bucketName}") String bucketName) {
 		this.s3Client = s3Client;
+		this.bucketName = bucketName;
 	}
 
 	public String uploadFile(MultipartFile file) {
-		String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename().trim();
+		validateFile(file);
 
-		PutObjectRequest request = PutObjectRequest.builder().bucket(bucketName).key(fileName)
+		String objectKey = generateObjectKey(file.getOriginalFilename());
+
+		PutObjectRequest request = PutObjectRequest.builder().bucket(bucketName).key(objectKey)
 				.contentType(file.getContentType()).build();
 
-		try (InputStream inputStream = file.getInputStream()) {
-			s3Client.putObject(request, RequestBody.fromInputStream(inputStream, file.getSize()));
-		} catch (AwsServiceException e) {
-			throw new RuntimeException("Lỗi dịch vụ AWS: " + e.awsErrorDetails().errorMessage(), e);
-		} catch (SdkClientException e) {
-			throw new RuntimeException("Lỗi AWS SDK", e);
+		try (InputStream is = file.getInputStream()) {
+			s3Client.putObject(request, RequestBody.fromInputStream(is, file.getSize()));
 		} catch (IOException e) {
-			throw new RuntimeException("Không đọc được dữ liệu file upload", e);
+			throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, "Không đọc được file upload");
+		} catch (AwsServiceException | SdkClientException e) {
+			throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, "Lỗi khi upload file lên S3");
 		}
-		return convertFileNameToFileURL(fileName, bucketName, region);
+
+		return getFileUrl(objectKey);
 	}
 
-	public void deleteFile(String fileName) {
-		DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder().bucket(bucketName).key(fileName)
-				.build();
-		s3Client.deleteObject(deleteObjectRequest);
+	public void deleteFileByUrl(String fileUrl) {
+		deleteFile(extractObjectKey(fileUrl));
 	}
 
-	public static String convertFileURlToFileName(String fileURl) {
-		int index = fileURl.lastIndexOf("/");
-		if (index == -1)
-			return fileURl;
-		return fileURl.substring(index + 1);
+	public void deleteFile(String objectKey) {
+		s3Client.deleteObject(DeleteObjectRequest.builder().bucket(bucketName).key(objectKey).build());
 	}
 
-	public static String convertFileNameToFileURL(String fileName, String awsBucketName, String awsRegion) {
-		return String.format("https://%s.s3.%s.amazonaws.com/%s", awsBucketName, awsRegion, fileName);
+	private void validateFile(MultipartFile file) {
+		if (file == null || file.isEmpty()) {
+			throw new CustomException(HttpStatus.BAD_REQUEST, "File upload không hợp lệ");
+		}
+		if (file.getOriginalFilename() == null) {
+			throw new CustomException(HttpStatus.BAD_REQUEST, "Tên file không hợp lệ");
+		}
 	}
 
+	private String generateObjectKey(String originalFilename) {
+		return UUID.randomUUID() + "_" + originalFilename.trim();
+	}
+
+	private String getFileUrl(String objectKey) {
+		return s3Client.utilities().getUrl(builder -> builder.bucket(bucketName).key(objectKey)).toString();
+	}
+
+	private String extractObjectKey(String fileUrl) {
+		int index = fileUrl.lastIndexOf('/');
+		return index == -1 ? fileUrl : fileUrl.substring(index + 1);
+	}
 }

@@ -63,7 +63,7 @@ public class CategoryService {
 	public Category update(UpdateCategoryNameRequestDTO dto, String categoryId) {
 		Category category = findById(categoryId);
 		if (dto.categoryName() != null)
-			category.setName(dto.categoryName());
+			category.updateName(dto.categoryName());
 		return categoryRepository.save(category);
 	}
 

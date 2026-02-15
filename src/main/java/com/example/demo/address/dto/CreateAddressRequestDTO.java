@@ -32,9 +32,9 @@ public class CreateAddressRequestDTO {
 
 	Boolean isDefault;
 
-	public Address convertToEntity(CreateAddressRequestDTO dto, UserAccount userAccount) {
-		return new Address(dto.fullName, dto.phoneNumber, dto.addressDetail, dto.city, dto.district, dto.ward,
-				dto.isDefault, userAccount);
+	public Address convertToEntity(UserAccount userAccount) {
+		return new Address(this.fullName, this.phoneNumber, this.addressDetail, this.city, this.district, this.ward,
+				this.isDefault, userAccount);
 	}
 
 }

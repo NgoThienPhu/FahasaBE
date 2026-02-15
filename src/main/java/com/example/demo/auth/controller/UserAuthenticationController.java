@@ -20,6 +20,7 @@ import com.example.demo.auth.dto.LoginRequestDTO;
 import com.example.demo.auth.dto.LoginResponseDTO;
 import com.example.demo.auth.dto.RefreshAccessTokenResponseDTO;
 import com.example.demo.auth.service.AuthenticationService;
+import com.example.demo.auth.service.UserAuthenticationService;
 import com.example.demo.util.dto.api_response.ApiResponseDTO;
 import com.example.demo.util.dto.api_response.ApiResponseErrorDTO;
 import com.example.demo.util.dto.api_response.ApiResponseSuccessDTO;
@@ -32,11 +33,14 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/auth")
-public class AuthenticationController {
+public class UserAuthenticationController {
 
+	private UserAuthenticationService userAuthenticationService;
 	private AuthenticationService authenticationService;
 
-	public AuthenticationController(AuthenticationService authenticationService) {
+	public UserAuthenticationController(UserAuthenticationService userAuthenticationService,
+			AuthenticationService authenticationService) {
+		this.userAuthenticationService = userAuthenticationService;
 		this.authenticationService = authenticationService;
 	}
 
@@ -48,7 +52,7 @@ public class AuthenticationController {
 		if (responseError != null)
 			return responseError;
 
-		LoginResponseDTO account = authenticationService.login(body, response);
+		LoginResponseDTO account = userAuthenticationService.login(body, response);
 		var myResponse = new ApiResponseSuccessDTO<LoginResponseDTO>(200, "Đăng nhập thành công!", account);
 		return new ResponseEntity<ApiResponseDTO>(myResponse, HttpStatus.OK);
 	}
@@ -67,20 +71,22 @@ public class AuthenticationController {
 
 		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Đăng kí thất bại!",
 				request.getRequestURI());
-		
-		Map<String, String> errors = authenticationService.validateUniqueUserFields(body.username(), body.email(), body.phoneNumber());
-		
-		if(!errors.isEmpty()) {
-			var response = new ApiResponseErrorDTO(400, "Đăng kí thất bại", "VALIDATION_ERROR", errors, request.getRequestURI());
-	        responseError = new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+
+		Map<String, String> errors = userAuthenticationService.validateUniqueUserFields(body.username(), body.email(),
+				body.phoneNumber());
+
+		if (!errors.isEmpty()) {
+			var response = new ApiResponseErrorDTO(400, "Đăng kí thất bại", "VALIDATION_ERROR", errors,
+					request.getRequestURI());
+			responseError = new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 		}
-		
+
 		if (responseError != null)
 			return responseError;
 
-		UserAccount account = authenticationService.userRegister(body);
+		UserAccount account = userAuthenticationService.register(body);
 		var response = new ApiResponseSuccessDTO<Account>(201, "Đăng kí thành công", account);
-		
+
 		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
 	}
 
@@ -91,14 +97,14 @@ public class AuthenticationController {
 				request.getRequestURI());
 		if (responseError != null)
 			return responseError;
-		authenticationService.changePassword(body, currentUser);
+		userAuthenticationService.changePassword(body, currentUser);
 		var response = new ApiResponseSuccessDTO<Void>(200, "Đổi mật khẩu thành công");
 		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
 	}
 
 	@PostMapping("/refresh")
 	public ResponseEntity<?> refreshAccessToken(HttpServletRequest request) {
-		RefreshAccessTokenResponseDTO newAccessToken = authenticationService.refreshTokenAccess(request);
+		RefreshAccessTokenResponseDTO newAccessToken = authenticationService.refreshAccessToken(request);
 		var myResponse = new ApiResponseSuccessDTO<RefreshAccessTokenResponseDTO>(200,
 				"Làm mới access token thành công", newAccessToken);
 		return new ResponseEntity<ApiResponseDTO>(myResponse, HttpStatus.OK);

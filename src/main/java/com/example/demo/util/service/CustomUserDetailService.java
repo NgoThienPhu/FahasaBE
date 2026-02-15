@@ -8,35 +8,36 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.account.entity.AdminAccount;
 import com.example.demo.account.entity.base.Account;
-import com.example.demo.account.service.AccountService;
+import com.example.demo.account.repository.AccountRepository;
 import com.example.demo.util.entity.CustomUserDetails;
+import com.example.demo.util.exception.CustomException;
 import com.example.demo.util.service.CustomUserDetailService;
 
 @Service
 public class CustomUserDetailService implements UserDetailsService {
-	
-	private AccountService accountService;
-	
-	public CustomUserDetailService(AccountService accountService) {
-		this.accountService = accountService;
+
+	private AccountRepository accountRepository;
+
+	public CustomUserDetailService(AccountRepository accountRepository) {
+		this.accountRepository = accountRepository;
 	}
 
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		
-		Account account = accountService.findByUsername(username);
-		
-		if(account == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Tài khoản không tồn tại vui lòng thử lại sau");
-		
-		SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + Account.AccountType.USER.name());	
-		
-		if(account instanceof AdminAccount) authority = new SimpleGrantedAuthority("ROLE_" + Account.AccountType.ADMIN.name());
-		
-		CustomUserDetails customUserDetails =  new CustomUserDetails(account.getId(), username, account.getPassword(), List.of(authority));
-		
+
+		Account account = accountRepository.findByUsername(username)
+				.orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Người dùng không tồn tại"));
+
+		SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + Account.AccountType.USER.name());
+
+		if (account instanceof AdminAccount)
+			authority = new SimpleGrantedAuthority("ROLE_" + Account.AccountType.ADMIN.name());
+
+		CustomUserDetails customUserDetails = new CustomUserDetails(account.getId(), username, account.getPassword(),
+				List.of(authority));
+
 		return customUserDetails;
 	}
 

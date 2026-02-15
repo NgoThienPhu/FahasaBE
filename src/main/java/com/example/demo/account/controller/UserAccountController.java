@@ -2,6 +2,7 @@ package com.example.demo.account.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,11 +11,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.account.dto.ChangeEmailRequestDTO;
 import com.example.demo.account.dto.ChangePhoneNumberRequestDTO;
 import com.example.demo.account.dto.ChangeUserInfoRequestDTO;
+import com.example.demo.account.entity.UserAccount;
 import com.example.demo.account.entity.base.Account;
 import com.example.demo.account.service.UserAccountService;
 import com.example.demo.util.dto.api_response.ApiResponseDTO;
@@ -27,6 +28,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/accounts/me")
+@PreAuthorize("hasRole('USER')")
 public class UserAccountController {
 
 	private UserAccountService userAccountService;
@@ -37,9 +39,8 @@ public class UserAccountController {
 
 	@GetMapping
 	public ResponseEntity<?> getInfo(@AuthenticationPrincipal CustomUserDetails currentUser) {
-		Account account = userAccountService.findById(currentUser.getId());
-		if (account == null)
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Người dùng không tồn tại");
+		UserAccount account = userAccountService.findById(currentUser.getId());
+		
 		var response = new ApiResponseSuccessDTO<Account>(200, "Lấy thông tin tài khoản thành công", account);
 		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
 	}
@@ -47,24 +48,32 @@ public class UserAccountController {
 	@PutMapping
 	public ResponseEntity<?> changeInfo(@RequestBody @Valid ChangeUserInfoRequestDTO dto, HttpServletRequest request,
 			BindingResult result, @AuthenticationPrincipal CustomUserDetails currentUser) {
+		
 		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Cập nhật thất bại!",
 				request.getRequestURI());
-		if (responseError != null)
-			return responseError;
-		Account account = userAccountService.changeUserAccountInfo(dto, currentUser.getId());
+		
+		if (responseError != null) return responseError;
+		
+		UserAccount account = userAccountService.changeInfo(dto, currentUser.getId());
+		
 		var response = new ApiResponseSuccessDTO<Account>(200, "Cập nhật thông tin tài khoản thành công", account);
+		
 		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
 	}
 
 	@PostMapping("/change-email")
 	public ResponseEntity<?> changeEmail(@RequestBody @Valid ChangeEmailRequestDTO body, HttpServletRequest request,
 			BindingResult result, @AuthenticationPrincipal CustomUserDetails currentUser) {
+		
 		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Cập nhật email thất bại!",
 				request.getRequestURI());
-		if (responseError != null)
-			return responseError;
+		
+		if (responseError != null) return responseError;
+		
 		userAccountService.changeEmail(body, currentUser.getId());
+		
 		var response = new ApiResponseSuccessDTO<Void>(200, "Đổi email thành công");
+		
 		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
 	}
 

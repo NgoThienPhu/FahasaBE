@@ -37,8 +37,6 @@ public abstract class Account extends BaseEntity {
 	@JoinColumn(name = "email")
 	protected Email email;
 	
-	@Column(name = "is_active", nullable = false)
-	protected Boolean isActived = true;
 
 	public Account(String username, String password) {
 		this.username = username;
@@ -53,16 +51,12 @@ public abstract class Account extends BaseEntity {
 		REFRESH, ACCESS
 	}
 	
-	public void active() {
-        this.isActived = true;
-    }
-
-    public void disabled() {
-        this.isActived = false;
-    }
-
-    public void activeEmail() {
-    	this.email.setIsVerify(true);
-    }
+	public void changePassword(String newPasswordEncoded) {
+		this.password = newPasswordEncoded;
+	}
+    
+    public void changeEmail(Email email) {
+		this.email = email;
+	}
 
 }
