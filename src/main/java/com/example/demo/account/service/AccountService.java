@@ -15,6 +15,7 @@ import com.example.demo.auth.service.AuthenticationService;
 import com.example.demo.email.entity.Email;
 import com.example.demo.util.entity.PhoneNumber;
 import com.example.demo.util.exception.CustomException;
+import com.example.demo.util.service.MessageService;
 
 @Service
 public class AccountService {
@@ -22,12 +23,14 @@ public class AccountService {
 	private AccountRepository accountRepository;
 	private UserAccountRepository userAccountRepository;
 	private PasswordEncoder passwordEncoder;
+	private MessageService messageService;
 
 	public AccountService(AccountRepository accountRepository, UserAccountRepository userAccountRepository,
-			PasswordEncoder passwordEncoder) {
+			PasswordEncoder passwordEncoder, MessageService messageService) {
 		this.accountRepository = accountRepository;
 		this.userAccountRepository = userAccountRepository;
 		this.passwordEncoder = passwordEncoder;
+		this.messageService = messageService;
 	}
 
 	@Transactional
@@ -80,7 +83,7 @@ public class AccountService {
 
 		accountRepository.save(account);
 
-		System.out.println(String.format("Mật khẩu mới của bạn là: %s", password));
+		messageService.sendResetPasswordEmail(account.getEmail().getEmail(), "Mật khẩu mới của bạn", "Mật khẩu mới của bạn là: " + password);
 	}
 
 }

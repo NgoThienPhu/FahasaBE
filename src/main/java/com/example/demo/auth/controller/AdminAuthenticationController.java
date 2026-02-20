@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.auth.dto.LoginRequestDTO;
 import com.example.demo.auth.dto.LoginResponseDTO;
+import com.example.demo.auth.dto.RefreshAccessTokenResponseDTO;
 import com.example.demo.auth.service.AdminAuthenticationService;
 import com.example.demo.auth.service.AuthenticationService;
 import com.example.demo.util.dto.api_response.ApiResponseDTO;
@@ -36,7 +37,7 @@ public class AdminAuthenticationController {
 	}
 
 	@PostMapping("/login")
-	public ResponseEntity<?> userLogin(@Valid @RequestBody LoginRequestDTO body, HttpServletRequest request,
+	public ResponseEntity<?> adminLogin(@Valid @RequestBody LoginRequestDTO body, HttpServletRequest request,
 			HttpServletResponse response, BindingResult result) {
 
 		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Đăng nhập thất bại!",
@@ -51,10 +52,18 @@ public class AdminAuthenticationController {
 	}
 
 	@PostMapping("/logout")
-	public ResponseEntity<?> userLogout(@AuthenticationPrincipal CustomUserDetails currentUser,
+	public ResponseEntity<?> adminLogout(@AuthenticationPrincipal CustomUserDetails currentUser,
 			HttpServletResponse response) {
 		authenticationService.logout(currentUser.getId(), response);
 		var myResponse = new ApiResponseSuccessDTO<Void>(200, "Đăng xuất thành công!");
+		return new ResponseEntity<ApiResponseDTO>(myResponse, HttpStatus.OK);
+	}
+	
+	@PostMapping("/refresh")
+	public ResponseEntity<?> refreshAccessToken(HttpServletRequest request) {
+		RefreshAccessTokenResponseDTO newAccessToken = authenticationService.refreshAccessToken(request);
+		var myResponse = new ApiResponseSuccessDTO<RefreshAccessTokenResponseDTO>(200,
+				"Làm mới access token thành công", newAccessToken);
 		return new ResponseEntity<ApiResponseDTO>(myResponse, HttpStatus.OK);
 	}
 

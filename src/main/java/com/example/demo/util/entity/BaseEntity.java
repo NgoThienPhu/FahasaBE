@@ -3,8 +3,6 @@ package com.example.demo.util.entity;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
@@ -26,11 +24,9 @@ public abstract class BaseEntity {
 	protected String id;
 	
 	@Column(name = "created_at", nullable = false , updatable = false)
-	@JsonIgnore
 	protected LocalDateTime createdAt;
 	
 	@Column(name = "updated_at", nullable = false)
-	@JsonIgnore
 	protected LocalDateTime updatedAt;
 	
 	@PrePersist

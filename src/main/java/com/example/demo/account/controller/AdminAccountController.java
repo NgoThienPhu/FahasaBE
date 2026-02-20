@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -18,12 +18,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.account.dto.AdminChangeUserInfoRequestDTO;
 import com.example.demo.account.dto.AdminCreateUserRequestDTO;
+import com.example.demo.account.entity.AdminAccount;
 import com.example.demo.account.entity.UserAccount;
 import com.example.demo.account.entity.base.Account;
 import com.example.demo.account.service.AdminAccountService;
 import com.example.demo.util.dto.api_response.ApiResponseDTO;
 import com.example.demo.util.dto.api_response.ApiResponsePaginationSuccess;
 import com.example.demo.util.dto.api_response.ApiResponseSuccessDTO;
+import com.example.demo.util.entity.CustomUserDetails;
 import com.example.demo.util.validation.BindingResultUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,7 +33,6 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/admin/accounts")
-@PreAuthorize("hasRole('ADMIN')")
 public class AdminAccountController {
 
 	private AdminAccountService adminAccountService;
@@ -40,12 +41,22 @@ public class AdminAccountController {
 		this.adminAccountService = adminAccountService;
 	}
 
+	@GetMapping("/me")
+	public ResponseEntity<?> getInfo(@AuthenticationPrincipal CustomUserDetails currentUser) {
+		AdminAccount account = adminAccountService.findAdminAccountById(currentUser.getId());
+
+		var response = new ApiResponseSuccessDTO<Account>(200, "Lấy thông tin tài khoản thành công", account);
+		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
+	}
+
 	@GetMapping
-	public ResponseEntity<?> getUserAccounts(@RequestParam(required = true, defaultValue = "asc") String orderBy,
+	public ResponseEntity<?> getUserAccounts(
+			@RequestParam(required = false) String search,
+			@RequestParam(required = true, defaultValue = "asc") String orderBy,
 			@RequestParam(required = true, defaultValue = "username") String sortBy,
 			@RequestParam(required = true, defaultValue = "0") int page,
 			@RequestParam(required = true, defaultValue = "20") int size) {
-		Page<UserAccount> accounts = adminAccountService.findUserAccounts(orderBy, sortBy, page, size);
+		Page<UserAccount> accounts = adminAccountService.findUserAccounts(search, orderBy, sortBy, page, size);
 		var response = new ApiResponsePaginationSuccess<List<UserAccount>>(200, "Lấy danh sách thành công",
 				accounts.getContent(), accounts.getNumber(), accounts.getSize(), accounts.getTotalElements(),
 				accounts.getTotalPages());
@@ -54,7 +65,7 @@ public class AdminAccountController {
 
 	@GetMapping("/{id}")
 	public ResponseEntity<?> getAccountById(@PathVariable("id") String accountId) {
-		UserAccount account = adminAccountService.findById(accountId);
+		UserAccount account = adminAccountService.findUserAccountById(accountId);
 		var response = new ApiResponseSuccessDTO<Account>(200, "Lấy thông tin tài khoản thành công", account);
 		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
 	}
@@ -83,14 +94,14 @@ public class AdminAccountController {
 		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
 	}
 
-	@PatchMapping("/{id}/lock")
+	@PostMapping("/{id}/lock")
 	public ResponseEntity<?> lockUserAccount(@PathVariable("id") String userAccountId) {
 		UserAccount account = adminAccountService.lockUserAccount(userAccountId);
 		var response = new ApiResponseSuccessDTO<UserAccount>(200, "Đã khóa tài khoản thành công", account);
 		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
 	}
 
-	@PatchMapping("/{id}/unlock")
+	@PostMapping("/{id}/unlock")
 	public ResponseEntity<?> unlockUserAccount(@PathVariable("id") String userAccountId) {
 		var account = adminAccountService.unlockUserAccount(userAccountId);
 		var response = new ApiResponseSuccessDTO<Account>(200, "Đã mở khóa tài khoản thành công", account);

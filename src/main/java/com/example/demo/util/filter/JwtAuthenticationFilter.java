@@ -71,35 +71,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		AntPathMatcher antPathMatcher = new AntPathMatcher();
 
 		for (String endpoint : EndPoint.PUBLIC_ENDPOINT_GET) {
-			if (antPathMatcher.match(endpoint, requestURI))
+			if (antPathMatcher.match(endpoint, requestURI) && requestMethod.equalsIgnoreCase("GET"))
 				return true;
 		}
 
 		for (String endpoint : EndPoint.PUBLIC_ENDPOINT_POST) {
-			if (antPathMatcher.match(endpoint, requestURI))
+			if (antPathMatcher.match(endpoint, requestURI) && requestMethod.equalsIgnoreCase("POST"))
 				return true;
 		}
 
 		return false;
 	}
 
-	private void handleException(Exception ex, HttpServletResponse response) throws JsonProcessingException, IOException {
+	private void handleException(Exception ex, HttpServletResponse response)
+			throws JsonProcessingException, IOException {
 
 		response.setStatus(HttpStatus.UNAUTHORIZED.value());
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
 
 		Map<String, String> errors = new HashMap<String, String>();
-		errors.put("status", HttpStatus.UNAUTHORIZED.value()+"");
+		errors.put("status", HttpStatus.UNAUTHORIZED.value() + "");
 		if (ex instanceof CustomException) {
-		    CustomException ce = (CustomException) ex;
-		    errors.put("error", ce.getMessage()); 
+			CustomException ce = (CustomException) ex;
+			errors.put("error", ce.getMessage());
 		}
 		if (ex instanceof MalformedJwtException) {
-		    errors.put("error", "INVALID_TOKEN_FORMAT"); 
+			errors.put("error", "INVALID_TOKEN_FORMAT");
 		}
 		if (ex instanceof ExpiredJwtException) {
-		    errors.put("error", "ACCESS_TOKEN_EXPIRED"); 
+			errors.put("error", "ACCESS_TOKEN_EXPIRED");
 		}
 		errors.put("message", ex.getMessage());
 		errors.put("timestamp", LocalDateTime.now().toString());
@@ -112,15 +113,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			FilterChain filterChain) throws IOException, ServletException {
 		String username = jwtService.extractUsername(accessToken);
 		CustomUserDetails customUserDetails = (CustomUserDetails) customUserDetailService.loadUserByUsername(username);
+
 		if (!redisService.hasKey(String.format("ACCESS_TOKEN:%s", customUserDetails.getId()))) {
-			throw new CustomException(HttpStatus.UNAUTHORIZED, "ACCESS_TOKEN_EXPIRED", "Access token không tồn tại hoặc đã hết hạn, vui lòng thử lại sau");
+			throw new CustomException(HttpStatus.UNAUTHORIZED, "ACCESS_TOKEN_EXPIRED",
+					"Access token không tồn tại hoặc đã hết hạn, vui lòng thử lại sau");
 		}
+
 		String actoken = redisService.getValue(String.format("ACCESS_TOKEN:%s", customUserDetails.getId()));
 		if (!accessToken.equals(actoken)) {
-			throw new CustomException(HttpStatus.UNAUTHORIZED, "ACCESS_TOKEN_EXPIRED", "Access token không tồn tại hoặc đã hết hạn, vui lòng thử lại sau");
+			throw new CustomException(HttpStatus.UNAUTHORIZED, "ACCESS_TOKEN_EXPIRED",
+					"Access token không tồn tại hoặc đã hết hạn, vui lòng thử lại sau");
 		}
+
 		UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
 				customUserDetails, null, customUserDetails.getAuthorities());
+
 		SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
 		filterChain.doFilter(request, response);
 

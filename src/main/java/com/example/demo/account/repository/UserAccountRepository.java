@@ -23,11 +23,14 @@ public interface UserAccountRepository extends JpaRepository<UserAccount, String
 	
 	@Query("""
 		    SELECT u FROM UserAccount u
-		    WHERE u.username LIKE CONCAT('%', :keyword, '%')
-		    OR u.email.email LIKE CONCAT('%', :keyword, '%')
-		    OR u.phoneNumber.phoneNumber LIKE CONCAT('%', :keyword, '%')
+		    WHERE (1 = 1)
+		    AND :keyword IS NULL
+		    OR (LOWER(u.username) LIKE LOWER(CONCAT('%', :keyword, '%'))
+		    OR LOWER(u.email.email) LIKE LOWER(CONCAT('%', :keyword, '%'))
+		    OR LOWER(u.phoneNumber.phoneNumber) LIKE LOWER(CONCAT('%', :keyword, '%')))
+		    OR (LOWER(u.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')))
 			""")
-	Page<UserAccount> findByUsernameOrEmailOrPhoneNumber(@Param("keyword") String keyword, Pageable pageable);
+	Page<UserAccount> findByKeyWord(@Param("keyword") String keyword, Pageable pageable);
 	
 	@Query("""
 			SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END

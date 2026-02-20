@@ -14,9 +14,15 @@ import io.lettuce.core.dynamic.annotation.Param;
 public interface AdminAccountRepository extends JpaRepository<AdminAccount, String>  {
 	
 	@Query("""
-			SELECT u FROM UserAccount u
+			SELECT u FROM AdminAccount u
 			WHERE u.username = :username
 			""")
 	Optional<AdminAccount> findByUsername(@Param("username") String username);
+	
+	@Query("""
+			SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END
+			FROM AdminAccount u
+			""")
+	boolean existsAdminAccount();
 
 }

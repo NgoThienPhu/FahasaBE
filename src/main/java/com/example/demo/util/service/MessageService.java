@@ -103,4 +103,131 @@ public class MessageService {
 			throw new RuntimeException("Không thể gửi email", e);
 		}
 	}
+
+	public void sendResetPasswordEmail(String toEmail, String subject, String newPassword) {
+		try {
+			MimeMessage message = mailSender.createMimeMessage();
+			MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+			helper.setTo(toEmail);
+			helper.setSubject(subject);
+
+			String htmlContent = String.format("""
+					    <!DOCTYPE html>
+					    <html lang="vi">
+					    <head>
+					        <meta charset="UTF-8">
+					        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+					        <title>Mật khẩu mới</title>
+					    </head>
+					    <body style="margin:0; padding:0; font-family: Arial, sans-serif; background-color:#f4f4f4;">
+					        <table width="100%%" cellpadding="0" cellspacing="0"
+					               style="background-color:#f4f4f4; min-height:100vh;">
+					            <tr>
+					                <td align="center" style="padding:40px 20px;">
+					                    <table width="500" cellpadding="0" cellspacing="0"
+					                           style="background-color:white;
+					                           border-radius:16px;
+					                           box-shadow:0 4px 8px rgba(0,0,0,0.1);">
+
+					                        <!-- Header -->
+					                        <tr>
+					                            <td style="padding:40px 40px 20px; text-align:center;">
+					                                <div style="width:80px; height:80px;
+					                                    background-color:#667eea;
+					                                    border-radius:50%%;
+					                                    margin:0 auto 20px;
+					                                    text-align:center;
+					                                    line-height:80px;">
+					                                    <span style="color:white; font-size:32px;">🔑</span>
+					                                </div>
+					                                <h1 style="color:#2c3e50;
+					                                    margin:0;
+					                                    font-size:26px;
+					                                    font-weight:600;">
+					                                    Mật khẩu mới
+					                                </h1>
+					                                <p style="color:#7f8c8d;
+					                                    margin:10px 0 0;
+					                                    font-size:15px;">
+					                                    Vui lòng sử dụng mật khẩu bên dưới
+					                                </p>
+					                            </td>
+					                        </tr>
+
+					                        <!-- PASSWORD ONLY (NO TEXT) -->
+					                        <tr>
+					                            <td style="padding:0 40px 20px; text-align:center;">
+					                                <div style="background-color:#f8f9fa;
+					                                    border-radius:12px;
+					                                    padding:30px;
+					                                    border:2px dashed #dee2e6;">
+					                                    <div style="background-color:white;
+					                                        border-radius:8px;
+					                                        padding:18px 22px;
+					                                        border:2px solid #e63946;
+					                                        display:inline-block;">
+					                                        <span style="font-size:28px;
+					                                            font-weight:bold;
+					                                            color:#e63946;
+					                                            letter-spacing:4px;
+					                                            font-family:'Courier New', monospace;">
+					                                            %s
+					                                        </span>
+					                                    </div>
+					                                </div>
+					                            </td>
+					                        </tr>
+
+					                        <!-- Warning -->
+					                        <tr>
+					                            <td style="padding:0 40px 20px;">
+					                                <div style="background-color:#fff3cd;
+					                                    border:1px solid #ffeaa7;
+					                                    border-radius:8px;
+					                                    padding:18px;">
+					                                    <p style="color:#856404;
+					                                        margin:0;
+					                                        font-size:14px;
+					                                        line-height:1.6;">
+					                                        ⚠️ Vì lý do bảo mật, bạn nên đổi mật khẩu
+					                                        ngay sau khi đăng nhập.
+					                                    </p>
+					                                </div>
+					                            </td>
+					                        </tr>
+
+					                        <!-- Footer -->
+					                        <tr>
+					                            <td style="padding:20px 40px 40px;
+					                                border-top:1px solid #e9ecef;">
+					                                <p style="color:#6c757d;
+					                                    margin:0;
+					                                    font-size:14px;
+					                                    line-height:1.5;
+					                                    text-align:center;">
+					                                    Email này được gửi tự động.<br>
+					                                    <span style="color:#adb5bd;
+					                                        font-size:12px;">
+					                                        Vui lòng không trả lời email này.
+					                                    </span>
+					                                </p>
+					                            </td>
+					                        </tr>
+
+					                    </table>
+					                </td>
+					            </tr>
+					        </table>
+					    </body>
+					    </html>
+					""", newPassword);
+
+			helper.setText(htmlContent, true);
+			mailSender.send(message);
+
+		} catch (MessagingException e) {
+			throw new RuntimeException("Không thể gửi email reset mật khẩu", e);
+		}
+	}
 }

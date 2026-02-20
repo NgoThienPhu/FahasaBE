@@ -13,7 +13,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.account.dto.AdminChangeUserInfoRequestDTO;
 import com.example.demo.account.dto.AdminCreateUserRequestDTO;
+import com.example.demo.account.entity.AdminAccount;
 import com.example.demo.account.entity.UserAccount;
+import com.example.demo.account.repository.AdminAccountRepository;
 import com.example.demo.account.repository.UserAccountRepository;
 import com.example.demo.util.exception.CustomException;
 
@@ -21,11 +23,24 @@ import com.example.demo.util.exception.CustomException;
 public class AdminAccountService {
 
 	private UserAccountRepository userAccountRepository;
+	private AdminAccountRepository adminAccountRepository;
 	private AccountService accountService;
 
-	public AdminAccountService(UserAccountRepository userAccountRepository, AccountService accountService) {
+	public AdminAccountService(UserAccountRepository userAccountRepository,
+			AdminAccountRepository adminAccountRepository, AccountService accountService) {
 		this.userAccountRepository = userAccountRepository;
+		this.adminAccountRepository = adminAccountRepository;
 		this.accountService = accountService;
+	}
+
+	public AdminAccount findAdminAccountById(String adminAccountId) {
+		return adminAccountRepository.findById(adminAccountId)
+				.orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Tài khoản quản trị không tồn tại"));
+	}
+	
+	public UserAccount findUserAccountById(String accountId) {
+		return userAccountRepository.findById(accountId)
+				.orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Người dùng không tồn tại"));
 	}
 
 	public UserAccount createUserAccount(AdminCreateUserRequestDTO dto) {
@@ -35,21 +50,16 @@ public class AdminAccountService {
 	@Transactional
 	public UserAccount changeUserAccountInfo(AdminChangeUserInfoRequestDTO dto, String userAccountId) {
 
-		UserAccount user = findById(userAccountId);
+		UserAccount user = findUserAccountById(userAccountId);
 
 		user.updateProfileByAdmin(dto);
 
 		return userAccountRepository.save(user);
 	}
 
-	public UserAccount findById(String accountId) {
-		return userAccountRepository.findById(accountId)
-				.orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Người dùng không tồn tại"));
-	}
+	public Page<UserAccount> findUserAccounts(String search, String orderBy, String sortBy, int page, int size) {
 
-	public Page<UserAccount> findUserAccounts(String orderBy, String sortBy, int page, int size) {
-
-		List<String> allowedFields = List.of("username", "email", "phoneNumber");
+		List<String> allowedFields = List.of("username", "email", "phoneNumber", "fullName", "isActived", "createdAt");
 
 		if (!allowedFields.contains(sortBy)) {
 			throw new CustomException(HttpStatus.BAD_REQUEST, "Thuộc tính cần sắp xếp không hợp lệ vui lòng thử lại");
@@ -60,28 +70,12 @@ public class AdminAccountService {
 
 		Pageable pageable = PageRequest.of(page, size, sort);
 
-		return userAccountRepository.findAll(pageable);
-	}
-
-	public Page<UserAccount> findUserAccountByUsernameOrEmailOrPhoneNumber(String keyWord, String orderBy,
-			String sortBy, int page, int size) {
-
-		List<String> allowedFields = List.of("username", "email", "phoneNumber");
-		if (!allowedFields.contains(sortBy)) {
-			throw new CustomException(HttpStatus.BAD_REQUEST, "Thuộc tính cần sắp xếp không hợp lệ vui lòng thử lại");
-		}
-
-		Sort sort = orderBy.equalsIgnoreCase("asc") ? Sort.by(Sort.Direction.ASC, sortBy)
-				: Sort.by(Sort.Direction.DESC, sortBy);
-
-		Pageable pageable = PageRequest.of(page, size, sort);
-
-		return userAccountRepository.findByUsernameOrEmailOrPhoneNumber(keyWord, pageable);
+		return userAccountRepository.findByKeyWord(search, pageable);
 	}
 
 	@Transactional
 	public UserAccount lockUserAccount(String userAccountId) {
-		UserAccount user = findById(userAccountId);
+		UserAccount user = findUserAccountById(userAccountId);
 
 		if (user.getIsActived() == false)
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tài khoản này đã bị khóa");
@@ -93,7 +87,7 @@ public class AdminAccountService {
 
 	@Transactional
 	public UserAccount unlockUserAccount(String userAccountId) {
-		UserAccount user = findById(userAccountId);
+		UserAccount user = findUserAccountById(userAccountId);
 
 		if (user.getIsActived() == true)
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tài khoản này đã được mở khóa");

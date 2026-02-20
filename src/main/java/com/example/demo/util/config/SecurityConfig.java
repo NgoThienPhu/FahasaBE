@@ -3,6 +3,7 @@ package com.example.demo.util.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -61,6 +62,7 @@ public class SecurityConfig {
 	CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration config = new CorsConfiguration();
 		config.addAllowedOriginPattern("http://localhost:5173");
+		config.addAllowedOriginPattern("http://localhost:5174");
 
 		config.addAllowedHeader("*");
 		config.addAllowedMethod("*");
@@ -74,7 +76,15 @@ public class SecurityConfig {
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-				.authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
+				.authorizeHttpRequests(authorize -> authorize
+						.requestMatchers(HttpMethod.GET, EndPoint.PUBLIC_ENDPOINT_GET)
+						.permitAll()
+						.requestMatchers(HttpMethod.POST, EndPoint.PUBLIC_ENDPOINT_POST)
+						.permitAll()
+						.requestMatchers("/api/admin/**")
+						.hasRole("ADMIN")
+						.requestMatchers("/api/**")
+						.hasRole("USER"))
 				.formLogin(formLogin -> formLogin.disable()).logout(logout -> logout.disable())
 				.csrf(csrf -> csrf.disable())
 				.sessionManagement(
