@@ -50,16 +50,14 @@ public class AdminAccountController {
 	}
 
 	@GetMapping
-	public ResponseEntity<?> getUserAccounts(
-			@RequestParam(required = false) String search,
+	public ResponseEntity<?> getUserAccounts(@RequestParam(required = false) String search,
 			@RequestParam(required = true, defaultValue = "asc") String orderBy,
 			@RequestParam(required = true, defaultValue = "username") String sortBy,
 			@RequestParam(required = true, defaultValue = "0") int page,
 			@RequestParam(required = true, defaultValue = "20") int size) {
 		Page<UserAccount> accounts = adminAccountService.findUserAccounts(search, orderBy, sortBy, page, size);
-		var response = new ApiResponsePaginationSuccess<List<UserAccount>>(200, "Lấy danh sách thành công",
-				accounts.getContent(), accounts.getNumber(), accounts.getSize(), accounts.getTotalElements(),
-				accounts.getTotalPages());
+		ApiResponsePaginationSuccess<List<UserAccount>> response = ApiResponsePaginationSuccess.fromPage(accounts,
+				"Lấy danh sách tài khoản thành công");
 		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
 	}
 

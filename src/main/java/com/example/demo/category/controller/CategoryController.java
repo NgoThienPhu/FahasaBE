@@ -28,13 +28,14 @@ public class CategoryController {
 	}
 
 	@GetMapping
-	public ResponseEntity<?> getAll(@RequestParam(required = false) String categoryName,
-			@RequestParam(defaultValue = "asc") String orderBy, @RequestParam(defaultValue = "name") String sortBy,
-			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
-		Page<Category> categories = categoryService.findAll(orderBy, sortBy, page, size);
-		var response = new ApiResponsePaginationSuccess<List<Category>>(200, "Lấy danh sách thành công",
-				categories.getContent(), categories.getNumber(), categories.getSize(), categories.getTotalElements(),
-				categories.getTotalPages());
+	public ResponseEntity<?> getAll(@RequestParam(required = false) String search,
+			@RequestParam(defaultValue = "asc") String orderBy, 
+			@RequestParam(defaultValue = "name") String sortBy,
+			@RequestParam(defaultValue = "0") int page, 
+			@RequestParam(defaultValue = "10") int size) {
+		Page<Category> categories = categoryService.findAll(search, orderBy, sortBy, page, size);
+		ApiResponsePaginationSuccess<List<Category>> response = ApiResponsePaginationSuccess.fromPage(categories,
+				"Lấy danh sách loại sản phẩm thành công");
 		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
 	}
 

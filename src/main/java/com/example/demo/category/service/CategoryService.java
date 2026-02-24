@@ -15,6 +15,7 @@ import com.example.demo.category.dto.UpdateCategoryNameRequestDTO;
 import com.example.demo.category.entity.Category;
 import com.example.demo.category.repository.CategoryRepository;
 import com.example.demo.category.service.CategoryService;
+import com.example.demo.util.exception.CustomException;
 
 import jakarta.transaction.Transactional;
 
@@ -32,8 +33,8 @@ public class CategoryService {
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Loại sản phẩm không tồn tại"));
 	}
 
-	public Page<Category> findAll(String orderBy, String sortBy, int page, int size) {
-		List<String> allowedFields = List.of("name");
+	public Page<Category> findAll(String search ,String orderBy, String sortBy, int page, int size) {
+		List<String> allowedFields = List.of("name", "createdAt");
 
 		if (!allowedFields.contains(sortBy)) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Thuộc tính sắp xếp không hợp lệ");
@@ -43,8 +44,7 @@ public class CategoryService {
 				: Sort.by(Sort.Direction.DESC, sortBy);
 
 		Pageable pageable = PageRequest.of(page, size, sort);
-
-		return categoryRepository.findAll(pageable);
+		return categoryRepository.findAll(search, pageable);
 	}
 
 	@Transactional
@@ -68,12 +68,15 @@ public class CategoryService {
 	}
 
 	@Transactional
-	public void deleteById(String categoryId) {
-		Category category = findById(categoryId);
-		categoryRepository.delete(category);
+	public void delete(String categoryId) {
+		boolean isUsed = categoryRepository.isCategoryInUse(categoryId);
+		if (isUsed) {
+			throw new CustomException(HttpStatus.BAD_REQUEST, "Không thể xóa loại sản phẩm đang được sử dụng");
+		}
+		categoryRepository.deleteById(categoryId);
 	}
 
-	public boolean existsByName(String categoryName) {
+	private boolean existsByName(String categoryName) {
 		return categoryRepository.existsByCategoryName(categoryName);
 	}
 
