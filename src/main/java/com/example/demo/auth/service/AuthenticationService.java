@@ -8,9 +8,10 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
+import com.example.demo.account.entity.AdminAccount;
 import com.example.demo.account.entity.base.Account;
 import com.example.demo.account.entity.base.Account.TokenType;
 import com.example.demo.account.repository.AccountRepository;
@@ -27,85 +28,165 @@ import jakarta.servlet.http.HttpServletResponse;
 @Service
 public class AuthenticationService {
 
-	private RedisService redisService;
-	private JwtService jwtService;
-	private AuthenticationManager authenticationManager;
-	private AccountRepository accountRepository;
+	private static final String ACCESS_TOKEN_KEY = "ACCESS_TOKEN:%s";
+	private static final String REFRESH_TOKEN_KEY = "REFRESH_TOKEN:%s";
+	private static final String RESET_PASSWORD_TOKEN_KEY = "RESSET_PASSWORD_TOKEN:%s";
+
+	private final RedisService redisService;
+	private final JwtService jwtService;
+	private final AuthenticationManager authenticationManager;
+	private final PasswordEncoder passwordEncoder;
+	private final AccountRepository accountRepository;
 
 	public AuthenticationService(RedisService redisService, JwtService jwtService,
-			AuthenticationManager authenticationManager, AccountRepository accountRepository) {
+			AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder,
+			AccountRepository accountRepository) {
 		this.redisService = redisService;
 		this.jwtService = jwtService;
 		this.authenticationManager = authenticationManager;
+		this.passwordEncoder = passwordEncoder;
 		this.accountRepository = accountRepository;
 	}
 
 	public boolean isAuthenticated(String username, String password) {
-		Authentication authentication = authenticationManager
+		Authentication auth = authenticationManager
 				.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-
-		return authentication.isAuthenticated();
+		return auth.isAuthenticated();
 	}
-	
-	public void logout(String accountId, HttpServletResponse response) {
+
+	public void logout(String username, HttpServletResponse response) {
+		CookieUtil.deleteCookie(response, "refreshToken", "/");
+		deleteRefreshTokenRedis(username);
+		deleteAccessTokenRedis(username);
+		SecurityContextHolder.clearContext();
+	}
+
+	public RefreshAccessTokenResponseDTO refreshAccessToken(HttpServletRequest request,
+			Account.AccountType accountType) {
+		String refreshToken = getRefreshToken(request, accountType);
+		validateToken(refreshToken, TokenType.REFRESH);
+		
+		String redisToken = getRefreshTokenFromRedis(jwtService.extractUsername(refreshToken));
+		if (redisToken == null || !refreshToken.equals(redisToken))
+			throw new CustomException(HttpStatus.UNAUTHORIZED, "Token làm mới không hợp lệ hoặc đã hết hạn");
+
+		String username = jwtService.extractUsername(refreshToken);
+		String newAccessToken = jwtService.createToken(username, TokenType.ACCESS);
+
+		setAccessTokenRedis(username, newAccessToken);
+
+		return new RefreshAccessTokenResponseDTO(newAccessToken);
+	}
+
+	public void ressetPassword(String resetPasswordToken, String newPassword) {
+		validateToken(resetPasswordToken, TokenType.RESSET_PASSWORD);
+
+		String username = jwtService.extractUsername(resetPasswordToken);
+		String redisToken = getResetPasswordTokenFromRedis(username);
+
+		if (!resetPasswordToken.equals(redisToken))
+			throw new CustomException(HttpStatus.UNAUTHORIZED, "Token đặt lại mật khẩu không hợp lệ hoặc đã hết hạn");
+
+		Account account = accountRepository.findByUsername(username).orElseThrow(
+				() -> new CustomException(HttpStatus.NOT_FOUND, "USER_NOT_FOUND", "Người dùng không tồn tại"));
+
+		account.changePassword(passwordEncoder.encode(newPassword));
+		accountRepository.save(account);
+
+		deleteResetPasswordTokenRedis(username);
+		deleteAccessTokenRedis(username);
+		deleteRefreshTokenRedis(username);
+
+	}
+
+	public boolean verifyRessetPasswordToken(String resetPasswordToken) {
 		try {
-			CookieUtil.deleteCookie(response, "refreshToken", "/");
-			redisService.deleteValue(String.format("REFRESH_TOKEN:%s", accountId));
-			redisService.deleteValue(String.format("ACCESS_TOKEN:%s", accountId));
-			SecurityContextHolder.clearContext();
+			String username = jwtService.extractUsername(resetPasswordToken);
+			String ressetPasswordToken = getResetPasswordTokenFromRedis(username);
+
+			return validateToken(resetPasswordToken, TokenType.RESSET_PASSWORD)
+					&& ressetPasswordToken != null && resetPasswordToken.equals(ressetPasswordToken);
 		} catch (Exception e) {
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Đăng xuất thất bại");
+			return false;
 		}
-	}
-
-	public RefreshAccessTokenResponseDTO refreshAccessToken(HttpServletRequest request) {
-		String refreshToken = getRefreshToken(request);
-		if (refreshToken == null || jwtService.isTokenExpired(refreshToken)) {
-			throw new CustomException(HttpStatus.UNAUTHORIZED, "REFRESH_TOKEN_EXPIRED",
-					"Refresh token không tồn tại hoặc đã hết hạn");
-		} else {
-			String username = jwtService.extractUsername(refreshToken);
-			
-			Account account = accountRepository.findByUsername(username)
-					.orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Người dùng không tồn tại"));
-			
-			String newAccessToken = jwtService.createToken(username, TokenType.ACCESS);
-
-			redisService.setValue(String.format("ACCESS_TOKEN:%s", account.getId()), newAccessToken);
-			redisService.expire(String.format("ACCESS_TOKEN:%s", account.getId()), 15L, TimeUnit.MINUTES);
-			return new RefreshAccessTokenResponseDTO(newAccessToken);
-		}
-	}
-
-	public static String generate6DigitCode() {
-		Random random = new Random();
-		int code = 100_000 + random.nextInt(900_000);
-		return String.valueOf(code);
 	}
 
 	public String issueTokens(Account account, HttpServletResponse response) {
-		String accessToken = jwtService.createToken(account.getUsername(), Account.TokenType.ACCESS);
-		String refreshToken = jwtService.createToken(account.getUsername(), Account.TokenType.REFRESH);
+		String username = account.getUsername();
 
-		CookieUtil.setCookie(response, "refreshToken", refreshToken, 7 * 24 * 60 * 60, "/");
+		String accessToken = jwtService.createToken(username, TokenType.ACCESS);
+		String refreshToken = jwtService.createToken(username, TokenType.REFRESH);
 
-		redisService.setValue(String.format("REFRESH_TOKEN:%s", account.getId()), refreshToken);
-		redisService.expire(String.format("REFRESH_TOKEN:%s", account.getId()), 7L, TimeUnit.DAYS);
-		redisService.setValue(String.format("ACCESS_TOKEN:%s", account.getId()), accessToken);
-		redisService.expire(String.format("ACCESS_TOKEN:%s", account.getId()), 15L, TimeUnit.MINUTES);
+		String cookieName = (account instanceof AdminAccount) ? "refreshTokenAdmin" : "refreshTokenUser";
+
+		CookieUtil.setCookie(response, cookieName, refreshToken, 7 * 24 * 60 * 60, "/");
+
+		setRefreshTokenRedis(username, refreshToken);
+		setAccessTokenRedis(username, accessToken);
 
 		return accessToken;
 	}
 
-	private String getRefreshToken(HttpServletRequest request) {
-		if (request.getCookies() != null) {
-			for (Cookie cookie : request.getCookies()) {
-				if ("refreshToken".equals(cookie.getName())) {
-					return cookie.getValue();
-				}
+	public static String generate6DigitCode() {
+		return String.valueOf(100_000 + new Random().nextInt(900_000));
+	}
+
+	private boolean validateToken(String token, TokenType expectedType) {
+		if (token == null || jwtService.isTokenExpired(token))
+			return false;
+
+		if (jwtService.extractTokenType(token) != expectedType)
+			return false;
+
+		return true;
+	}
+
+	private String getRefreshToken(HttpServletRequest request, Account.AccountType accountType) {
+		if (request.getCookies() == null)
+			return null;
+
+		String expectedCookie = (accountType == Account.AccountType.ADMIN) ? "refreshTokenAdmin" : "refreshTokenUser";
+
+		for (Cookie cookie : request.getCookies()) {
+			if (expectedCookie.equals(cookie.getName())) {
+				return cookie.getValue();
 			}
 		}
 		return null;
+	}
+
+	private String getRefreshTokenFromRedis(String username) {
+		String key = String.format(REFRESH_TOKEN_KEY, username);
+		return redisService.getValue(key);
+	}
+
+	private String getResetPasswordTokenFromRedis(String username) {
+		String key = String.format(RESET_PASSWORD_TOKEN_KEY, username);
+		return redisService.getValue(key);
+	}
+
+	private void setRefreshTokenRedis(String username, String refreshToken) {
+		String key = String.format(REFRESH_TOKEN_KEY, username);
+		redisService.setValue(key, refreshToken);
+		redisService.expire(key, 7, TimeUnit.DAYS);
+	}
+
+	private void setAccessTokenRedis(String username, String accessToken) {
+		String key = String.format(ACCESS_TOKEN_KEY, username);
+		redisService.setValue(key, accessToken);
+		redisService.expire(key, 15, TimeUnit.MINUTES);
+	}
+
+	private void deleteAccessTokenRedis(String username) {
+		redisService.deleteValue(String.format(ACCESS_TOKEN_KEY, username));
+	}
+
+	private void deleteRefreshTokenRedis(String username) {
+		redisService.deleteValue(String.format(REFRESH_TOKEN_KEY, username));
+	}
+
+	private void deleteResetPasswordTokenRedis(String username) {
+		redisService.deleteValue(String.format(RESET_PASSWORD_TOKEN_KEY, username));
 	}
 
 }

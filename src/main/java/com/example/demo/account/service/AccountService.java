@@ -1,5 +1,5 @@
 package com.example.demo.account.service;
-
+import com.example.demo.util.service.RedisService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,22 +15,28 @@ import com.example.demo.auth.service.AuthenticationService;
 import com.example.demo.email.entity.Email;
 import com.example.demo.util.entity.PhoneNumber;
 import com.example.demo.util.exception.CustomException;
+import com.example.demo.util.service.JwtService;
 import com.example.demo.util.service.MessageService;
 
 @Service
 public class AccountService {
 
+    private final RedisService redisService;
+
 	private AccountRepository accountRepository;
 	private UserAccountRepository userAccountRepository;
 	private PasswordEncoder passwordEncoder;
 	private MessageService messageService;
+	private JwtService jwtService;
 
 	public AccountService(AccountRepository accountRepository, UserAccountRepository userAccountRepository,
-			PasswordEncoder passwordEncoder, MessageService messageService) {
+			PasswordEncoder passwordEncoder, MessageService messageService, JwtService jwtService, RedisService redisService) {
 		this.accountRepository = accountRepository;
 		this.userAccountRepository = userAccountRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.messageService = messageService;
+		this.jwtService = jwtService;
+		this.redisService = redisService;
 	}
 
 	@Transactional
@@ -47,7 +53,7 @@ public class AccountService {
 		UserAccount user = new UserAccount();
 		String password = AuthenticationService.generate6DigitCode();
 		String passwordEncode = passwordEncoder.encode(password);
-		
+
 		user.initByAdmin(dto.username(), dto.fullName(), new Email(dto.email()), new PhoneNumber(dto.phoneNumber()),
 				passwordEncode);
 
@@ -62,7 +68,7 @@ public class AccountService {
 		if (!passwordEncoder.matches(body.password(), account.getPassword())) {
 			throw new CustomException(HttpStatus.BAD_REQUEST, "Mật khẩu không chính xác");
 		}
-		
+
 		if (accountRepository.existsByEmail(body.newEmail())) {
 			throw new CustomException(HttpStatus.BAD_REQUEST, "Email đã được sử dụng");
 		}
@@ -78,12 +84,11 @@ public class AccountService {
 		Account account = accountRepository.findById(accountId)
 				.orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Người dùng không tồn tại"));
 
-		String password = AuthenticationService.generate6DigitCode();
-		account.setPassword(passwordEncoder.encode(password));
-
-		accountRepository.save(account);
-
-		messageService.sendResetPasswordEmail(account.getEmail().getEmail(), "Mật khẩu mới của bạn", "Mật khẩu mới của bạn là: " + password);
+		String ressetPasswordToken = jwtService.createToken(account.getUsername(), Account.TokenType.RESSET_PASSWORD);
+		redisService.setValue(String.format("RESSET_PASSWORD_TOKEN:%s", account.getUsername()), ressetPasswordToken);
+		redisService.expire(String.format("RESSET_PASSWORD_TOKEN:%s", account.getUsername()), 5L, java.util.concurrent.TimeUnit.MINUTES);
+		messageService.sendRessetPasswordEmail(account.getEmail().getEmail(), "Yêu cầu đặt lại mật khẩu",
+				ressetPasswordToken);
 	}
 
 }

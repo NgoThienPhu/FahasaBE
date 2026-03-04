@@ -13,6 +13,10 @@ public class EndPoint {
 			"/api/admin/auth/refresh",
 			
 			"/api/auth/register",
-			"/api/auth/send-otp"
+			"/api/auth/send-otp",
+			
+			"/api/auth/resset-password",
+			"/api/auth/resset-password/verify",
+			"/api/auth/forgot-password",
 	};
 }

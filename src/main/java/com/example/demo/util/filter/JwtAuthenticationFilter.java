@@ -12,6 +12,7 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.example.demo.account.entity.base.Account;
 import com.example.demo.util.config.EndPoint;
 import com.example.demo.util.entity.CustomUserDetails;
 import com.example.demo.util.exception.CustomException;
@@ -57,11 +58,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			String authorizationHeader = request.getHeader("Authorization");
 			if (authorizationHeader == null || authorizationHeader.isBlank()
 					|| !authorizationHeader.startsWith("Bearer "))
-				throw new CustomException(HttpStatus.NOT_FOUND, "Access Token không tồn tại");
+				throw new CustomException(HttpStatus.UNAUTHORIZED, "Access Token không tồn tại hoặc đã hết hạn");
 
 			String jwt = authorizationHeader.substring(7);
 
-			handleAccessToken(jwt, response, request, filterChain);
+			handleAccessToken(jwt, request, response, filterChain);
 		} catch (ExpiredJwtException | MalformedJwtException | CustomException ex) {
 			handleException(ex, response);
 		}
@@ -94,7 +95,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		errors.put("status", HttpStatus.UNAUTHORIZED.value() + "");
 		if (ex instanceof CustomException) {
 			CustomException ce = (CustomException) ex;
-			errors.put("error", ce.getMessage());
+			errors.put("error", ce.getErrorCode());
 		}
 		if (ex instanceof MalformedJwtException) {
 			errors.put("error", "INVALID_TOKEN_FORMAT");
@@ -109,28 +110,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	}
 
-	private void handleAccessToken(String accessToken, HttpServletResponse response, HttpServletRequest request,
+	private void handleAccessToken(String accessToken, HttpServletRequest request, HttpServletResponse response,
 			FilterChain filterChain) throws IOException, ServletException {
+		Account.TokenType tokenType = jwtService.extractTokenType(accessToken);
+		if (tokenType != Account.TokenType.ACCESS) {
+			throw new CustomException(HttpStatus.UNAUTHORIZED, "INVALID_TOKEN_TYPE", "Token không hợp lệ");
+		}
+
 		String username = jwtService.extractUsername(accessToken);
-		CustomUserDetails customUserDetails = (CustomUserDetails) customUserDetailService.loadUserByUsername(username);
 
-		if (!redisService.hasKey(String.format("ACCESS_TOKEN:%s", customUserDetails.getId()))) {
+		CustomUserDetails userDetails = (CustomUserDetails) customUserDetailService.loadUserByUsername(username);
+
+		String redisKey = "ACCESS_TOKEN:" + userDetails.getUsername();
+
+		String storedToken = redisService.getValue(redisKey);
+		if (storedToken == null || !storedToken.equals(accessToken)) {
 			throw new CustomException(HttpStatus.UNAUTHORIZED, "ACCESS_TOKEN_EXPIRED",
 					"Access token không tồn tại hoặc đã hết hạn, vui lòng thử lại sau");
 		}
 
-		String actoken = redisService.getValue(String.format("ACCESS_TOKEN:%s", customUserDetails.getId()));
-		if (!accessToken.equals(actoken)) {
-			throw new CustomException(HttpStatus.UNAUTHORIZED, "ACCESS_TOKEN_EXPIRED",
-					"Access token không tồn tại hoặc đã hết hạn, vui lòng thử lại sau");
-		}
+		UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
+				userDetails.getAuthorities());
 
-		UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-				customUserDetails, null, customUserDetails.getAuthorities());
-
-		SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+		SecurityContextHolder.getContext().setAuthentication(authentication);
 		filterChain.doFilter(request, response);
-
 	}
 
 }

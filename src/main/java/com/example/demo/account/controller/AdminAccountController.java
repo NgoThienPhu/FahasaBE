@@ -106,10 +106,10 @@ public class AdminAccountController {
 		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
 	}
 
-	@PostMapping("/{id}/reset-password")
-	public ResponseEntity<?> resetPassword(@PathVariable("id") String userAccountId) {
+	@PostMapping("/{id}/resset-password")
+	public ResponseEntity<?> ressetPassword(@PathVariable("id") String userAccountId) {
 		adminAccountService.resetPassword(userAccountId);
-		var response = new ApiResponseSuccessDTO<Account>(200, "Làm mới mật khẩu của tài khoản thành công");
+		var response = new ApiResponseSuccessDTO<Account>(200, "Yêu cầu đặt lại mật khẩu đã được gửi đến email của người dùng");
 		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
 	}
 

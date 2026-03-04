@@ -48,7 +48,7 @@ public abstract class Account extends BaseEntity {
 	}
 	
 	public enum TokenType {
-		REFRESH, ACCESS
+		REFRESH, ACCESS, RESSET_PASSWORD
 	}
 	
 	public void changePassword(String newPasswordEncoded) {

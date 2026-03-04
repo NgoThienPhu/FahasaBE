@@ -64,11 +64,6 @@ public class UserAuthenticationService {
 		return userAccountRepository.save(userAccount);
 	}
 
-	public UserAccount forgotPassword() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	public void changePassword(ChangePasswordRequestDTO body, CustomUserDetails currentUser) {
 			UserAccount account = findUserAccountByUsername(currentUser.getUsername());
 

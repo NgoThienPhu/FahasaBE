@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.account.entity.base.Account;
 import com.example.demo.auth.dto.LoginRequestDTO;
 import com.example.demo.auth.dto.LoginResponseDTO;
 import com.example.demo.auth.dto.RefreshAccessTokenResponseDTO;
@@ -54,14 +55,14 @@ public class AdminAuthenticationController {
 	@PostMapping("/logout")
 	public ResponseEntity<?> adminLogout(@AuthenticationPrincipal CustomUserDetails currentUser,
 			HttpServletResponse response) {
-		authenticationService.logout(currentUser.getId(), response);
+		authenticationService.logout(currentUser.getUsername(), response);
 		var myResponse = new ApiResponseSuccessDTO<Void>(200, "Đăng xuất thành công!");
 		return new ResponseEntity<ApiResponseDTO>(myResponse, HttpStatus.OK);
 	}
 	
 	@PostMapping("/refresh")
 	public ResponseEntity<?> refreshAccessToken(HttpServletRequest request) {
-		RefreshAccessTokenResponseDTO newAccessToken = authenticationService.refreshAccessToken(request);
+		RefreshAccessTokenResponseDTO newAccessToken = authenticationService.refreshAccessToken(request, Account.AccountType.ADMIN);
 		var myResponse = new ApiResponseSuccessDTO<RefreshAccessTokenResponseDTO>(200,
 				"Làm mới access token thành công", newAccessToken);
 		return new ResponseEntity<ApiResponseDTO>(myResponse, HttpStatus.OK);
