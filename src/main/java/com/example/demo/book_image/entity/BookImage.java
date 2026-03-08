@@ -24,6 +24,9 @@ public class BookImage extends BaseEntity {
 
 	@Column(name = "url", nullable = false)
 	private String url;
+	
+	@Column(name = "public_id", nullable = false, unique = true)
+	private String publicId;
 
 	@Column(name = "is_primary", nullable = false)
 	private Boolean isPrimary;
@@ -32,11 +35,5 @@ public class BookImage extends BaseEntity {
 	@ManyToOne
 	@JoinColumn(name = "book_id", nullable = false)
 	private Book book;
-	
-	public static String extractFileNameFromUrl(String fileURL) {
-		if (fileURL == null || !fileURL.contains("/"))
-			return null;
-		return fileURL.substring(fileURL.lastIndexOf("/") + 1);
-	}
 
 }

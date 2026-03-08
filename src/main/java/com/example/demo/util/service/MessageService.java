@@ -170,11 +170,6 @@ public class MessageService {
 					                               font-weight:600;">
 					                                Đặt lại mật khẩu
 					                            </a>
-
-					                            <p style="margin-top:16px;font-size:12px;color:#6c757d;">
-					                                Hoặc copy link sau:<br>
-					                                <span style="word-break:break-all;">%s</span>
-					                            </p>
 					                        </div>
 					                    </td>
 					                </tr>

@@ -8,7 +8,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.account.dto.AdminChangeUserInfoRequestDTO;
@@ -18,6 +17,8 @@ import com.example.demo.account.entity.UserAccount;
 import com.example.demo.account.repository.AdminAccountRepository;
 import com.example.demo.account.repository.UserAccountRepository;
 import com.example.demo.util.exception.CustomException;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class AdminAccountService {
@@ -43,11 +44,12 @@ public class AdminAccountService {
 				.orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Người dùng không tồn tại"));
 	}
 
+	@Transactional(rollbackOn = Exception.class)
 	public UserAccount createUserAccount(AdminCreateUserRequestDTO dto) {
 		return accountService.adminCreateUserAccount(dto);
 	}
 
-	@Transactional
+	@Transactional(rollbackOn = Exception.class)
 	public UserAccount changeUserAccountInfo(AdminChangeUserInfoRequestDTO dto, String userAccountId) {
 
 		UserAccount user = findUserAccountById(userAccountId);
@@ -73,7 +75,7 @@ public class AdminAccountService {
 		return userAccountRepository.findByKeyWord(search, pageable);
 	}
 
-	@Transactional
+	@Transactional(rollbackOn = Exception.class)
 	public UserAccount lockUserAccount(String userAccountId) {
 		UserAccount user = findUserAccountById(userAccountId);
 
@@ -85,7 +87,7 @@ public class AdminAccountService {
 		return userAccountRepository.save(user);
 	}
 
-	@Transactional
+	@Transactional(rollbackOn = Exception.class)
 	public UserAccount unlockUserAccount(String userAccountId) {
 		UserAccount user = findUserAccountById(userAccountId);
 
@@ -97,6 +99,7 @@ public class AdminAccountService {
 		return userAccountRepository.save(user);
 	}
 
+	@Transactional(rollbackOn = Exception.class)
 	public void resetPassword(String userAccountId) {
 		accountService.resetPassword(userAccountId);
 	}

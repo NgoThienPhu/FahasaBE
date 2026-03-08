@@ -13,6 +13,8 @@ import com.example.demo.email.service.EmailService;
 import com.example.demo.util.service.MessageService;
 import com.example.demo.util.service.RedisService;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class EmailService {
 
@@ -26,6 +28,7 @@ public class EmailService {
 		this.messageService = messageService;
 	}
 
+	@Transactional(rollbackOn = Exception.class)
 	public Email verify(String email, String otp) {
 		String otpCode = redisService.getValue(String.format("OTP:%s", email));
 		if (otpCode == null || !otpCode.equals(otp)) {

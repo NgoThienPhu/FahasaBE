@@ -25,6 +25,8 @@ import com.example.demo.category.entity.Category;
 import com.example.demo.category.repository.CategoryRepository;
 import com.example.demo.util.exception.CustomException;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class BookService {
 
@@ -78,6 +80,7 @@ public class BookService {
 		return BookResponseDTO.fromEntity(book, category, bookPrice);
 	}
 
+	@Transactional(rollbackOn = Exception.class)
 	public BookResponseDTO createBook(CreateBookRequestDTO dto) {
 		var category = findCategoryById(dto.getCategoryId());
 
@@ -99,6 +102,7 @@ public class BookService {
 		return BookResponseDTO.fromEntity(book, category, basePrice);
 	}
 
+	@Transactional(rollbackOn = Exception.class)
 	public BookResponseDTO updateBook(String bookId, UpdateBookRequestDTO dto) {
 		var book = bookRepository.findById(bookId)
 				.orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Sản phẩm không tồn tại"));

@@ -2,7 +2,6 @@ package com.example.demo.account.service;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.account.dto.ChangeEmailRequestDTO;
 import com.example.demo.account.dto.ChangeUserInfoRequestDTO;
@@ -10,6 +9,7 @@ import com.example.demo.account.entity.UserAccount;
 import com.example.demo.account.repository.UserAccountRepository;
 import com.example.demo.util.exception.CustomException;
 
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 
 @Service
@@ -24,6 +24,7 @@ public class UserAccountService {
 		this.accountService = accountService;
 	}
 
+	@Transactional(rollbackOn = Exception.class)
 	public UserAccount createAndSave(UserAccount user) {
 		return userAccountRepository.save(user);
 	}
@@ -42,7 +43,7 @@ public class UserAccountService {
 				.orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Người dùng không tồn tại"));
 	} 
 
-	@Transactional
+	@Transactional(rollbackOn = Exception.class)
 	public UserAccount changeInfo(ChangeUserInfoRequestDTO dto, String userAccountId) {
 
 		UserAccount userAccount = userAccountRepository.findById(userAccountId).orElse(null);
@@ -59,6 +60,7 @@ public class UserAccountService {
 		return userAccountRepository.save(userAccount);
 	}
 
+	@Transactional(rollbackOn = Exception.class)
 	public void changeEmail(@Valid ChangeEmailRequestDTO body, String userAccountId) {
 		accountService.changeEmail(body, userAccountId);
 	}

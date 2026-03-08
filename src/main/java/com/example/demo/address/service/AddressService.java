@@ -28,7 +28,7 @@ public class AddressService {
 		this.userAccountRepository = userAccountRepository;
 	}
 
-	@Transactional
+	@Transactional(rollbackOn = Exception.class)
 	public Address createAddress(@Valid CreateAddressRequestDTO body, String userAccountId) {
 		UserAccount user = findUserAccount(userAccountId);
 
@@ -62,7 +62,7 @@ public class AddressService {
 				.orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Địa chỉ không tồn tại"));
 	}
 
-	@Transactional
+	@Transactional(rollbackOn = Exception.class)
 	public void deleteById(String addressId, String userAccountId) {
 		UserAccount user = findUserAccount(userAccountId);
 
@@ -80,7 +80,7 @@ public class AddressService {
 		userAccountRepository.save(user);
 	}
 
-	@Transactional
+	@Transactional(rollbackOn = Exception.class)
 	public Address updateById(UpdateAddressRequestDTO body, String addressId, String userAccountId) {
 		UserAccount user = findUserAccount(userAccountId);
 

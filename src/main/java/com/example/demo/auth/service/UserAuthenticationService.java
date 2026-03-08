@@ -58,12 +58,13 @@ public class UserAuthenticationService {
 		}
 	}
 
-	@Transactional
+	@Transactional(rollbackOn = Exception.class)
 	public UserAccount register(CreateUserRequestDTO body) {
 		UserAccount userAccount = CreateUserRequestDTO.toUserAccount(body, passwordEncoder);
 		return userAccountRepository.save(userAccount);
 	}
 
+	@Transactional(rollbackOn = Exception.class)
 	public void changePassword(ChangePasswordRequestDTO body, CustomUserDetails currentUser) {
 			UserAccount account = findUserAccountByUsername(currentUser.getUsername());
 

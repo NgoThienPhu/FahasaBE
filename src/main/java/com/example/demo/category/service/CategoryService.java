@@ -47,7 +47,7 @@ public class CategoryService {
 		return categoryRepository.findAll(search, pageable);
 	}
 
-	@Transactional
+	@Transactional(rollbackOn = Exception.class)
 	public Category create(CreateCategoryRequestDTO dto) {
 		boolean existsName = existsByName(dto.categoryName());
 
@@ -59,7 +59,7 @@ public class CategoryService {
 		return categoryRepository.save(category);
 	}
 
-	@Transactional
+	@Transactional(rollbackOn = Exception.class)
 	public Category update(UpdateCategoryNameRequestDTO dto, String categoryId) {
 		Category category = findById(categoryId);
 		if (dto.categoryName() != null)
@@ -67,7 +67,7 @@ public class CategoryService {
 		return categoryRepository.save(category);
 	}
 
-	@Transactional
+	@Transactional(rollbackOn = Exception.class)
 	public void delete(String categoryId) {
 		boolean isUsed = categoryRepository.isCategoryInUse(categoryId);
 		if (isUsed) {

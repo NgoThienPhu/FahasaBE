@@ -1,9 +1,11 @@
 package com.example.demo.account.service;
 import com.example.demo.util.service.RedisService;
+
+import jakarta.transaction.Transactional;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.account.dto.AdminCreateUserRequestDTO;
 import com.example.demo.account.dto.ChangeEmailRequestDTO;
@@ -39,7 +41,7 @@ public class AccountService {
 		this.redisService = redisService;
 	}
 
-	@Transactional
+	@Transactional(rollbackOn = Exception.class)
 	public UserAccount adminCreateUserAccount(AdminCreateUserRequestDTO dto) {
 		if (accountRepository.existsByUsername(dto.username()))
 			throw new CustomException(HttpStatus.BAD_REQUEST, "Username đã tồn tại");
@@ -60,7 +62,7 @@ public class AccountService {
 		return userAccountRepository.save(user);
 	}
 
-	@Transactional
+	@Transactional(rollbackOn = Exception.class)
 	public Account changeEmail(ChangeEmailRequestDTO body, String accountId) {
 		Account account = accountRepository.findById(accountId)
 				.orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Người dùng không tồn tại"));
@@ -79,7 +81,7 @@ public class AccountService {
 		return accountRepository.save(account);
 	}
 
-	@Transactional
+	@Transactional(rollbackOn = Exception.class)
 	public void resetPassword(String accountId) {
 		Account account = accountRepository.findById(accountId)
 				.orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Người dùng không tồn tại"));

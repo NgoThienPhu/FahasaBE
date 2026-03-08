@@ -16,6 +16,8 @@ import com.example.demo.book_price.entity.BasePrice;
 import com.example.demo.book_price.repository.BasePriceRepository;
 import com.example.demo.util.exception.CustomException;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class BasePriceService {
 
@@ -42,6 +44,7 @@ public class BasePriceService {
 		return basePriceRepository.findByBookId(bookId, fromDate, toDate, pageable);
 	}
 
+	@Transactional(rollbackOn = Exception.class)
 	public BasePrice createBasePrice(String bookId, CreateBookBasePrice dto) {
 		boolean hasOverlap = basePriceRepository.existsOverlappingActivePrice(bookId, dto.effectiveFrom(),
 				dto.effectiveFrom());

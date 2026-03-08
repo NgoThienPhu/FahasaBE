@@ -24,6 +24,7 @@ import com.example.demo.util.service.RedisService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 
 @Service
 public class AuthenticationService {
@@ -61,6 +62,7 @@ public class AuthenticationService {
 		SecurityContextHolder.clearContext();
 	}
 
+	@Transactional(rollbackOn = Exception.class)
 	public RefreshAccessTokenResponseDTO refreshAccessToken(HttpServletRequest request,
 			Account.AccountType accountType) {
 		String refreshToken = getRefreshToken(request, accountType);
@@ -78,6 +80,7 @@ public class AuthenticationService {
 		return new RefreshAccessTokenResponseDTO(newAccessToken);
 	}
 
+	@Transactional(rollbackOn = Exception.class)
 	public void ressetPassword(String resetPasswordToken, String newPassword) {
 		validateToken(resetPasswordToken, TokenType.RESSET_PASSWORD);
 
@@ -99,6 +102,7 @@ public class AuthenticationService {
 
 	}
 
+	@Transactional(rollbackOn = Exception.class)
 	public boolean verifyRessetPasswordToken(String resetPasswordToken) {
 		try {
 			String username = jwtService.extractUsername(resetPasswordToken);
