@@ -56,7 +56,9 @@ public class BookImageService {
 		Book book = bookRepository.findById(bookId)
 				.orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Không tìm thấy sách"));
 		
-		if(book.getBookImages().size() + files.size() > 5) {
+		List<BookImage> bookSecondaryImages = book.getBookImages().stream().filter(image -> !image.getIsPrimary()).toList();
+		
+		if(bookSecondaryImages.size() + files.size() > 5) {
 			throw new CustomException(HttpStatus.BAD_REQUEST, "Số lượng ảnh phụ không được vượt quá 5");
 		}
 

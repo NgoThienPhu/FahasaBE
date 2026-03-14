@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -74,10 +75,10 @@ public class AdminBookController {
 
 		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.CREATED);
 	}
-	
+
 	@PutMapping("/{bookId}")
-	public ResponseEntity<?> updateBook(@PathVariable String bookId, @RequestBody @Valid UpdateBookRequestDTO dto, HttpServletRequest request,
-			BindingResult result) {
+	public ResponseEntity<?> updateBook(@PathVariable String bookId, @RequestBody @Valid UpdateBookRequestDTO dto,
+			HttpServletRequest request, BindingResult result) {
 
 		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Cập nhật sách thất bại",
 				request.getRequestURI());
@@ -87,6 +88,14 @@ public class AdminBookController {
 
 		BookResponseDTO book = bookService.updateBook(bookId, dto);
 		var response = new ApiResponseSuccessDTO<BookResponseDTO>(200, "Cập nhật sách thành công", book);
+
+		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
+	}
+
+	@DeleteMapping("/{bookId}")
+	public ResponseEntity<?> deleteBook(@PathVariable String bookId) {
+		bookService.deleteBook(bookId);
+		var response = new ApiResponseSuccessDTO<Void>(200, "Xóa sách thành công");
 
 		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
 	}

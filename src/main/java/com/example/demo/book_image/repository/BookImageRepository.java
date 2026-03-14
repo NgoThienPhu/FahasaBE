@@ -20,6 +20,12 @@ public interface BookImageRepository extends JpaRepository<BookImage, String> {
 	
 	@Query("""
 			SELECT bi FROM BookImage bi
+			WHERE bi.book.id IN :bookIds AND bi.isPrimary = true
+			""")
+	public List<BookImage> findBookPrimaryImages(List<String> bookIds);
+	
+	@Query("""
+			SELECT bi FROM BookImage bi
 			WHERE bi.book.id = :bookId AND bi.isPrimary = false
 			""")
 	public List<BookImage> findBookSecondaryImage(String bookId);

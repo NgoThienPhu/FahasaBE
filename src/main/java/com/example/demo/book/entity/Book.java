@@ -33,6 +33,9 @@ public class Book extends BaseEntity {
 
 	@Column(name = "title", nullable = false)
 	private String title;
+	
+	@Column(name = "summary", nullable = false, columnDefinition = "LONGTEXT")
+	private String summary;
 
 	@Column(name = "description", nullable = false, columnDefinition = "LONGTEXT")
 	private String description;

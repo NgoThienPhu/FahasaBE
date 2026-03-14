@@ -16,6 +16,9 @@ public class UpdateBookRequestDTO {
 
     @NotBlank(message = "Tiêu đề sách không được để trống")
     private String title;
+    
+    @NotBlank(message = "Nội dung tóm tắt không được để trống")
+    private String summary;
 
     @NotBlank(message = "Mô tả sách không được để trống")
     private String description;
