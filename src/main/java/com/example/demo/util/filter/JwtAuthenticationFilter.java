@@ -12,9 +12,9 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.example.demo.account.entity.base.Account;
 import com.example.demo.util.config.EndPoint;
 import com.example.demo.util.entity.CustomUserDetails;
+import com.example.demo.util.enums.TokenType;
 import com.example.demo.util.exception.CustomException;
 import com.example.demo.util.service.CustomUserDetailService;
 import com.example.demo.util.service.JwtService;
@@ -112,8 +112,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	private void handleAccessToken(String accessToken, HttpServletRequest request, HttpServletResponse response,
 			FilterChain filterChain) throws IOException, ServletException {
-		Account.TokenType tokenType = jwtService.extractTokenType(accessToken);
-		if (tokenType != Account.TokenType.ACCESS) {
+		TokenType tokenType = jwtService.extractTokenType(accessToken);
+		if (tokenType != TokenType.ACCESS) {
 			throw new CustomException(HttpStatus.UNAUTHORIZED, "INVALID_TOKEN_TYPE", "Token không hợp lệ");
 		}
 

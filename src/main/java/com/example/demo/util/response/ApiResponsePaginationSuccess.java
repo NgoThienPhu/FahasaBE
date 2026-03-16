@@ -1,4 +1,4 @@
-package com.example.demo.util.dto.api_response;
+package com.example.demo.util.response;
 
 import java.util.List;
 
@@ -10,7 +10,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ApiResponsePaginationSuccess<T> extends ApiResponseSuccessDTO<T> {
+public class ApiResponsePaginationSuccess<T> extends ApiResponseSuccess<T> {
 
 	private int page;
 	private int limit;

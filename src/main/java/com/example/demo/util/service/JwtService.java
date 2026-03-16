@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import com.example.demo.account.entity.base.Account.TokenType;
+import com.example.demo.util.enums.TokenType;
 import com.example.demo.util.exception.CustomException;
 
 import io.jsonwebtoken.Claims;

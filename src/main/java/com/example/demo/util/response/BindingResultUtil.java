@@ -1,4 +1,4 @@
-package com.example.demo.util.validation;
+package com.example.demo.util.response;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,8 +6,6 @@ import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-
-import com.example.demo.util.dto.api_response.ApiResponseErrorDTO;
 
 public class BindingResultUtil {
 	
@@ -17,7 +15,7 @@ public class BindingResultUtil {
             result.getFieldErrors().forEach(error -> {
                 errors.put(error.getField(), error.getDefaultMessage());
             });
-           var response = new ApiResponseErrorDTO(400, message, "VALIDATION_ERROR", errors, path);
+           var response = new ApiResponseError(400, message, "VALIDATION_ERROR", errors, path);
            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
         return null;

@@ -1,6 +1,6 @@
 package com.example.demo.account.service;
 
-import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -8,24 +8,26 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
-import com.example.demo.account.dto.AdminChangeUserInfoRequestDTO;
-import com.example.demo.account.dto.AdminCreateUserRequestDTO;
 import com.example.demo.account.entity.AdminAccount;
 import com.example.demo.account.entity.UserAccount;
 import com.example.demo.account.repository.AdminAccountRepository;
 import com.example.demo.account.repository.UserAccountRepository;
+import com.example.demo.util.enums.SortDirection;
 import com.example.demo.util.exception.CustomException;
+import com.example.demo.util.validation.SortValidator;
 
 import jakarta.transaction.Transactional;
 
 @Service
 public class AdminAccountService {
 
-	private UserAccountRepository userAccountRepository;
-	private AdminAccountRepository adminAccountRepository;
-	private AccountService accountService;
+	private static final Set<String> ALLOWED_SORT_FIELDS = Set.of("username", "email", "phoneNumber", "fullName",
+			"isActived", "createdAt");
+
+	private final UserAccountRepository userAccountRepository;
+	private final AdminAccountRepository adminAccountRepository;
+	private final AccountService accountService;
 
 	public AdminAccountService(UserAccountRepository userAccountRepository,
 			AdminAccountRepository adminAccountRepository, AccountService accountService) {
@@ -38,37 +40,17 @@ public class AdminAccountService {
 		return adminAccountRepository.findById(adminAccountId)
 				.orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Tài khoản quản trị không tồn tại"));
 	}
-	
+
 	public UserAccount findUserAccountById(String accountId) {
 		return userAccountRepository.findById(accountId)
 				.orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Người dùng không tồn tại"));
 	}
 
-	@Transactional(rollbackOn = Exception.class)
-	public UserAccount createUserAccount(AdminCreateUserRequestDTO dto) {
-		return accountService.adminCreateUserAccount(dto);
-	}
+	public Page<UserAccount> findUserAccounts(String search, SortDirection orderBy, String sortBy, int page, int size) {
 
-	@Transactional(rollbackOn = Exception.class)
-	public UserAccount changeUserAccountInfo(AdminChangeUserInfoRequestDTO dto, String userAccountId) {
+		SortValidator.validate(ALLOWED_SORT_FIELDS, sortBy);
 
-		UserAccount user = findUserAccountById(userAccountId);
-
-		user.updateProfileByAdmin(dto);
-
-		return userAccountRepository.save(user);
-	}
-
-	public Page<UserAccount> findUserAccounts(String search, String orderBy, String sortBy, int page, int size) {
-
-		List<String> allowedFields = List.of("username", "email", "phoneNumber", "fullName", "isActived", "createdAt");
-
-		if (!allowedFields.contains(sortBy)) {
-			throw new CustomException(HttpStatus.BAD_REQUEST, "Thuộc tính cần sắp xếp không hợp lệ vui lòng thử lại");
-		}
-
-		Sort sort = orderBy.equalsIgnoreCase("asc") ? Sort.by(Sort.Direction.ASC, sortBy)
-				: Sort.by(Sort.Direction.DESC, sortBy);
+		Sort sort = Sort.by(orderBy == SortDirection.ASC ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy);
 
 		Pageable pageable = PageRequest.of(page, size, sort);
 
@@ -80,7 +62,7 @@ public class AdminAccountService {
 		UserAccount user = findUserAccountById(userAccountId);
 
 		if (user.getIsActived() == false)
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tài khoản này đã bị khóa");
+			throw new CustomException(HttpStatus.BAD_REQUEST, "Tài khoản này đã bị khóa");
 
 		user.disabled();
 
@@ -92,7 +74,7 @@ public class AdminAccountService {
 		UserAccount user = findUserAccountById(userAccountId);
 
 		if (user.getIsActived() == true)
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tài khoản này đã được mở khóa");
+			throw new CustomException(HttpStatus.BAD_REQUEST, "Tài khoản này đã được mở khóa");
 
 		user.active();
 

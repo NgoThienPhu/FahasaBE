@@ -43,14 +43,6 @@ public abstract class Account extends BaseEntity {
 		this.password = password;
 	}
 	
-	public enum AccountType {
-		ADMIN, USER
-	}
-	
-	public enum TokenType {
-		REFRESH, ACCESS, RESSET_PASSWORD
-	}
-	
 	public void changePassword(String newPasswordEncoded) {
 		this.password = newPasswordEncoded;
 	}

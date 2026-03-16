@@ -6,8 +6,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-import com.example.demo.util.dto.upload_response.UploadResponseDTO;
 import com.example.demo.util.exception.CustomException;
+import com.example.demo.util.response.UploadResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +22,7 @@ public class CloudinaryService {
         this.cloudinary = cloudinary;
     }
 
-    public UploadResponseDTO uploadFile(MultipartFile file) {
+    public UploadResponse uploadFile(MultipartFile file) {
         try {
             Map<?, ?> uploadResult = cloudinary.uploader().upload(
                     file.getBytes(),
@@ -32,16 +32,16 @@ public class CloudinaryService {
             String publicId = uploadResult.get("public_id").toString();
             String url = uploadResult.get("secure_url").toString();
             
-            return new UploadResponseDTO(publicId, url);
+            return new UploadResponse(publicId, url);
 
         } catch (Exception e) {
             throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, "Không thể tải lên tệp tin lên Cloudinary");
         }
     }
     
-    public List<UploadResponseDTO> uploadFiles(List<MultipartFile> files) {
+    public List<UploadResponse> uploadFiles(List<MultipartFile> files) {
 
-        List<UploadResponseDTO> uploadResponses = new ArrayList<>();
+        List<UploadResponse> uploadResponses = new ArrayList<>();
 
         try {
 
@@ -55,11 +55,11 @@ public class CloudinaryService {
                 String url = uploadResult.get("secure_url").toString();
                 String publicId = uploadResult.get("public_id").toString();
 
-                uploadResponses.add(new UploadResponseDTO(publicId, url));
+                uploadResponses.add(new UploadResponse(publicId, url));
             }
 
         } catch (Exception e) {
-        	for (UploadResponseDTO uploadResponse : uploadResponses) {
+        	for (UploadResponse uploadResponse : uploadResponses) {
 				deleteFile(uploadResponse.getPublicId());
 			}
         }

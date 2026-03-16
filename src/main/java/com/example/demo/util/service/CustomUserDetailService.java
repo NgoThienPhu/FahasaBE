@@ -13,6 +13,7 @@ import com.example.demo.account.entity.AdminAccount;
 import com.example.demo.account.entity.base.Account;
 import com.example.demo.account.repository.AccountRepository;
 import com.example.demo.util.entity.CustomUserDetails;
+import com.example.demo.util.enums.AccountType;
 import com.example.demo.util.exception.CustomException;
 import com.example.demo.util.service.CustomUserDetailService;
 
@@ -30,10 +31,10 @@ public class CustomUserDetailService implements UserDetailsService {
 		Account account = accountRepository.findByUsername(username)
 				.orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Người dùng không tồn tại"));
 
-		SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + Account.AccountType.USER.name());
+		SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + AccountType.USER.name());
 
 		if (account instanceof AdminAccount)
-			authority = new SimpleGrantedAuthority("ROLE_" + Account.AccountType.ADMIN.name());
+			authority = new SimpleGrantedAuthority("ROLE_" + AccountType.ADMIN.name());
 
 		CustomUserDetails customUserDetails = new CustomUserDetails(account.getId(), username, account.getPassword(),
 				List.of(authority));

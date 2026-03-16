@@ -18,10 +18,10 @@ import com.example.demo.address.dto.CreateAddressRequestDTO;
 import com.example.demo.address.dto.UpdateAddressRequestDTO;
 import com.example.demo.address.entity.Address;
 import com.example.demo.address.service.AddressService;
-import com.example.demo.util.dto.api_response.ApiResponseDTO;
-import com.example.demo.util.dto.api_response.ApiResponseSuccessDTO;
 import com.example.demo.util.entity.CustomUserDetails;
-import com.example.demo.util.validation.BindingResultUtil;
+import com.example.demo.util.response.ApiResponse;
+import com.example.demo.util.response.ApiResponseSuccess;
+import com.example.demo.util.response.BindingResultUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -41,16 +41,16 @@ public class AddressController {
 	public ResponseEntity<?> findById(@PathVariable String addressId,
 			@AuthenticationPrincipal CustomUserDetails currentUser) {
 		Address address = addressService.findById(addressId, currentUser.getId());
-		var response = new ApiResponseSuccessDTO<Address>(200, "Lấy chi tiết địa chỉ người dùng thành công", address);
-		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
+		var response = new ApiResponseSuccess<Address>(200, "Lấy chi tiết địa chỉ người dùng thành công", address);
+		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
 	}
 
 	@GetMapping
 	public ResponseEntity<?> findAll(@AuthenticationPrincipal CustomUserDetails currentUser) {
 		List<Address> addresses = addressService.findAll(currentUser.getId());
-		var response = new ApiResponseSuccessDTO<List<Address>>(200, "Lấy danh sách địa chỉ người dùng thành công",
+		var response = new ApiResponseSuccess<List<Address>>(200, "Lấy danh sách địa chỉ người dùng thành công",
 				addresses);
-		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
+		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
 	}
 
 	@PostMapping
@@ -62,8 +62,8 @@ public class AddressController {
 			return responseError;
 
 		Address address = addressService.createAddress(body, currentUser.getId());
-		var response = new ApiResponseSuccessDTO<Address>(201, "Thêm địa chỉ giao hàng thành công", address);
-		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
+		var response = new ApiResponseSuccess<Address>(201, "Thêm địa chỉ giao hàng thành công", address);
+		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
 	}
 
 	@PutMapping("/{addressId}")
@@ -76,15 +76,15 @@ public class AddressController {
 
 		Address address = addressService.updateById(body, addressId, currentUser.getId());
 
-		var response = new ApiResponseSuccessDTO<Address>(200, "Cập nhật chỉ giao hàng thành công", address);
-		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
+		var response = new ApiResponseSuccess<Address>(200, "Cập nhật chỉ giao hàng thành công", address);
+		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
 	}
 
 	@DeleteMapping("/{addressId}")
 	public ResponseEntity<?> deleteByIdAndUsername(@PathVariable String addressId,
 			@AuthenticationPrincipal CustomUserDetails currentUser) {
 		addressService.deleteById(addressId, currentUser.getId());
-		var response = new ApiResponseSuccessDTO<Void>(200, "Xóa địa chỉ người dùng thành công");
-		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
+		var response = new ApiResponseSuccess<Void>(200, "Xóa địa chỉ người dùng thành công");
+		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
 	}
 }

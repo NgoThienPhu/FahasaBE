@@ -4,11 +4,11 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.demo.account.dto.AdminChangeUserInfoRequestDTO;
 import com.example.demo.account.entity.base.Account;
 import com.example.demo.address.entity.Address;
 import com.example.demo.email.entity.Email;
 import com.example.demo.util.entity.PhoneNumber;
+import com.example.demo.util.enums.Gender;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
@@ -57,10 +57,6 @@ public class UserAccount extends Account {
 		this.fullName = fullName;
 	}
 	
-	public enum Gender {
-		MALE, FEMALE, OTHER
-	}
-	
 	public void active() {
         this.isActived = true;
     }
@@ -81,13 +77,6 @@ public class UserAccount extends Account {
         this.email = email;
         this.phoneNumber = phone;
         this.password = passwordEncode;
-    }
-	
-	public void updateProfileByAdmin(AdminChangeUserInfoRequestDTO dto) {
-        if (dto.fullName() != null) this.fullName = dto.fullName();
-        if (dto.gender() != null) this.gender = Gender.valueOf(dto.gender());
-        if (dto.email() != null) this.email = new Email(dto.email());
-        if (dto.phoneNumber() != null) this.phoneNumber = new PhoneNumber(dto.phoneNumber());
     }
 
 }

@@ -13,10 +13,11 @@ import org.springframework.stereotype.Service;
 
 import com.example.demo.account.entity.AdminAccount;
 import com.example.demo.account.entity.base.Account;
-import com.example.demo.account.entity.base.Account.TokenType;
 import com.example.demo.account.repository.AccountRepository;
 import com.example.demo.auth.dto.RefreshAccessTokenResponseDTO;
 import com.example.demo.util.cookie.CookieUtil;
+import com.example.demo.util.enums.AccountType;
+import com.example.demo.util.enums.TokenType;
 import com.example.demo.util.exception.CustomException;
 import com.example.demo.util.service.JwtService;
 import com.example.demo.util.service.RedisService;
@@ -64,7 +65,7 @@ public class AuthenticationService {
 
 	@Transactional(rollbackOn = Exception.class)
 	public RefreshAccessTokenResponseDTO refreshAccessToken(HttpServletRequest request,
-			Account.AccountType accountType) {
+			AccountType accountType) {
 		String refreshToken = getRefreshToken(request, accountType);
 		validateToken(refreshToken, TokenType.REFRESH);
 		
@@ -145,11 +146,11 @@ public class AuthenticationService {
 		return true;
 	}
 
-	private String getRefreshToken(HttpServletRequest request, Account.AccountType accountType) {
+	private String getRefreshToken(HttpServletRequest request, AccountType accountType) {
 		if (request.getCookies() == null)
 			return null;
 
-		String expectedCookie = (accountType == Account.AccountType.ADMIN) ? "refreshTokenAdmin" : "refreshTokenUser";
+		String expectedCookie = (accountType == AccountType.ADMIN) ? "refreshTokenAdmin" : "refreshTokenUser";
 
 		for (Cookie cookie : request.getCookies()) {
 			if (expectedCookie.equals(cookie.getName())) {

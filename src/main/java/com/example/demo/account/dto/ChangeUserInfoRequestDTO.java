@@ -2,17 +2,17 @@ package com.example.demo.account.dto;
 
 import java.time.LocalDate;
 
-import jakarta.validation.constraints.NotBlank;
+import com.example.demo.util.enums.Gender;
+
 import jakarta.validation.constraints.Past;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 public record ChangeUserInfoRequestDTO(
 	
-	@NotBlank(message = "Tên đầy đủ không được để trống")
+	@Size(min = 1, max = 50, message = "Tên phải từ 1-50 ký tự")
 	String fullName,
 	
-	@Pattern(regexp = "^(MALE|FEMALE|OTHER)$", message = "Giới tính phải là MALE | FEMALE | OTHER")
-	String gender,
+	Gender gender,
 	
 	@Past(message = "Ngày sinh phải nằm trong quá khứ")
 	LocalDate dateOfBirth

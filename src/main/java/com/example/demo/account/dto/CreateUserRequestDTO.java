@@ -3,6 +3,9 @@ package com.example.demo.account.dto;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.example.demo.account.entity.UserAccount;
+import com.example.demo.account.validation.annotation.UniqueEmail;
+import com.example.demo.account.validation.annotation.UniquePhoneNumber;
+import com.example.demo.account.validation.annotation.UniqueUsername;
 import com.example.demo.util.entity.PhoneNumber;
 
 import jakarta.validation.constraints.Email;
@@ -13,6 +16,7 @@ import jakarta.validation.constraints.Pattern;
 public record CreateUserRequestDTO(
 
 		@NotBlank(message = "Tên đăng nhập không được để trống") 
+		@UniqueUsername(message = "Tên đăng nhập đã tồn tại")
 		String username,
 
 		@NotBlank(message = "Mật khẩu không được để trống") 
@@ -22,10 +26,12 @@ public record CreateUserRequestDTO(
 		String fullName,
 		
 		@Email(message = "Email không hợp lệ")
+		@UniqueEmail(message = "Email đã tồn tại")
 		String email,
 
 		@NotNull(message = "Số điện thoại không được để trống")
 		@Pattern(regexp = "^(0|\\+84)(3[2-9]|5[6|8|9]|7[0|6-9]|8[1-5]|9[0-9])\\d{7}$", message = "Số điện thoại không hợp lệ")
+		@UniquePhoneNumber(message = "Số điện thoại đã tồn tại")
 		String phoneNumber
 
 ) {

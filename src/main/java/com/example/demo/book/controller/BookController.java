@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.book.dto.BookResponseDTO;
 import com.example.demo.book.service.BookService;
-import com.example.demo.util.dto.api_response.ApiResponseDTO;
-import com.example.demo.util.dto.api_response.ApiResponsePaginationSuccess;
-import com.example.demo.util.dto.api_response.ApiResponseSuccessDTO;
+import com.example.demo.util.response.ApiResponse;
+import com.example.demo.util.response.ApiResponsePaginationSuccess;
+import com.example.demo.util.response.ApiResponseSuccess;
 
 @RestController
 @RequestMapping("/api/books")
@@ -37,16 +37,16 @@ public class BookController {
 		ApiResponsePaginationSuccess<List<BookResponseDTO>> response = ApiResponsePaginationSuccess.fromPage(bookPage,
 				"Lấy sách thành công");
 
-		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
+		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
 	}
 	
 	@GetMapping("/{bookId}")
 	public ResponseEntity<?> getBookById(@PathVariable String bookId) {
 		var book = bookService.getBookById(bookId);
 
-		var response = new ApiResponseSuccessDTO<BookResponseDTO>(200, "Lấy sách thành công", book);
+		var response = new ApiResponseSuccess<BookResponseDTO>(200, "Lấy sách thành công", book);
 
-		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
+		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
 	}
 
 }

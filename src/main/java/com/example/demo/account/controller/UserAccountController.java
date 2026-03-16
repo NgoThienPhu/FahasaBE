@@ -17,10 +17,10 @@ import com.example.demo.account.dto.ChangeUserInfoRequestDTO;
 import com.example.demo.account.entity.UserAccount;
 import com.example.demo.account.entity.base.Account;
 import com.example.demo.account.service.UserAccountService;
-import com.example.demo.util.dto.api_response.ApiResponseDTO;
-import com.example.demo.util.dto.api_response.ApiResponseSuccessDTO;
 import com.example.demo.util.entity.CustomUserDetails;
-import com.example.demo.util.validation.BindingResultUtil;
+import com.example.demo.util.response.ApiResponse;
+import com.example.demo.util.response.ApiResponseSuccess;
+import com.example.demo.util.response.BindingResultUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -39,8 +39,8 @@ public class UserAccountController {
 	public ResponseEntity<?> getInfo(@AuthenticationPrincipal CustomUserDetails currentUser) {
 		UserAccount account = userAccountService.findById(currentUser.getId());
 		
-		var response = new ApiResponseSuccessDTO<Account>(200, "Lấy thông tin tài khoản thành công", account);
-		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
+		var response = new ApiResponseSuccess<Account>(200, "Lấy thông tin tài khoản thành công", account);
+		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
 	}
 
 	@PutMapping
@@ -54,9 +54,9 @@ public class UserAccountController {
 		
 		UserAccount account = userAccountService.changeInfo(dto, currentUser.getId());
 		
-		var response = new ApiResponseSuccessDTO<Account>(200, "Cập nhật thông tin tài khoản thành công", account);
+		var response = new ApiResponseSuccess<Account>(200, "Cập nhật thông tin tài khoản thành công", account);
 		
-		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
+		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
 	}
 
 	@PostMapping("/change-email")
@@ -70,9 +70,9 @@ public class UserAccountController {
 		
 		userAccountService.changeEmail(body, currentUser.getId());
 		
-		var response = new ApiResponseSuccessDTO<Void>(200, "Đổi email thành công");
+		var response = new ApiResponseSuccess<Void>(200, "Đổi email thành công");
 		
-		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
+		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
 	}
 
 	@PostMapping("/change-phone")

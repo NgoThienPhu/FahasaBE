@@ -11,8 +11,8 @@ import com.example.demo.book.repository.BookRepository;
 import com.example.demo.book_image.entity.BookImage;
 import com.example.demo.book_image.repository.BookImageRepository;
 import com.example.demo.book_image.service.BookImageService;
-import com.example.demo.util.dto.upload_response.UploadResponseDTO;
 import com.example.demo.util.exception.CustomException;
+import com.example.demo.util.response.UploadResponse;
 import com.example.demo.util.service.CloudinaryService;
 
 import jakarta.transaction.Transactional;
@@ -63,7 +63,7 @@ public class BookImageService {
 		}
 
 		return files.stream().map(file -> {
-			UploadResponseDTO imageUpload = cloudinaryService.uploadFile(file);
+			UploadResponse imageUpload = cloudinaryService.uploadFile(file);
 			BookImage secondaryImage = new BookImage();
 			secondaryImage.setPublicId(imageUpload.getPublicId());
 			secondaryImage.setBook(book);
@@ -75,7 +75,7 @@ public class BookImageService {
 
 	@Transactional(rollbackOn = Exception.class)
 	public BookImage updateBookPrimaryImage(String bookId, MultipartFile file) {
-		UploadResponseDTO imageUpload = cloudinaryService.uploadFile(file);
+		UploadResponse imageUpload = cloudinaryService.uploadFile(file);
 		BookImage primaryImage = bookImageRepository.findBookPrimaryImage(bookId).orElse(null);
 		if (primaryImage != null) {
 			cloudinaryService.deleteFile(primaryImage.getPublicId());

@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.book_price.dto.CreateBookBasePrice;
 import com.example.demo.book_price.entity.BasePrice;
 import com.example.demo.book_price.service.BasePriceService;
-import com.example.demo.util.dto.api_response.ApiResponseDTO;
-import com.example.demo.util.dto.api_response.ApiResponseSuccessDTO;
+import com.example.demo.util.response.ApiResponse;
+import com.example.demo.util.response.ApiResponseSuccess;
 
 @RestController
 @RequestMapping("/api/admin/books/{bookId}/base-prices")
@@ -38,16 +38,16 @@ public class BasePriceController {
 			@RequestParam(required = false, defaultValue = "0") int page,
 			@RequestParam(required = false, defaultValue = "10") int size) {
 		List<BasePrice> basePrices = basePriceService.getBasePrices(bookId, orderBy, sortBy, effectiveFrom, effectiveTo, page, size);
-		var response = new ApiResponseSuccessDTO<List<BasePrice>>(200, "Lấy giá cơ bản thành công", basePrices);
-		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
+		var response = new ApiResponseSuccess<List<BasePrice>>(200, "Lấy giá cơ bản thành công", basePrices);
+		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
 		
 	}
 
 	@PostMapping
 	public ResponseEntity<?> createBasePrice(@PathVariable String bookId, @RequestBody CreateBookBasePrice dto) {
 		BasePrice basePrice = basePriceService.createBasePrice(bookId, dto);
-		var response = new ApiResponseSuccessDTO<BasePrice>(201, "Tạo giá cơ bản thành công", basePrice);
-		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.CREATED);
+		var response = new ApiResponseSuccess<BasePrice>(201, "Tạo giá cơ bản thành công", basePrice);
+		return new ResponseEntity<ApiResponse>(response, HttpStatus.CREATED);
 	}
 
 }

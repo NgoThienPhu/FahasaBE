@@ -1,4 +1,4 @@
-package com.example.demo.util.dto.api_response;
+package com.example.demo.util.response;
 
 import java.util.Map;
 
@@ -7,13 +7,13 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ApiResponseErrorDTO extends ApiResponseDTO {
+public class ApiResponseError extends ApiResponse {
 	
 	private String error;
 	private Map<String, String> errors;
 	private String path;
 	
-	public ApiResponseErrorDTO(int status, String message, String error,
+	public ApiResponseError(int status, String message, String error,
 			Map<String, String> errors, String path) {
 		super(status, message);
 		this.error = error;
@@ -21,7 +21,7 @@ public class ApiResponseErrorDTO extends ApiResponseDTO {
 		this.path = path;
 	}
 
-	public ApiResponseErrorDTO(int status, String message) {
+	public ApiResponseError(int status, String message) {
 		super(status, message);
 	}
 

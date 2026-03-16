@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.category.entity.Category;
 import com.example.demo.category.service.CategoryService;
-import com.example.demo.util.dto.api_response.ApiResponseDTO;
-import com.example.demo.util.dto.api_response.ApiResponsePaginationSuccess;
-import com.example.demo.util.dto.api_response.ApiResponseSuccessDTO;
+import com.example.demo.util.response.ApiResponse;
+import com.example.demo.util.response.ApiResponsePaginationSuccess;
+import com.example.demo.util.response.ApiResponseSuccess;
 
 @RestController
 @RequestMapping("/api/categories")
@@ -36,13 +36,13 @@ public class CategoryController {
 		Page<Category> categories = categoryService.findAll(search, orderBy, sortBy, page, size);
 		ApiResponsePaginationSuccess<List<Category>> response = ApiResponsePaginationSuccess.fromPage(categories,
 				"Lấy danh sách loại sản phẩm thành công");
-		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
+		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
 	}
 
 	@GetMapping("/{categoryId}")
 	public ResponseEntity<?> findById(@PathVariable String categoryId) {
 		Category category = categoryService.findById(categoryId);
-		var response = new ApiResponseSuccessDTO<Category>(200, "Tìm kiếm thành công", category);
-		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
+		var response = new ApiResponseSuccess<Category>(200, "Tìm kiếm thành công", category);
+		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
 	}
 }

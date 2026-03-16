@@ -5,8 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import com.example.demo.util.dto.api_response.ApiResponseDTO;
-import com.example.demo.util.dto.api_response.ApiResponseErrorDTO;
+import com.example.demo.util.response.ApiResponse;
+import com.example.demo.util.response.ApiResponseError;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -15,17 +15,17 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<?> handleResponseStatusException(Exception ex) {
-		ApiResponseDTO apiResponse = new ApiResponseErrorDTO(500, ex.getMessage());
-		var myResponse = new ResponseEntity<ApiResponseDTO>(apiResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+		ApiResponse apiResponse = new ApiResponseError(500, ex.getMessage());
+		var myResponse = new ResponseEntity<ApiResponse>(apiResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 		return myResponse;
 	}
 
 	@ExceptionHandler(CustomException.class)
 	public ResponseEntity<?> handleResponseStatusException(CustomException ex, HttpServletRequest request) {
-		ApiResponseDTO apiResponse = new ApiResponseErrorDTO(ex.getStatus().value(), ex.getMessage(),
+		ApiResponse apiResponse = new ApiResponseError(ex.getStatus().value(), ex.getMessage(),
 				ex.getErrorCode() == null ? ex.getStatus().toString() : ex.getErrorCode(), null,
 				request.getRequestURI());
-		var myResponse = new ResponseEntity<ApiResponseDTO>(apiResponse, ex.getStatus());
+		var myResponse = new ResponseEntity<ApiResponse>(apiResponse, ex.getStatus());
 		return myResponse;
 	}
 }

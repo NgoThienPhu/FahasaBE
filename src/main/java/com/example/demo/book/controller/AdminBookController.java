@@ -20,10 +20,10 @@ import com.example.demo.book.dto.BookResponseDTO;
 import com.example.demo.book.dto.CreateBookRequestDTO;
 import com.example.demo.book.dto.UpdateBookRequestDTO;
 import com.example.demo.book.service.BookService;
-import com.example.demo.util.dto.api_response.ApiResponseDTO;
-import com.example.demo.util.dto.api_response.ApiResponsePaginationSuccess;
-import com.example.demo.util.dto.api_response.ApiResponseSuccessDTO;
-import com.example.demo.util.validation.BindingResultUtil;
+import com.example.demo.util.response.ApiResponse;
+import com.example.demo.util.response.ApiResponsePaginationSuccess;
+import com.example.demo.util.response.ApiResponseSuccess;
+import com.example.demo.util.response.BindingResultUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -48,16 +48,16 @@ public class AdminBookController {
 		ApiResponsePaginationSuccess<List<BookResponseDTO>> response = ApiResponsePaginationSuccess.fromPage(bookPage,
 				"Lấy sách thành công");
 
-		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
+		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
 	}
 
 	@GetMapping("/{bookId}")
-	public ResponseEntity<ApiResponseDTO> getBookById(@PathVariable String bookId) {
+	public ResponseEntity<ApiResponse> getBookById(@PathVariable String bookId) {
 		var book = bookService.getBookById(bookId);
 
-		var response = new ApiResponseSuccessDTO<BookResponseDTO>(200, "Lấy sách thành công", book);
+		var response = new ApiResponseSuccess<BookResponseDTO>(200, "Lấy sách thành công", book);
 
-		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
+		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
 	}
 
 	@PostMapping
@@ -71,9 +71,9 @@ public class AdminBookController {
 			return responseError;
 
 		BookResponseDTO book = bookService.createBook(dto);
-		var response = new ApiResponseSuccessDTO<BookResponseDTO>(200, "Tạo sách thành công", book);
+		var response = new ApiResponseSuccess<BookResponseDTO>(200, "Tạo sách thành công", book);
 
-		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.CREATED);
+		return new ResponseEntity<ApiResponse>(response, HttpStatus.CREATED);
 	}
 
 	@PutMapping("/{bookId}")
@@ -87,17 +87,17 @@ public class AdminBookController {
 			return responseError;
 
 		BookResponseDTO book = bookService.updateBook(bookId, dto);
-		var response = new ApiResponseSuccessDTO<BookResponseDTO>(200, "Cập nhật sách thành công", book);
+		var response = new ApiResponseSuccess<BookResponseDTO>(200, "Cập nhật sách thành công", book);
 
-		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
+		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
 	}
 
 	@DeleteMapping("/{bookId}")
 	public ResponseEntity<?> deleteBook(@PathVariable String bookId) {
 		bookService.deleteBook(bookId);
-		var response = new ApiResponseSuccessDTO<Void>(200, "Xóa sách thành công");
+		var response = new ApiResponseSuccess<Void>(200, "Xóa sách thành công");
 
-		return new ResponseEntity<ApiResponseDTO>(response, HttpStatus.OK);
+		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
 	}
 
 }
