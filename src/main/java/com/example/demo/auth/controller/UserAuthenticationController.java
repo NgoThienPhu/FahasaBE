@@ -69,7 +69,7 @@ public class UserAuthenticationController {
 	@PostMapping("/logout")
 	public ResponseEntity<?> userLogout(@AuthenticationPrincipal CustomUserDetails currentUser,
 			HttpServletResponse response) {
-		authenticationService.logout(currentUser.getId(), response);
+		authenticationService.logout(currentUser.getUsername(), response);
 		var myResponse = new ApiResponseSuccess<Void>(200, "Đăng xuất thành công!");
 		return new ResponseEntity<ApiResponse>(myResponse, HttpStatus.OK);
 	}

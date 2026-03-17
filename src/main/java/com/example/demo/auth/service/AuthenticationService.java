@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.account.entity.AdminAccount;
+import com.example.demo.account.entity.UserAccount;
 import com.example.demo.account.entity.base.Account;
 import com.example.demo.account.repository.AccountRepository;
 import com.example.demo.auth.dto.RefreshAccessTokenResponseDTO;
@@ -57,18 +58,22 @@ public class AuthenticationService {
 	}
 
 	public void logout(String username, HttpServletResponse response) {
-		CookieUtil.deleteCookie(response, "refreshToken", "/");
+		Account account = findAccountByUsername(username);
+		if (account instanceof UserAccount) {
+			CookieUtil.deleteCookie(response, "refreshTokenUser", "/");
+		} else {
+			CookieUtil.deleteCookie(response, "refreshTokenAdmin", "/");
+		}
 		deleteRefreshTokenRedis(username);
 		deleteAccessTokenRedis(username);
 		SecurityContextHolder.clearContext();
 	}
 
 	@Transactional(rollbackOn = Exception.class)
-	public RefreshAccessTokenResponseDTO refreshAccessToken(HttpServletRequest request,
-			AccountType accountType) {
+	public RefreshAccessTokenResponseDTO refreshAccessToken(HttpServletRequest request, AccountType accountType) {
 		String refreshToken = getRefreshToken(request, accountType);
 		validateToken(refreshToken, TokenType.REFRESH);
-		
+
 		String redisToken = getRefreshTokenFromRedis(jwtService.extractUsername(refreshToken));
 		if (redisToken == null || !refreshToken.equals(redisToken))
 			throw new CustomException(HttpStatus.UNAUTHORIZED, "Token làm mới không hợp lệ hoặc đã hết hạn");
@@ -91,8 +96,7 @@ public class AuthenticationService {
 		if (!resetPasswordToken.equals(redisToken))
 			throw new CustomException(HttpStatus.UNAUTHORIZED, "Token đặt lại mật khẩu không hợp lệ hoặc đã hết hạn");
 
-		Account account = accountRepository.findByUsername(username).orElseThrow(
-				() -> new CustomException(HttpStatus.NOT_FOUND, "USER_NOT_FOUND", "Người dùng không tồn tại"));
+		Account account = findAccountByUsername(username);
 
 		account.changePassword(passwordEncoder.encode(newPassword));
 		accountRepository.save(account);
@@ -109,8 +113,8 @@ public class AuthenticationService {
 			String username = jwtService.extractUsername(resetPasswordToken);
 			String ressetPasswordToken = getResetPasswordTokenFromRedis(username);
 
-			return validateToken(resetPasswordToken, TokenType.RESSET_PASSWORD)
-					&& ressetPasswordToken != null && resetPasswordToken.equals(ressetPasswordToken);
+			return validateToken(resetPasswordToken, TokenType.RESSET_PASSWORD) && ressetPasswordToken != null
+					&& resetPasswordToken.equals(ressetPasswordToken);
 		} catch (Exception e) {
 			return false;
 		}
@@ -158,6 +162,11 @@ public class AuthenticationService {
 			}
 		}
 		return null;
+	}
+
+	private Account findAccountByUsername(String username) {
+		return accountRepository.findByUsername(username).orElseThrow(
+				() -> new CustomException(HttpStatus.NOT_FOUND, "USER_NOT_FOUND", "Người dùng không tồn tại"));
 	}
 
 	private String getRefreshTokenFromRedis(String username) {

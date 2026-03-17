@@ -40,6 +40,13 @@ public class BookController {
 		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
 	}
 	
+	@GetMapping("/ids")
+	public ResponseEntity<?> getBookByIds(@RequestParam(required = true) List<String> bookIds) {
+		var books = bookService.getBookByIds(bookIds);
+		var response = new ApiResponseSuccess<List<BookResponseDTO>>(200, "Lấy danh sách sách thành công", books);
+		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK); 
+	}
+	
 	@GetMapping("/{bookId}")
 	public ResponseEntity<?> getBookById(@PathVariable String bookId) {
 		var book = bookService.getBookById(bookId);

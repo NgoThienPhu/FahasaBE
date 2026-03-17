@@ -1,6 +1,7 @@
 package com.example.demo.book.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -86,6 +87,29 @@ public class BookService {
 		return BookResponseDTO.fromEntity(book, primaryImage, book.getCategory(), bookPrice);
 	}
 
+	public List<BookResponseDTO> getBookByIds(List<String> bookIds) {
+
+		var myBooks = new ArrayList<BookResponseDTO>();
+
+		List<Book> books = bookRepository.findBookByIds(bookIds);
+
+		var now = LocalDateTime.now();
+
+		Map<String, BookPrice> priceMap = bookPriceRepository.findCurrentPrices(bookIds, now).stream().collect(
+				Collectors.toMap(price -> price.getBook().getId(), Function.identity(), (oldVal, newVal) -> oldVal));
+
+		Map<String, BookImage> imageMap = bookImageRepository.findBookPrimaryImages(bookIds).stream()
+				.collect(Collectors.toMap(img -> img.getBook().getId(), Function.identity()));
+
+		for (Book book : books) {
+			myBooks.add(BookResponseDTO.fromEntity(book, imageMap.get(book.getId()), book.getCategory(),
+					priceMap.get(book.getId())));
+		}
+
+		return myBooks;
+
+	}
+
 	@Transactional(rollbackOn = Exception.class)
 	public BookResponseDTO createBook(CreateBookRequestDTO dto) {
 
@@ -139,17 +163,17 @@ public class BookService {
 
 		return BookResponseDTO.fromEntity(book, primaryImage, category, bookPrice);
 	}
-	
+
 	@Transactional(rollbackOn = Exception.class)
 	public void deleteBook(String bookId) {
 		Book book = bookRepository.findById(bookId)
 				.orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Sản phẩm không tồn tại"));
-	
+
 		List<BookImage> images = book.getBookImages();
 		for (BookImage image : images) {
 			cloudinaryService.deleteFile(image.getPublicId());
 		}
-		
+
 		bookRepository.delete(book);
 	}
 
