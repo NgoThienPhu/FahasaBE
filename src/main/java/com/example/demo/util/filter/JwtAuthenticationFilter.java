@@ -69,19 +69,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	}
 
 	private Boolean shouldBypassFilter(String requestURI, String requestMethod) {
+		
+		boolean flag = false;
 		AntPathMatcher antPathMatcher = new AntPathMatcher();
 
 		for (String endpoint : EndPoint.PUBLIC_ENDPOINT_GET) {
 			if (antPathMatcher.match(endpoint, requestURI) && requestMethod.equalsIgnoreCase("GET"))
-				return true;
+				flag = true;
 		}
 
 		for (String endpoint : EndPoint.PUBLIC_ENDPOINT_POST) {
 			if (antPathMatcher.match(endpoint, requestURI) && requestMethod.equalsIgnoreCase("POST"))
-				return true;
+				flag = true;
+		}
+		
+		for (String endpoint : EndPoint.PRIVATE_ENDPOINT_POST) {
+			if (antPathMatcher.match(endpoint, requestURI) && requestMethod.equalsIgnoreCase("POST"))
+				flag = false;
 		}
 
-		return false;
+		return flag;
 	}
 
 	private void handleException(Exception ex, HttpServletResponse response)

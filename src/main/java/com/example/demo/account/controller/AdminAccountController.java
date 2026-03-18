@@ -74,8 +74,8 @@ public class AdminAccountController {
 		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
 	}
 
-	@PostMapping("/{id}/resset-password")
-	public ResponseEntity<?> ressetPassword(@PathVariable("id") String userAccountId) {
+	@PostMapping("/{id}/reset-password")
+	public ResponseEntity<?> resetPassword(@PathVariable("id") String userAccountId) {
 		adminAccountService.resetPassword(userAccountId);
 		var response = new ApiResponseSuccess<Account>(200, "Yêu cầu đặt lại mật khẩu đã được gửi đến email của người dùng");
 		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);

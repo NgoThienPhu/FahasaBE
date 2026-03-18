@@ -33,7 +33,7 @@ public class AuthenticationService {
 
 	private static final String ACCESS_TOKEN_KEY = "ACCESS_TOKEN:%s";
 	private static final String REFRESH_TOKEN_KEY = "REFRESH_TOKEN:%s";
-	private static final String RESET_PASSWORD_TOKEN_KEY = "RESSET_PASSWORD_TOKEN:%s";
+	private static final String RESET_PASSWORD_TOKEN_KEY = "RESET_PASSWORD_TOKEN:%s";
 
 	private final RedisService redisService;
 	private final JwtService jwtService;
@@ -111,10 +111,10 @@ public class AuthenticationService {
 	public boolean verifyRessetPasswordToken(String resetPasswordToken) {
 		try {
 			String username = jwtService.extractUsername(resetPasswordToken);
-			String ressetPasswordToken = getResetPasswordTokenFromRedis(username);
+			String resetPasswordTokenRedis = getResetPasswordTokenFromRedis(username);
 
-			return validateToken(resetPasswordToken, TokenType.RESSET_PASSWORD) && ressetPasswordToken != null
-					&& resetPasswordToken.equals(ressetPasswordToken);
+			return validateToken(resetPasswordToken, TokenType.RESSET_PASSWORD)
+					&& resetPasswordTokenRedis.equals(resetPasswordToken);
 		} catch (Exception e) {
 			return false;
 		}
