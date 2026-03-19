@@ -1,9 +1,6 @@
 package com.example.demo.auth.controller;
-
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.account.dto.CreateUserRequestDTO;
 import com.example.demo.account.entity.UserAccount;
-import com.example.demo.account.entity.base.Account;
+import com.example.demo.account.repository.AccountRepository;
 import com.example.demo.auth.dto.ChangePasswordRequestDTO;
 import com.example.demo.auth.dto.LoginRequestDTO;
 import com.example.demo.auth.dto.LoginResponseDTO;
@@ -26,11 +23,9 @@ import com.example.demo.auth.service.UserAuthenticationService;
 import com.example.demo.util.entity.CustomUserDetails;
 import com.example.demo.util.enums.AccountType;
 import com.example.demo.util.enums.TokenType;
-import com.example.demo.util.response.ApiResponse;
-import com.example.demo.util.response.ApiResponseSuccess;
-import com.example.demo.util.response.BindingResultUtil;
 import com.example.demo.util.service.JwtService;
 import com.example.demo.util.service.MessageService;
+import com.example.demo.util.response.ResponseFactory;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -40,108 +35,78 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/auth")
 public class UserAuthenticationController {
 
-	private UserAuthenticationService userAuthenticationService;
 	private AuthenticationService authenticationService;
+	private UserAuthenticationService userAuthenticationService;
+	private AccountRepository accountRepository;
+	private ResponseFactory responseFactory;
 	private JwtService jwtService;
 	private MessageService messageService;
 
-	public UserAuthenticationController(UserAuthenticationService userAuthenticationService,
-			AuthenticationService authenticationService, JwtService jwtService, MessageService messageService) {
-		this.userAuthenticationService = userAuthenticationService;
+	public UserAuthenticationController(AuthenticationService authenticationService,
+			UserAuthenticationService userAuthenticationService, AccountRepository accountRepository,
+			ResponseFactory responseFactory, JwtService jwtService, MessageService messageService) {
 		this.authenticationService = authenticationService;
+		this.userAuthenticationService = userAuthenticationService;
+		this.accountRepository = accountRepository;
+		this.responseFactory = responseFactory;
 		this.jwtService = jwtService;
 		this.messageService = messageService;
 	}
 
 	@PostMapping("/login")
-	public ResponseEntity<?> userLogin(@Valid @RequestBody LoginRequestDTO body, HttpServletRequest request,
-			HttpServletResponse response, BindingResult result) {
-		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Đăng nhập thất bại!",
-				request.getRequestURI());
-		if (responseError != null)
-			return responseError;
+	public ResponseEntity<?> userLogin(@Valid @RequestBody LoginRequestDTO body, HttpServletResponse response) {
 
 		LoginResponseDTO account = userAuthenticationService.login(body, response);
-		var myResponse = new ApiResponseSuccess<LoginResponseDTO>(200, "Đăng nhập thành công!", account);
-		return new ResponseEntity<ApiResponse>(myResponse, HttpStatus.OK);
+		return responseFactory.success(account, "Đăng nhập thành công");
 	}
 
 	@PostMapping("/logout")
 	public ResponseEntity<?> userLogout(@AuthenticationPrincipal CustomUserDetails currentUser,
 			HttpServletResponse response) {
 		authenticationService.logout(currentUser.getUsername(), response);
-		var myResponse = new ApiResponseSuccess<Void>(200, "Đăng xuất thành công!");
-		return new ResponseEntity<ApiResponse>(myResponse, HttpStatus.OK);
+		return responseFactory.success("Đăng xuất thành công");
 	}
 
 	@PostMapping("/register")
-	public ResponseEntity<?> userRegister(@Valid @RequestBody CreateUserRequestDTO body, BindingResult result,
-			HttpServletRequest request) {
+	public ResponseEntity<?> userRegister(@Valid @RequestBody CreateUserRequestDTO dto) {
 
-		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Đăng kí thất bại!",
-				request.getRequestURI());
+		UserAccount account = userAuthenticationService.register(dto);
 
-		if (responseError != null)
-			return responseError;
-
-		UserAccount account = userAuthenticationService.register(body);
-		var response = new ApiResponseSuccess<Account>(201, "Đăng kí thành công", account);
-
-		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
+		return responseFactory.success(account, "Đăng kí thành công");
 	}
 
 	@PutMapping("/change-password")
 	public ResponseEntity<?> userChangePassword(@Valid @RequestBody ChangePasswordRequestDTO body,
-			@AuthenticationPrincipal CustomUserDetails currentUser, HttpServletRequest request, BindingResult result) {
-		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Đổi mật khẩu thất bại!",
-				request.getRequestURI());
-		if (responseError != null)
-			return responseError;
+			@AuthenticationPrincipal CustomUserDetails currentUser) {
 		userAuthenticationService.changePassword(body, currentUser);
-		var response = new ApiResponseSuccess<Void>(200, "Đổi mật khẩu thành công");
-		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
+		return responseFactory.success("Đổi mật khẩu thành công");
 	}
 
 	@PostMapping("/refresh")
 	public ResponseEntity<?> refreshAccessToken(HttpServletRequest request) {
 		RefreshAccessTokenResponseDTO newAccessToken = authenticationService.refreshAccessToken(request,
 				AccountType.USER);
-		var myResponse = new ApiResponseSuccess<RefreshAccessTokenResponseDTO>(200, "Làm mới access token thành công",
-				newAccessToken);
-		return new ResponseEntity<ApiResponse>(myResponse, HttpStatus.OK);
+		return responseFactory.success(newAccessToken, "Làm mới access token thành công");
 	}
 
 	@PostMapping("/forgot-password")
 	public ResponseEntity<?> forgotPassword(@RequestParam(required = true) String email) {
 		String ressetPasswordToken = jwtService.createToken(email, TokenType.RESSET_PASSWORD);
 		messageService.sendRessetPasswordEmail(email, "Yêu cầu đặt lại mật khẩu", ressetPasswordToken);
-		var myResponse = new ApiResponseSuccess<Void>(200, "Yêu cầu đặt lại mật khẩu đã được gửi đến email của bạn!");
-		return new ResponseEntity<ApiResponse>(myResponse, HttpStatus.OK);
+		return responseFactory.success("Yêu cầu đặt lại mật khẩu đã được gửi đến email của bạn!");
 	}
 
 	@PostMapping("/resset-password")
-	public ResponseEntity<?> ressetPassword(@Valid @RequestBody RessetPasswordRequestDTO dto,
-			HttpServletRequest request, BindingResult result) {
-		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Đặt lại mật khẩu thất bại!",
-				request.getRequestURI());
-		if (responseError != null)
-			return responseError;
+	public ResponseEntity<?> ressetPassword(@Valid @RequestBody RessetPasswordRequestDTO dto) {
 		authenticationService.ressetPassword(dto.ressetPasswordToken(), dto.newPassword());
-		var myResponse = new ApiResponseSuccess<Void>(200, "Đặt lại mật khẩu thành công!");
-		return new ResponseEntity<ApiResponse>(myResponse, HttpStatus.OK);
+		return responseFactory.success("Đặt lại mật khẩu thành công!");
 	}
 
 	@PostMapping("/resset-password/verify")
-	public ResponseEntity<?> verifyRessetPasswordToken(@Valid @RequestBody VerifyRessetPasswordTokenRequest dto,
-			HttpServletRequest request, BindingResult result) {
-		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result,
-				"Xác thực RessetPasswordToken thất bại!", request.getRequestURI());
-		if (responseError != null)
-			return responseError;
+	public ResponseEntity<?> verifyRessetPasswordToken(@Valid @RequestBody VerifyRessetPasswordTokenRequest dto) {
 		boolean valid = authenticationService.verifyRessetPasswordToken(dto.ressetPasswordToken());
-		var myResponse = new ApiResponseSuccess<VerifyRessetPasswordTokenResponse>(200,
-				"Xác thực RessetPasswordToken thành công!", new VerifyRessetPasswordTokenResponse(valid));
-		return new ResponseEntity<ApiResponse>(myResponse, HttpStatus.OK);
+		return responseFactory.success(new VerifyRessetPasswordTokenResponse(valid),
+				"Xác thực RessetPasswordToken thành công!");
 
 	}
 

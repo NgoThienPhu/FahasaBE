@@ -7,7 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.example.demo.util.exception.CustomException;
-import com.example.demo.util.response.UploadResponse;
+import com.example.demo.util.service.dto.UploadResponse;
 
 import java.util.ArrayList;
 import java.util.List;

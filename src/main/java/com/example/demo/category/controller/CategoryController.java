@@ -1,9 +1,6 @@
 package com.example.demo.category.controller;
 
-import java.util.List;
-
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,18 +10,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.category.entity.Category;
 import com.example.demo.category.service.CategoryService;
-import com.example.demo.util.response.ApiResponse;
-import com.example.demo.util.response.ApiResponsePaginationSuccess;
-import com.example.demo.util.response.ApiResponseSuccess;
+import com.example.demo.util.response.Pagination;
+import com.example.demo.util.response.ResponseFactory;
 
 @RestController
 @RequestMapping("/api/categories")
 public class CategoryController {
 
 	private CategoryService categoryService;
+	private ResponseFactory responseFactory;
 
-	public CategoryController(CategoryService categoryService) {
+	public CategoryController(CategoryService categoryService, ResponseFactory responseFactory) {
 		this.categoryService = categoryService;
+		this.responseFactory = responseFactory;
 	}
 
 	@GetMapping
@@ -33,16 +31,16 @@ public class CategoryController {
 			@RequestParam(defaultValue = "name") String sortBy,
 			@RequestParam(defaultValue = "0") int page, 
 			@RequestParam(defaultValue = "10") int size) {
-		Page<Category> categories = categoryService.findAll(search, orderBy, sortBy, page, size);
-		ApiResponsePaginationSuccess<List<Category>> response = ApiResponsePaginationSuccess.fromPage(categories,
-				"Lấy danh sách loại sản phẩm thành công");
-		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
+		Page<Category> categoriesPage = categoryService.findAll(search, orderBy, sortBy, page, size);
+		Pagination pagination = new Pagination(categoriesPage.getNumber(), categoriesPage.getSize(),
+				categoriesPage.getTotalElements(), categoriesPage.getTotalPages());
+		return responseFactory.success(categoriesPage.getContent(),
+				"Lấy danh sách loại sản phẩm thành công", pagination);
 	}
 
 	@GetMapping("/{categoryId}")
 	public ResponseEntity<?> findById(@PathVariable String categoryId) {
 		Category category = categoryService.findById(categoryId);
-		var response = new ApiResponseSuccess<Category>(200, "Tìm kiếm thành công", category);
-		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
+		return responseFactory.success(category, "Tìm kiếm thành công");
 	}
 }

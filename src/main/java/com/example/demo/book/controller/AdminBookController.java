@@ -1,11 +1,7 @@
 package com.example.demo.book.controller;
 
-import java.util.List;
-
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,12 +16,9 @@ import com.example.demo.book.dto.BookResponseDTO;
 import com.example.demo.book.dto.CreateBookRequestDTO;
 import com.example.demo.book.dto.UpdateBookRequestDTO;
 import com.example.demo.book.service.BookService;
-import com.example.demo.util.response.ApiResponse;
-import com.example.demo.util.response.ApiResponsePaginationSuccess;
-import com.example.demo.util.response.ApiResponseSuccess;
-import com.example.demo.util.response.BindingResultUtil;
+import com.example.demo.util.response.ResponseFactory;
+import com.example.demo.util.response.Pagination;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 @RestController
@@ -33,9 +26,11 @@ import jakarta.validation.Valid;
 public class AdminBookController {
 
 	private BookService bookService;
+	private ResponseFactory responseFactory;
 
-	public AdminBookController(BookService bookService) {
+	public AdminBookController(BookService bookService, ResponseFactory responseFactory) {
 		this.bookService = bookService;
+		this.responseFactory = responseFactory;
 	}
 
 	@GetMapping
@@ -45,59 +40,34 @@ public class AdminBookController {
 			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
 
 		Page<BookResponseDTO> bookPage = bookService.getBooks(search, orderBy, sortBy, page, size);
-		ApiResponsePaginationSuccess<List<BookResponseDTO>> response = ApiResponsePaginationSuccess.fromPage(bookPage,
-				"Lấy sách thành công");
-
-		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
+		Pagination pagination = new Pagination(bookPage.getNumber(), bookPage.getSize(), bookPage.getTotalElements(),
+				bookPage.getTotalPages());
+		return responseFactory.success(bookPage.getContent(), "Lấy sách thành công", pagination);
 	}
 
 	@GetMapping("/{bookId}")
-	public ResponseEntity<ApiResponse> getBookById(@PathVariable String bookId) {
+	public ResponseEntity<?> getBookById(@PathVariable String bookId) {
 		var book = bookService.getBookById(bookId);
-
-		var response = new ApiResponseSuccess<BookResponseDTO>(200, "Lấy sách thành công", book);
-
-		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
+		return responseFactory.success(book, "Lấy sách thành công");
 	}
 
 	@PostMapping
-	public ResponseEntity<?> createBook(@RequestBody @Valid CreateBookRequestDTO dto, HttpServletRequest request,
-			BindingResult result) {
-
-		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Tạo sách thất bại",
-				request.getRequestURI());
-
-		if (responseError != null)
-			return responseError;
-
+	public ResponseEntity<?> createBook(@RequestBody @Valid CreateBookRequestDTO dto) {
 		BookResponseDTO book = bookService.createBook(dto);
-		var response = new ApiResponseSuccess<BookResponseDTO>(200, "Tạo sách thành công", book);
-
-		return new ResponseEntity<ApiResponse>(response, HttpStatus.CREATED);
+		return responseFactory.success(book, "Tạo sách thành công", org.springframework.http.HttpStatus.CREATED);
 	}
 
 	@PutMapping("/{bookId}")
-	public ResponseEntity<?> updateBook(@PathVariable String bookId, @RequestBody @Valid UpdateBookRequestDTO dto,
-			HttpServletRequest request, BindingResult result) {
-
-		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Cập nhật sách thất bại",
-				request.getRequestURI());
-
-		if (responseError != null)
-			return responseError;
+	public ResponseEntity<?> updateBook(@PathVariable String bookId, @RequestBody @Valid UpdateBookRequestDTO dto) {
 
 		BookResponseDTO book = bookService.updateBook(bookId, dto);
-		var response = new ApiResponseSuccess<BookResponseDTO>(200, "Cập nhật sách thành công", book);
-
-		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
+		return responseFactory.success(book, "Cập nhật sách thành công");
 	}
 
 	@DeleteMapping("/{bookId}")
 	public ResponseEntity<?> deleteBook(@PathVariable String bookId) {
 		bookService.deleteBook(bookId);
-		var response = new ApiResponseSuccess<Void>(200, "Xóa sách thành công");
-
-		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
+		return responseFactory.success("Xóa sách thành công");
 	}
 
 }

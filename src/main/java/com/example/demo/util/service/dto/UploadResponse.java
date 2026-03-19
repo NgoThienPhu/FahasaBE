@@ -1,4 +1,4 @@
-package com.example.demo.util.response;
+package com.example.demo.util.service.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,6 +10,7 @@ import lombok.Setter;
 public class UploadResponse {
 	
 	private String publicId;
+	
 	private String url;
 
 }

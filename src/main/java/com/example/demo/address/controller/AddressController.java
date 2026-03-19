@@ -2,14 +2,13 @@ package com.example.demo.address.controller;
 
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,72 +18,55 @@ import com.example.demo.address.dto.UpdateAddressRequestDTO;
 import com.example.demo.address.entity.Address;
 import com.example.demo.address.service.AddressService;
 import com.example.demo.util.entity.CustomUserDetails;
-import com.example.demo.util.response.ApiResponse;
-import com.example.demo.util.response.ApiResponseSuccess;
-import com.example.demo.util.response.BindingResultUtil;
+import com.example.demo.util.response.ResponseFactory;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.PutMapping;
 
 @RestController
 @RequestMapping("/api/accounts/me/addresses")
 public class AddressController {
 
 	private AddressService addressService;
+	private ResponseFactory responseFactory;
 
-	public AddressController(AddressService addressService) {
+	public AddressController(AddressService addressService, ResponseFactory responseFactory) {
 		this.addressService = addressService;
+		this.responseFactory = responseFactory;
 	}
 
 	@GetMapping("/{addressId}")
-	public ResponseEntity<?> findById(@PathVariable String addressId,
-			@AuthenticationPrincipal CustomUserDetails currentUser) {
+	public ResponseEntity<?> getAddress(@AuthenticationPrincipal CustomUserDetails currentUser,
+			@PathVariable String addressId) {
 		Address address = addressService.findById(addressId, currentUser.getId());
-		var response = new ApiResponseSuccess<Address>(200, "Lấy chi tiết địa chỉ người dùng thành công", address);
-		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
+		return responseFactory.success(address, "Lấy chi tiết địa chỉ người dùng thành công");
 	}
 
 	@GetMapping
-	public ResponseEntity<?> findAll(@AuthenticationPrincipal CustomUserDetails currentUser) {
+	public ResponseEntity<?> listAddresses(@AuthenticationPrincipal CustomUserDetails currentUser) {
 		List<Address> addresses = addressService.findAll(currentUser.getId());
-		var response = new ApiResponseSuccess<List<Address>>(200, "Lấy danh sách địa chỉ người dùng thành công",
-				addresses);
-		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
+		return responseFactory.success(addresses, "Lấy danh sách địa chỉ người dùng thành công");
 	}
 
 	@PostMapping
-	public ResponseEntity<?> create(@Valid @RequestBody CreateAddressRequestDTO body, HttpServletRequest request,
-			BindingResult result, @AuthenticationPrincipal CustomUserDetails currentUser) {
-		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Thêm mới địa chỉ thất bại!",
-				request.getRequestURI());
-		if (responseError != null)
-			return responseError;
-
+	public ResponseEntity<?> addAddress(@AuthenticationPrincipal CustomUserDetails currentUser,
+			@Valid @RequestBody CreateAddressRequestDTO body) {
 		Address address = addressService.createAddress(body, currentUser.getId());
-		var response = new ApiResponseSuccess<Address>(201, "Thêm địa chỉ giao hàng thành công", address);
-		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
+		return responseFactory.success(address, "Thêm địa chỉ giao hàng thành công",
+				org.springframework.http.HttpStatus.CREATED);
 	}
 
 	@PutMapping("/{addressId}")
-	public ResponseEntity<?> update(@PathVariable String addressId, @Valid @RequestBody UpdateAddressRequestDTO body,
-			HttpServletRequest request, BindingResult result, @AuthenticationPrincipal CustomUserDetails currentUser) {
-		ResponseEntity<?> responseError = BindingResultUtil.handleValidationErrors(result, "Cập nhật địa chỉ thất bại!",
-				request.getRequestURI());
-		if (responseError != null)
-			return responseError;
-
+	public ResponseEntity<?> updateAddress(@AuthenticationPrincipal CustomUserDetails currentUser,
+			@PathVariable String addressId, @Valid @RequestBody UpdateAddressRequestDTO body) {
 		Address address = addressService.updateById(body, addressId, currentUser.getId());
-
-		var response = new ApiResponseSuccess<Address>(200, "Cập nhật chỉ giao hàng thành công", address);
-		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
+		return responseFactory.success(address, "Cập nhật địa chỉ giao hàng thành công");
 	}
 
 	@DeleteMapping("/{addressId}")
-	public ResponseEntity<?> deleteByIdAndUsername(@PathVariable String addressId,
-			@AuthenticationPrincipal CustomUserDetails currentUser) {
+	public ResponseEntity<?> deleteAddress(@AuthenticationPrincipal CustomUserDetails currentUser,
+			@PathVariable String addressId) {
 		addressService.deleteById(addressId, currentUser.getId());
-		var response = new ApiResponseSuccess<Void>(200, "Xóa địa chỉ người dùng thành công");
-		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
+		return responseFactory.success("Xóa địa chỉ người dùng thành công");
 	}
+
 }

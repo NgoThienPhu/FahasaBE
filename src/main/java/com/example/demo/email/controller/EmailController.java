@@ -1,41 +1,41 @@
 package com.example.demo.email.controller;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
 import org.springframework.web.bind.annotation.RestController;
+
 import com.example.demo.email.dto.EmailVerifyRequestDTO;
 import com.example.demo.email.service.EmailService;
-import com.example.demo.util.response.ApiResponse;
-import com.example.demo.util.response.ApiResponseSuccess;
+import com.example.demo.util.response.ResponseFactory;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/emails")
 public class EmailController {
 
 	private EmailService emailService;
+	private ResponseFactory responseFactory;
 	
-	public EmailController(EmailService emailService) {
+	public EmailController(EmailService emailService, ResponseFactory responseFactory) {
 		this.emailService = emailService;
+		this.responseFactory = responseFactory;
 	}
 	
 	@GetMapping("/send-otp")
 	public ResponseEntity<?> sendOtp(@RequestParam(required = true) String toEmail) {
 		emailService.sendOtp(toEmail);
-		var myResponse = new ApiResponseSuccess<Void>(200, "Gửi mã otp thành công!");
-		return new ResponseEntity<ApiResponse>(myResponse, HttpStatus.OK);
+		return responseFactory.success("Gửi mã otp thành công!");
 	}
 
 	@PostMapping("/verify-otp")
-	public ResponseEntity<?> verifyOTP(@RequestBody EmailVerifyRequestDTO body) {
+	public ResponseEntity<?> verifyOTP(@Valid @RequestBody EmailVerifyRequestDTO body) {
 		emailService.verify(body.email(), body.otp());
-		var response = new ApiResponseSuccess<Void>(200, "Xác thực thành công");
-		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
+		return responseFactory.success("Xác thực thành công");
 	}
 	
 }

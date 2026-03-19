@@ -12,8 +12,8 @@ import com.example.demo.book_image.entity.BookImage;
 import com.example.demo.book_image.repository.BookImageRepository;
 import com.example.demo.book_image.service.BookImageService;
 import com.example.demo.util.exception.CustomException;
-import com.example.demo.util.response.UploadResponse;
 import com.example.demo.util.service.CloudinaryService;
+import com.example.demo.util.service.dto.UploadResponse;
 
 import jakarta.transaction.Transactional;
 
